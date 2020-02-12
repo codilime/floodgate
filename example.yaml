@@ -1,0 +1,5 @@
+endpoint: https://localhost
+insecure: true
+auth:
+  user: admin
+  password: password
