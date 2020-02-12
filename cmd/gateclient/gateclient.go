@@ -3,6 +3,7 @@ package gateclient
 import (
 	"crypto/tls"
 	"net/http"
+	"time"
 
 	"cl-gitlab.intra.codilime.com/spinops/floodgate/config"
 	gateapi "cl-gitlab.intra.codilime.com/spinops/floodgate/gateapi"
@@ -21,6 +22,7 @@ type GateapiClient struct {
 // TODO: docs
 func NewGateapiClient(floodgateConfig *config.Config) *GateapiClient {
 	var gateHTTPClient = &http.Client{
+		Timeout: 5 * time.Second,
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: floodgateConfig.Insecure},
 		},
