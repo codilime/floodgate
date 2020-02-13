@@ -1,0 +1,3 @@
+[submodule "sponnet"]
+	path = sponnet
+	url = git@github.com:spinnaker/sponnet

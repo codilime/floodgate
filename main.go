@@ -1,34 +1,18 @@
 package main
 
 import (
-	"io/ioutil"
 	"log"
 
-	"gopkg.in/yaml.v2"
-
-	"cl-gitlab.intra.codilime.com/spinops/floodgate/cmd/gateclient"
-	"cl-gitlab.intra.codilime.com/spinops/floodgate/config"
-	gateapi "cl-gitlab.intra.codilime.com/spinops/floodgate/gateapi"
+	"cl-gitlab.intra.codilime.com/spinops/floodgate/cmd/cli"
+	"cl-gitlab.intra.codilime.com/spinops/floodgate/cmd/parser"
 )
 
 func main() {
-	floodgateConfig := &config.Config{}
-	configFile, err := ioutil.ReadFile(config.DefaultLocation)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = yaml.Unmarshal(configFile, &floodgateConfig)
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Printf("Config: %v\n", floodgateConfig)
-	}
-	client := gateclient.NewGateapiClient(floodgateConfig)
-	opts := gateapi.GetAllApplicationsUsingGETOpts{}
-	app, _, err := client.ApplicationControllerApi.GetAllApplicationsUsingGET(client.Context, &opts)
-	if err == nil {
-		log.Print(app)
-	} else {
-		log.Fatal(err)
-	}
+	floodgateConfig, _ := cli.LoadConfig()
+
+	p, _ := parser.CreateParser(floodgateConfig.Libraries)
+
+	output, _ := p.LoadDirectories(floodgateConfig.Resources)
+	log.Print(output)
+
 }
