@@ -13,4 +13,6 @@ type Config struct {
 		User     string `yaml:"user"`
 		Password string `yaml:"password"`
 	} `yaml:"auth"`
+	Libraries []string `yaml:"libraries"`
+	Resources []string `yaml:"resources"`
 }
