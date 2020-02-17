@@ -1,3 +1,3 @@
 [submodule "sponnet"]
 	path = sponnet
-	url = git@github.com:spinnaker/sponnet
+	url = https://github.com/spinnaker/sponnet.git
