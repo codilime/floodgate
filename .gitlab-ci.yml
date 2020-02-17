@@ -1,0 +1,32 @@
+---
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+image: golang:1.13.8
+
+cache:
+  paths:
+    - /apt-cache
+    - /go/src/github.com
+    - /go/src/golang.org
+    - /go/src/google.golang.org
+    - /go/src/gopkg.in
+
+stages:
+  - build
+
+before_script:
+  - export REPO_NAME=$(echo $CI_PROJECT_URL|sed 's/.*:\/\///g;')
+  - export REPO_GROUP_NAME=$(echo $REPO_NAME| sed "s/$CI_PROJECT_NAME//g")
+  - export GOPATH="$GOPATH:$CI_PROJECT_DIR"
+  - mkdir -p /go/src/$REPO_GROUP_NAME
+  - cp -r $CI_PROJECT_DIR /go/src/$REPO_NAME
+  - OLDPWD=$(pwd) && cd /go/src/$REPO_NAME && go get && cd $OLDPWD
+  - cd $CI_PROJECT_DIR
+
+build_floodgate:
+  tags:
+    - spinops
+  stage: build
+  script:
+    - go build
