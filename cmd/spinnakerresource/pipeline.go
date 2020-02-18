@@ -17,7 +17,7 @@ type Pipeline struct {
 }
 
 // CreatePipeline is used to create new Resource object
-func CreatePipeline(name string, id string, appName string, api *gateclient.GateapiClient, localData []byte) Resource {
+func CreatePipeline(name string, id string, appName string, api *gateclient.GateapiClient, localData []byte) Resourcer {
 	ppln := Pipeline{name, id, appName, localData, []byte("{}")}
 	ppln.loadRemoteState(api)
 

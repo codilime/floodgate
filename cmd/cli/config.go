@@ -27,8 +27,7 @@ func LoadConfig(locations ...string) (*config.Config, error) {
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
-	} else {
-		log.Printf("Config: %v\n", conf)
 	}
 	return conf, nil
+
 }

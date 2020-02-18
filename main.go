@@ -13,20 +13,19 @@ import (
 )
 
 func main() {
-	floodgateConfig, _ := cli.LoadConfig()
+	floodgateConfig, _ := cli.LoadConfig("config.yaml")
 
-	p, _ := parser.CreateParser(floodgateConfig.Libraries)
+	p := parser.CreateParser(floodgateConfig.Libraries)
 
-	output, _ := p.LoadDirectories(floodgateConfig.Resources)
-	log.Print(output)
-
+	_ = p.LoadObjectsFromDirectories(floodgateConfig.Resources)
+	log.Print("resources: ", p.Resources)
 	client := gateclient.NewGateapiClient(floodgateConfig)
 	content, err := ioutil.ReadFile("/tmp/pipeline.json")
 	if err != nil {
 		fmt.Print(err)
 		os.Exit(1)
 	}
-	var pipeline spr.Resource
+	var pipeline spr.Resourcer
 	pipeline = spr.CreatePipeline("deploy-nginx", "1bfaa7c1-894c-4adb-9e51-c969bc38c984", "nginx", client, content)
 	needToSave, err := pipeline.IsChanged()
 	if err != nil {
@@ -44,4 +43,5 @@ func main() {
 		fmt.Print("No need to save")
 	}
 	fmt.Printf("%T\n", pipeline)
+
 }
