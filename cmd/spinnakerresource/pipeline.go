@@ -6,47 +6,36 @@ import (
 	"net/http"
 
 	"cl-gitlab.intra.codilime.com/spinops/floodgate/cmd/gateclient"
-
-	"github.com/nsf/jsondiff"
 )
 
 // Pipeline object
 type Pipeline struct {
-	name, id, appName       string
-	localState, remoteState []byte
+	*Resource
+	appName string
 }
 
-// CreatePipeline is used to create new Resource object
-func CreatePipeline(name string, id string, appName string, api *gateclient.GateapiClient, localData []byte) Resourcer {
-	ppln := Pipeline{name, id, appName, localData, []byte("{}")}
-	ppln.loadRemoteState(api)
-
-	return ppln
-}
-
-// IsChanged is used to compare local and remmote state
-func (p Pipeline) IsChanged() (bool, error) {
-	var options jsondiff.Options
-
-	diffType, _ := jsondiff.Compare(p.localState, p.remoteState, &options)
-
-	if diffType.String() != "FullMatch" {
-		return true, nil
+// Init initialize pipeline
+func (p *Pipeline) Init(name string, appName string, api *gateclient.GateapiClient, localData []byte) {
+	p.Resource = &Resource{
+		name:         name,
+		localState:   localData,
+		spinnakerAPI: api,
 	}
-
-	return false, nil
+	p.appName = appName
+	p.loadRemoteState()
 }
 
 // LoadRemoteState get remote resource
-func (p *Pipeline) loadRemoteState(api *gateclient.GateapiClient) error {
-	successPayload, resp, err := api.ApplicationControllerApi.GetPipelineConfigUsingGET(api.Context, p.appName, p.name)
+func (p *Pipeline) loadRemoteState() error {
+	successPayload, resp, err := p.spinnakerAPI.ApplicationControllerApi.GetPipelineConfigUsingGET(p.spinnakerAPI.Context, p.appName, p.name)
 	if err != nil {
 		return err
 	}
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("Encountered an error getting pipeline in pipeline %s with name %s, status code: %d", p.appName, p.name, resp.StatusCode)
 	}
-	jsonPayload, err := json.MarshalIndent(successPayload, "", " ")
+
+	jsonPayload, err := json.Marshal(successPayload)
 	if err != nil {
 		return err
 	}
@@ -56,14 +45,14 @@ func (p *Pipeline) loadRemoteState(api *gateclient.GateapiClient) error {
 }
 
 // SaveRemoteState is used to save state remotely
-func (p Pipeline) SaveRemoteState(api *gateclient.GateapiClient) error {
+func (p Pipeline) SaveRemoteState() error {
 	var jsonPayload interface{}
 	err := json.Unmarshal(p.localState, &jsonPayload)
 	if err != nil {
 		return err
 	}
 
-	saveResp, err := api.PipelineControllerApi.SavePipelineUsingPOST(api.Context, jsonPayload)
+	saveResp, err := p.spinnakerAPI.PipelineControllerApi.SavePipelineUsingPOST(p.spinnakerAPI.Context, jsonPayload)
 	if err != nil {
 		return err
 	}
