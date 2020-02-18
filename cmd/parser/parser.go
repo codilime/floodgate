@@ -2,6 +2,7 @@ package parser
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -11,20 +12,30 @@ import (
 	"github.com/google/go-jsonnet"
 )
 
-type Parser struct {
-	*jsonnet.VM
+// SpinnakerResources contains all the managed SpinnakerResources defined for Floodgate.
+type SpinnakerResources struct {
+	Applications      []map[string]interface{}
+	Pipelines         []map[string]interface{}
+	PipelineTemplates []map[string]interface{}
 }
 
-func CreateParser(librariesPath []string) (*Parser, error) {
+// Parser extends jsonnet VM with floodgate-specific configuration.
+type Parser struct {
+	*jsonnet.VM
+	Resources SpinnakerResources
+}
+
+// CreateParser creates an instance of Floodgate resources parser.
+func CreateParser(librariesPath []string) *Parser {
 	parser := &Parser{}
 	parser.VM = jsonnet.MakeVM()
 	parser.VM.Importer(&jsonnet.FileImporter{
 		JPaths: librariesPath,
 	})
-	return parser, nil
+	return parser
 }
 
-func (p *Parser) LoadJsonnetFile(filePath string) (map[string]interface{}, error) {
+func (p *Parser) loadJsonnetFile(filePath string) (map[string]interface{}, error) {
 	inputFile, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return nil, err
@@ -38,7 +49,7 @@ func (p *Parser) LoadJsonnetFile(filePath string) (map[string]interface{}, error
 	return output, nil
 }
 
-func (p *Parser) LoadDirectory(entrypoint string) ([]map[string]interface{}, error) {
+func (p *Parser) loadDirectory(entrypoint string) ([]map[string]interface{}, error) {
 	var objects []map[string]interface{}
 	err := filepath.Walk(entrypoint,
 		func(path string, f os.FileInfo, err error) error {
@@ -48,11 +59,9 @@ func (p *Parser) LoadDirectory(entrypoint string) ([]map[string]interface{}, err
 				return err
 			}
 			if f.IsDir() || !strings.HasSuffix(f.Name(), ".jsonnet") {
-				log.Print("skipped")
 				return nil
 			}
-			log.Print("loaded")
-			obj, err := p.LoadJsonnetFile(path)
+			obj, err := p.loadJsonnetFile(path)
 			if err != nil {
 				log.Fatal(err)
 				return err
@@ -64,19 +73,45 @@ func (p *Parser) LoadDirectory(entrypoint string) ([]map[string]interface{}, err
 		log.Fatal(err)
 		return nil, err
 	}
-	log.Print("Objects:", objects)
 	return objects, nil
 }
 
-func (p *Parser) LoadDirectories(directories []string) ([]map[string]interface{}, error) {
+// LoadObjectsFromDirectories walks through provided directories to parse provided configuration files
+// and catalogs them according to their types.
+func (p *Parser) LoadObjectsFromDirectories(directories []string) error {
 	var objects []map[string]interface{}
 	for _, entrypoint := range directories {
-		output, err := p.LoadDirectory(entrypoint)
+		output, err := p.loadDirectory(entrypoint)
 		if err != nil {
 			log.Fatal(err)
-			return nil, err
+			return err
 		}
 		objects = append(objects, output...)
 	}
-	return objects, nil
+	err := p.readObjects(objects)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *Parser) readObjects(objects []map[string]interface{}) error {
+	// TODO(wurbanski): Verify heuristics for determining spinnaker object types
+	for _, object := range objects {
+		if _, ok := object["application"]; ok {
+			p.Resources.Pipelines = append(p.Resources.Pipelines, object)
+			continue
+		}
+		if _, ok := object["variables"]; ok {
+			p.Resources.PipelineTemplates = append(p.Resources.PipelineTemplates, object)
+			continue
+		}
+		if _, ok := object["cloudProviders"]; ok {
+
+			p.Resources.Applications = append(p.Resources.Applications, object)
+			continue
+		}
+		return fmt.Errorf("object %v not of any known type", object)
+	}
+	return fmt.Errorf("no objects found")
 }

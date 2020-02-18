@@ -10,6 +10,7 @@ import (
 	"golang.org/x/net/context"
 )
 
+// GateapiClient is a Client for Gate API which has instance-specific information.
 type GateapiClient struct {
 	// Gate API Client
 	*gateapi.APIClient
@@ -18,8 +19,7 @@ type GateapiClient struct {
 	Context context.Context
 }
 
-// NewGateapiClient
-// TODO: docs
+// NewGateapiClient creates instance of Gate API wrapper based on Floodgate's Config
 func NewGateapiClient(floodgateConfig *config.Config) *GateapiClient {
 	var gateHTTPClient = &http.Client{
 		Timeout: 5 * time.Second,

@@ -2,8 +2,8 @@ package spinnakerresource
 
 import "cl-gitlab.intra.codilime.com/spinops/floodgate/cmd/gateclient"
 
-// Resource interface for Spinnaker resource
-type Resource interface {
+// Resourcer interface for Spinnaker resource
+type Resourcer interface {
 	// IsChanged is used to compare local and remmote state
 	IsChanged() (bool, error)
 	// SaveRemoteState is used to save state remotely
