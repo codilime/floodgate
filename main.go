@@ -25,8 +25,8 @@ func main() {
 		fmt.Print(err)
 		os.Exit(1)
 	}
-	var pipeline spr.Resourcer
-	pipeline = spr.CreatePipeline("deploy-nginx", "1bfaa7c1-894c-4adb-9e51-c969bc38c984", "nginx", client, content)
+	pipeline := new(spr.Pipeline)
+	pipeline.Init("deploy-nginx", "nginx", client, content)
 	needToSave, err := pipeline.IsChanged()
 	if err != nil {
 		fmt.Print(err)
@@ -34,7 +34,7 @@ func main() {
 	}
 	if needToSave {
 		fmt.Print("Saving local state to Spinnaker\n")
-		err := pipeline.SaveRemoteState(client)
+		err := pipeline.SaveRemoteState()
 		if err != nil {
 			fmt.Print(err)
 			os.Exit(1)
