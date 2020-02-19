@@ -62,8 +62,3 @@ func (p Pipeline) SaveRemoteState() error {
 
 	return nil
 }
-
-// SaveLocalState is used to save state localy
-func (p Pipeline) SaveLocalState() ([]byte, error) {
-	return p.localState, nil
-}
