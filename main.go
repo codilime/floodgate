@@ -6,10 +6,10 @@ import (
 	"log"
 	"os"
 
-	"cl-gitlab.intra.codilime.com/spinops/floodgate/cmd/cli"
-	"cl-gitlab.intra.codilime.com/spinops/floodgate/cmd/gateclient"
-	"cl-gitlab.intra.codilime.com/spinops/floodgate/cmd/parser"
-	spr "cl-gitlab.intra.codilime.com/spinops/floodgate/cmd/spinnakerresource"
+	"github.com/codilime/floodgate/cmd/cli"
+	"github.com/codilime/floodgate/cmd/gateclient"
+	"github.com/codilime/floodgate/cmd/parser"
+	spr "github.com/codilime/floodgate/cmd/spinnakerresource"
 )
 
 func main() {

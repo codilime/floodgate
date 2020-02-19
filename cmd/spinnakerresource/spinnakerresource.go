@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"reflect"
 
-	"cl-gitlab.intra.codilime.com/spinops/floodgate/cmd/gateclient"
+	"github.com/codilime/floodgate/cmd/gateclient"
 )
 
 // Resource is basic struct for all spinnaker resources

@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"cl-gitlab.intra.codilime.com/spinops/floodgate/config"
-	gateapi "cl-gitlab.intra.codilime.com/spinops/floodgate/gateapi"
+	"github.com/codilime/floodgate/config"
+	gateapi "github.com/codilime/floodgate/gateapi"
 	"golang.org/x/net/context"
 )
 

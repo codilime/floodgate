@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"cl-gitlab.intra.codilime.com/spinops/floodgate/config"
+	"github.com/codilime/floodgate/config"
 	"gopkg.in/yaml.v2"
 )
 
