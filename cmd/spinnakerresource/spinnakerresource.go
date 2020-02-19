@@ -16,32 +16,27 @@ type Resource struct {
 
 // IsChanged is used to compare local and remmote state
 func (r Resource) IsChanged() (bool, error) {
-	normalizedLocalState, err := r.normalizeJSON(r.localState)
-	if err != nil {
+	var (
+		localJSON, remoteJSON map[string]interface{}
+	)
+
+	if err := json.Unmarshal(r.localState, &localJSON); err != nil {
 		return false, err
 	}
-	normalizedRemoteState, err := r.normalizeJSON(r.remoteState)
-	if err != nil {
+	if err := json.Unmarshal(r.remoteState, &remoteJSON); err != nil {
 		return false, err
 	}
-	return !reflect.DeepEqual(normalizedLocalState, normalizedRemoteState), nil
-}
 
-func (r Resource) normalizeJSON(data []byte) ([]byte, error) {
-	var localJSON map[string]interface{}
-	if err := json.Unmarshal(data, &localJSON); err != nil {
-		return nil, err
-	}
-	if _, exists := localJSON["updateTs"]; exists {
-		delete(localJSON, "updateTs")
+	for k := range localJSON {
+		if _, exists := remoteJSON[k]; !exists {
+			return true, nil
+		}
+		if !reflect.DeepEqual(localJSON[k], remoteJSON[k]) {
+			return true, nil
+		}
 	}
 
-	localJSONByte, err := json.Marshal(localJSON)
-	if err != nil {
-		return nil, err
-	}
-
-	return localJSONByte, nil
+	return false, nil
 }
 
 // Resourcer interface for Spinnaker resource
