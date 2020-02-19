@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"cl-gitlab.intra.codilime.com/spinops/floodgate/cmd/gateclient"
+	"github.com/codilime/floodgate/cmd/gateclient"
 )
 
 // Pipeline object
