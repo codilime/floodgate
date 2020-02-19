@@ -27,11 +27,12 @@ func (r Resource) IsChanged() (bool, error) {
 		return false, err
 	}
 
-	for k := range remoteJSON {
-		if _, exists := localJSON[k]; exists {
-			if !reflect.DeepEqual(localJSON[k], remoteJSON[k]) {
-				return true, nil
-			}
+	for k := range localJSON {
+		if _, exists := remoteJSON[k]; !exists {
+			return true, nil
+		}
+		if !reflect.DeepEqual(localJSON[k], remoteJSON[k]) {
+			return true, nil
 		}
 	}
 
