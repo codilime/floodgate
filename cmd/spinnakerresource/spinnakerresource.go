@@ -28,12 +28,14 @@ func (r Resource) IsChanged() (bool, error) {
 	}
 
 	for k := range remoteJSON {
-		if _, exists := localJSON[k]; !exists {
-			delete(remoteJSON, k)
+		if _, exists := localJSON[k]; exists {
+			if !reflect.DeepEqual(localJSON[k], remoteJSON[k]) {
+				return true, nil
+			}
 		}
 	}
 
-	return !reflect.DeepEqual(localJSON, remoteJSON), nil
+	return false, nil
 }
 
 // Resourcer interface for Spinnaker resource
