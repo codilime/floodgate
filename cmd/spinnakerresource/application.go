@@ -45,11 +45,14 @@ func (a Application) SaveRemoteState() error {
 		"application": a.name,
 		"description": "Creating application",
 	}
-	_, _, err := a.spinnakerAPI.TaskControllerApi.TaskUsingPOST1(a.spinnakerAPI.Context, createApplicationTask)
+	task, _, err := a.spinnakerAPI.TaskControllerApi.TaskUsingPOST1(a.spinnakerAPI.Context, createApplicationTask)
 	if err != nil {
 		return err
 	}
 
 	// TODO(wurbanski): Check if the application was actually created using TaskController
+	if err := a.spinnakerAPI.WaitForSuccessfulTask(task, 5); err != nil {
+		return err
+	}
 	return nil
 }
