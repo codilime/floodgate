@@ -39,6 +39,11 @@ func (r Resource) IsChanged() (bool, error) {
 	return false, nil
 }
 
+// SaveLocalState is used to save state localy
+func (r Resource) SaveLocalState() ([]byte, error) {
+	return r.localState, nil
+}
+
 // Resourcer interface for Spinnaker resource
 type Resourcer interface {
 	// IsChanged is used to compare local and remmote state

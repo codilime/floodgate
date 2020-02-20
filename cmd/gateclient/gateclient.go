@@ -2,7 +2,10 @@ package gateclient
 
 import (
 	"crypto/tls"
+	"fmt"
+	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/codilime/floodgate/config"
@@ -42,4 +45,64 @@ func NewGateapiClient(floodgateConfig *config.Config) *GateapiClient {
 		APIClient: client,
 		Context:   auth,
 	}
+}
+
+func (c GateapiClient) WaitForSuccessfulTask(checkTask map[string]interface{}, maxRetries int) error {
+	taskID := strings.Split(checkTask["ref"].(string), "/")[2]
+
+	task, resp, err := c.TaskControllerApi.GetTaskUsingGET1(c.Context, taskID)
+
+	retry := 0
+	for (checkTask == nil || !isTaskCompleted(checkTask)) && (retry < maxRetries) {
+		log.Print(retry)
+		retry++
+		time.Sleep(time.Duration(retry*retry) * time.Second)
+		task, resp, err = c.TaskControllerApi.GetTaskUsingGET1(c.Context, taskID)
+	}
+	log.Print(task)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("encountered an error while polling for task: %s", taskID)
+	}
+	if !isTaskSuccessful(task) {
+		return fmt.Errorf("encountered an error in task: %s", taskID)
+	}
+
+	return nil
+}
+
+func isTaskCompleted(task map[string]interface{}) bool {
+	status, exists := task["status"]
+	if !exists {
+		return false
+	}
+
+	switch status.(string) {
+	case
+		"SUCCEEDED",
+		"STOPPED",
+		"SKIPPED",
+		"TERMINAL",
+		"FAILED_CONTINUE":
+		return true
+	}
+	return false
+}
+
+func isTaskSuccessful(task map[string]interface{}) bool {
+	status, exists := task["status"]
+	if !exists {
+		return false
+	}
+
+	switch status.(string) {
+	case
+		"SUCCEEDED",
+		"STOPPED",
+		"SKIPPED":
+		return true
+	}
+	return false
 }

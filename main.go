@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
+	"encoding/json"
 	"log"
-	"os"
 
 	"github.com/codilime/floodgate/cmd/cli"
 	"github.com/codilime/floodgate/cmd/gateclient"
@@ -19,29 +17,30 @@ func main() {
 
 	_ = p.LoadObjectsFromDirectories(floodgateConfig.Resources)
 	log.Print("resources: ", p.Resources)
-	client := gateclient.NewGateapiClient(floodgateConfig)
-	content, err := ioutil.ReadFile("/tmp/pipeline.json")
-	if err != nil {
-		fmt.Print(err)
-		os.Exit(1)
-	}
-	pipeline := new(spr.Pipeline)
-	pipeline.Init("deploy-nginx", "nginx", client, content)
-	needToSave, err := pipeline.IsChanged()
-	if err != nil {
-		fmt.Print(err)
-		os.Exit(1)
-	}
-	if needToSave {
-		fmt.Print("Saving local state to Spinnaker\n")
-		err := pipeline.SaveRemoteState()
-		if err != nil {
-			fmt.Print(err)
-			os.Exit(1)
-		}
-	} else {
-		fmt.Print("No need to save")
-	}
-	fmt.Printf("%T\n", pipeline)
 
+	client := gateclient.NewGateapiClient(floodgateConfig)
+	for _, pipeline := range p.Resources.Pipelines {
+		pipelineJSON, err := json.Marshal(pipeline)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pipelineName := pipeline["name"].(string)
+		pipelineApp := pipeline["application"].(string)
+		newPipeline := &spr.Pipeline{}
+		newPipeline.Init(pipelineName, pipelineApp, client, pipelineJSON)
+
+		needToSave, err := newPipeline.IsChanged()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if needToSave {
+			log.Print("Saving local state to Spinnaker\n")
+			err := newPipeline.SaveRemoteState()
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			log.Print("No need to save")
+		}
+	}
 }
