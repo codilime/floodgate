@@ -9,10 +9,18 @@ jobs:
     working_directory: /go/src/github.com/codilime/floodgate
     steps:
       - checkout
-      - run: go get -v -t -d ./...
-      - run: go vet -v ./...
-      - run: go test -v ./...
-      - run: go build
+      - run: 
+          name: Get dependencies
+          command: go get -v -t -d ./...
+      - run: 
+          name: Examine source code
+          command: go vet -v ./...
+      - run: 
+          name: Execute unt tests
+          command: go test -v ./...
+      - run:
+          name: Compile code
+          command: go build
       - store_artifacts:
           path: /go/src/github.com/codilime/floodgate/floodgate
           destination: floodgate
