@@ -9,8 +9,10 @@ import (
 	gateapi "github.com/codilime/floodgate/gateapi"
 )
 
+// Application object
 type Application Resource
 
+// Init function for Application resource
 func (a *Application) Init(name string, api *gateclient.GateapiClient, localdata []byte) {
 	a.name = name
 	a.spinnakerAPI = api
@@ -34,6 +36,7 @@ func (a *Application) loadRemoteState() error {
 	return nil
 }
 
+// SaveRemoteState function for saving object to Spinnaker
 func (a Application) SaveRemoteState() error {
 	var app map[string]interface{}
 	json.Unmarshal(a.localState, &app)

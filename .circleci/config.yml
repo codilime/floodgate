@@ -11,10 +11,19 @@ jobs:
       - checkout
       - run: 
           name: Get dependencies
-          command: go get -v -t -d ./...
+          command: |
+            go get -v -t -d ./...
+            go get -u golang.org/x/lint/golint
       - run: 
-          name: Examine source code
+          name: Examine source code with go vet
           command: go vet -v ./...
+      - run:
+          name: Check linting
+          command: |
+            for GOSRCFILE in $( find . -type f -name '*.go' -not -path './gateapi/*')
+            do
+              golint -set_exit_status $GOSRCFILE
+            done
       - run: 
           name: Execute go tests
           command: go test -v ./...
