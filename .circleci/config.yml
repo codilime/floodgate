@@ -25,7 +25,7 @@ jobs:
               golint -set_exit_status $GOSRCFILE
             done
       - run: 
-          name: Execute unt tests
+          name: Execute go tests
           command: go test -v ./...
       - run:
           name: Compile code
