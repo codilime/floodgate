@@ -47,6 +47,7 @@ func NewGateapiClient(floodgateConfig *config.Config) *GateapiClient {
 	}
 }
 
+// WaitForSuccessfulTask function is waiting for task to finish
 func (c GateapiClient) WaitForSuccessfulTask(checkTask map[string]interface{}, maxRetries int) error {
 	taskID := strings.Split(checkTask["ref"].(string), "/")[2]
 
