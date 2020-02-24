@@ -8,6 +8,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// LoadConfig function is used to load configuration from file
 func LoadConfig(locations ...string) (*config.Config, error) {
 	var location string
 	if len(locations) == 0 {
