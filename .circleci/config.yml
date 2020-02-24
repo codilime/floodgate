@@ -16,7 +16,7 @@ jobs:
           name: Examine source code
           command: go vet -v ./...
       - run: 
-          name: Execute unt tests
+          name: Execute go tests
           command: go test -v ./...
       - run:
           name: Compile code
