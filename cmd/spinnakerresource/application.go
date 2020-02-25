@@ -10,7 +10,9 @@ import (
 )
 
 // Application object
-type Application Resource
+type Application struct {
+	*Resource
+}
 
 // Init function for Application resource
 func (a *Application) Init(name string, api *gateclient.GateapiClient, localdata []byte) {
@@ -24,20 +26,28 @@ func (a *Application) loadRemoteState() error {
 	payload, resp, err := a.spinnakerAPI.ApplicationControllerApi.GetApplicationUsingGET(a.spinnakerAPI.Context, a.name, &optionals)
 	if resp != nil {
 		if resp.StatusCode == http.StatusNotFound {
-			a.remoteState, _ = json.Marshal(payload)
+			a.remoteState = []byte("{}")
+			return nil
 		} else if resp.StatusCode != http.StatusOK {
 			return fmt.Errorf("Encountered an error getting application %s, status code: %d", a.name, resp.StatusCode)
 		}
+
+		jsonPayload, err := json.Marshal(payload)
+		if err != nil {
+			return err
+		}
+		a.remoteState = jsonPayload
 	}
 
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
 // SaveRemoteState function for saving object to Spinnaker
-func (a Application) SaveRemoteState() error {
+func (a *Application) SaveRemoteState() error {
 	var app map[string]interface{}
 	json.Unmarshal(a.localState, &app)
 	createApplicationTask := map[string]interface{}{

@@ -39,9 +39,14 @@ func (r Resource) IsChanged() (bool, error) {
 	return false, nil
 }
 
-// SaveLocalState is used to save state localy
-func (r Resource) SaveLocalState() ([]byte, error) {
+// GetLocalState is used to save state localy
+func (r Resource) GetLocalState() ([]byte, error) {
 	return r.localState, nil
+}
+
+// GetRemoteState is used to view stored remote state
+func (r Resource) GetRemoteState() []byte {
+	return r.remoteState
 }
 
 // Resourcer interface for Spinnaker resource
