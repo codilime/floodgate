@@ -21,6 +21,7 @@ func MockGateapiClient(gateURL string) *gateclient.GateapiClient {
 	}
 }
 
+// MockGateServerReturn200 creates a HTTP server which returns code 200 and data.
 func MockGateServerReturn200(data string) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -28,6 +29,7 @@ func MockGateServerReturn200(data string) *httptest.Server {
 	}))
 }
 
+// MockGateServerReturn404 creates a HTTP server which returns code 404 and data.
 func MockGateServerReturn404(data string) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -35,6 +37,7 @@ func MockGateServerReturn404(data string) *httptest.Server {
 	}))
 }
 
+// MockGateServerReturn500 creates a HTTP server which returns code 500 and data.
 func MockGateServerReturn500(data string) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
