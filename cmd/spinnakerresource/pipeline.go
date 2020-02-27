@@ -15,14 +15,18 @@ type Pipeline struct {
 }
 
 // Init initialize pipeline
-func (p *Pipeline) Init(name string, appName string, api *gateclient.GateapiClient, localData []byte) {
+func (p *Pipeline) Init(name string, appName string, api *gateclient.GateapiClient, localData []byte) error {
 	p.Resource = &Resource{
 		name:         name,
 		localState:   localData,
 		spinnakerAPI: api,
 	}
 	p.appName = appName
-	p.loadRemoteState()
+	err := p.loadRemoteState()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // LoadRemoteState get remote resource
