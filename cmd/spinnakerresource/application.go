@@ -47,7 +47,7 @@ func (a *Application) loadRemoteState() error {
 }
 
 // SaveRemoteState function for saving object to Spinnaker
-func (a *Application) SaveRemoteState() error {
+func (a Application) SaveRemoteState() error {
 	var app map[string]interface{}
 	json.Unmarshal(a.localState, &app)
 	createApplicationTask := map[string]interface{}{

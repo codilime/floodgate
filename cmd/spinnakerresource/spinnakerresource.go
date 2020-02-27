@@ -39,12 +39,12 @@ func (r Resource) IsChanged() (bool, error) {
 	return false, nil
 }
 
-// GetLocalState is used to save state localy
+// GetLocalState returns local state of an object.
 func (r Resource) GetLocalState() ([]byte, error) {
 	return r.localState, nil
 }
 
-// GetRemoteState is used to view stored remote state
+// GetRemoteState is used to view stored remote state.
 func (r Resource) GetRemoteState() []byte {
 	return r.remoteState
 }
