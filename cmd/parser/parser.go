@@ -97,6 +97,9 @@ func (p *Parser) LoadObjectsFromDirectories(directories []string) error {
 
 func (p *Parser) readObjects(objects []map[string]interface{}) error {
 	// TODO(wurbanski): Verify heuristics for determining spinnaker object types
+	if len(objects) == 0 {
+		return fmt.Errorf("no objects found")
+	}
 	for _, object := range objects {
 		if _, ok := object["application"]; ok {
 			p.Resources.Pipelines = append(p.Resources.Pipelines, object)
@@ -117,7 +120,7 @@ func (p *Parser) readObjects(objects []map[string]interface{}) error {
 		}
 		return fmt.Errorf("object %v not of any known type", object)
 	}
-	return fmt.Errorf("no objects found")
+	return nil
 }
 
 func (p Parser) validatePipelineTemplate(object map[string]interface{}) error {

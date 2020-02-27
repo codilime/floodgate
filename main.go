@@ -15,7 +15,10 @@ func main() {
 
 	p := parser.CreateParser(floodgateConfig.Libraries)
 
-	_ = p.LoadObjectsFromDirectories(floodgateConfig.Resources)
+	err := p.LoadObjectsFromDirectories(floodgateConfig.Resources)
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Print("resources: ", p.Resources)
 
 	client := gateclient.NewGateapiClient(floodgateConfig)
