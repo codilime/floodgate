@@ -15,10 +15,16 @@ type Application struct {
 }
 
 // Init function for Application resource
-func (a *Application) Init(name string, api *gateclient.GateapiClient, localdata []byte) {
-	a.name = name
-	a.spinnakerAPI = api
-	a.loadRemoteState()
+func (a *Application) Init(name string, api *gateclient.GateapiClient, localdata []byte) error {
+	a.Resource = &Resource{
+		name:         name,
+		spinnakerAPI: api,
+	}
+	err := a.loadRemoteState()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (a *Application) loadRemoteState() error {

@@ -24,8 +24,9 @@ func TestApplication_Init(t *testing.T) {
 		ts        *httptest.Server
 	}
 	tests := []struct {
-		name string
-		args args
+		name    string
+		args    args
+		wantErr bool
 	}{
 		{
 			name: "with 200 OK response",
@@ -34,6 +35,7 @@ func TestApplication_Init(t *testing.T) {
 				localdata: []byte("{}"),
 				ts:        test.MockGateServerReturn200(""),
 			},
+			wantErr: false,
 		},
 		{
 			name: "with 500 ISE response",
@@ -42,6 +44,7 @@ func TestApplication_Init(t *testing.T) {
 				localdata: []byte("{}"),
 				ts:        test.MockGateServerReturn500(""),
 			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
@@ -50,8 +53,11 @@ func TestApplication_Init(t *testing.T) {
 			defer ts.Close()
 			api := test.MockGateapiClient(ts.URL)
 			a := &Application{}
-			a.Init(tt.args.name, api, tt.args.localdata)
-			fmt.Printf("%s", a.remoteState)
+			err := a.Init(tt.args.name, api, tt.args.localdata)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Resource.SaveLocalState() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
 		})
 	}
 }
