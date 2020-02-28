@@ -17,6 +17,12 @@ jobs:
       - run: 
           name: Examine source code with go vet
           command: go vet -v ./...
+      - run: 
+          name: Execute go tests
+          command: go test -v ./...
+      - run:
+          name: Compile code
+          command: go build
       - run:
           name: Check linting
           command: |
@@ -24,12 +30,6 @@ jobs:
             do
               golint -set_exit_status $GOSRCFILE
             done
-      - run: 
-          name: Execute go tests
-          command: go test -v ./...
-      - run:
-          name: Compile code
-          command: go build
       - store_artifacts:
           path: /go/src/github.com/codilime/floodgate/floodgate
           destination: floodgate

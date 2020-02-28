@@ -107,7 +107,7 @@ func TestResource_IsChanged(t *testing.T) {
 	}
 }
 
-func TestResource_SaveLocalState(t *testing.T) {
+func TestResource_GetLocalState(t *testing.T) {
 	type fields struct {
 		name         string
 		localState   []byte
@@ -140,7 +140,7 @@ func TestResource_SaveLocalState(t *testing.T) {
 				remoteState:  tt.fields.remoteState,
 				spinnakerAPI: tt.fields.spinnakerAPI,
 			}
-			got, err := r.SaveLocalState()
+			got, err := r.GetLocalState()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Resource.SaveLocalState() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -157,3 +157,32 @@ var singleKeyJSON0 = []byte("{\"key1\":0}")
 var singleKeyJSON1 = []byte("{\"key1\":1}")
 var twoKeysJSON1 = []byte("{\"key1\":1, \"key2\": 1}")
 var brokenJSON = []byte("{")
+
+func TestResource_GetRemoteState(t *testing.T) {
+	type fields struct {
+		name         string
+		localState   []byte
+		remoteState  []byte
+		spinnakerAPI *gateclient.GateapiClient
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   []byte
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := &Resource{
+				name:         tt.fields.name,
+				localState:   tt.fields.localState,
+				remoteState:  tt.fields.remoteState,
+				spinnakerAPI: tt.fields.spinnakerAPI,
+			}
+			if got := r.GetRemoteState(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Resource.GetRemoteState() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
