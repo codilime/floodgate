@@ -97,12 +97,19 @@ func (p *Parser) LoadObjectsFromDirectories(directories []string) error {
 
 func (p *Parser) readObjects(objects []map[string]interface{}) error {
 	// TODO(wurbanski): Verify heuristics for determining spinnaker object types
+	if len(objects) == 0 {
+		return fmt.Errorf("no objects found")
+	}
 	for _, object := range objects {
 		if _, ok := object["application"]; ok {
 			p.Resources.Pipelines = append(p.Resources.Pipelines, object)
 			continue
 		}
 		if _, ok := object["variables"]; ok {
+			err := p.validatePipelineTemplate(object)
+			if err != nil {
+				return fmt.Errorf("Encountered an error while reading pipeline template %v: %w", object, err)
+			}
 			p.Resources.PipelineTemplates = append(p.Resources.PipelineTemplates, object)
 			continue
 		}
@@ -113,5 +120,28 @@ func (p *Parser) readObjects(objects []map[string]interface{}) error {
 		}
 		return fmt.Errorf("object %v not of any known type", object)
 	}
-	return fmt.Errorf("no objects found")
+	return nil
+}
+
+func (p Parser) validatePipelineTemplate(object map[string]interface{}) error {
+	if _, ok := object["id"]; ok != true {
+		return fmt.Errorf("missing field 'id'")
+	}
+	metadata, ok := object["metadata"]
+	if ok != true {
+		return fmt.Errorf("missing field 'metadata'")
+	}
+	if _, ok := metadata.(map[string]interface{})["name"]; ok != true {
+		return fmt.Errorf("missing key 'name' in map 'metadata`")
+	}
+	if _, ok := metadata.(map[string]interface{})["owner"].(string); ok != true {
+		return fmt.Errorf("missing key 'owner' in map 'metadata'")
+	}
+	if _, ok := metadata.(map[string]interface{})["description"].(string); ok != true {
+		return fmt.Errorf("missing key 'description' in map 'metadata'")
+	}
+	if _, ok := metadata.(map[string]interface{})["scopes"].([]interface{}); ok != true {
+		return fmt.Errorf("missing key 'scopes' in map 'metadata'")
+	}
+	return nil
 }
