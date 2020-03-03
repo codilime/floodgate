@@ -10,13 +10,21 @@ import (
 )
 
 // Application object
-type Application Resource
+type Application struct {
+	*Resource
+}
 
 // Init function for Application resource
-func (a *Application) Init(name string, api *gateclient.GateapiClient, localdata []byte) {
-	a.name = name
-	a.spinnakerAPI = api
-	a.loadRemoteState()
+func (a *Application) Init(name string, api *gateclient.GateapiClient, localdata []byte) error {
+	a.Resource = &Resource{
+		name:         name,
+		spinnakerAPI: api,
+	}
+	err := a.loadRemoteState()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (a *Application) loadRemoteState() error {
@@ -24,15 +32,23 @@ func (a *Application) loadRemoteState() error {
 	payload, resp, err := a.spinnakerAPI.ApplicationControllerApi.GetApplicationUsingGET(a.spinnakerAPI.Context, a.name, &optionals)
 	if resp != nil {
 		if resp.StatusCode == http.StatusNotFound {
-			a.remoteState, _ = json.Marshal(payload)
+			a.remoteState = []byte("{}")
+			return nil
 		} else if resp.StatusCode != http.StatusOK {
 			return fmt.Errorf("Encountered an error getting application %s, status code: %d", a.name, resp.StatusCode)
 		}
+
+		jsonPayload, err := json.Marshal(payload)
+		if err != nil {
+			return err
+		}
+		a.remoteState = jsonPayload
 	}
 
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
