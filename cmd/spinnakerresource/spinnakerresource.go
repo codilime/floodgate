@@ -89,6 +89,8 @@ func (r Resource) GetNormalizedDiff() []byte {
 	_, diff := jsondiff.Compare(remoteState, r.localState, options)
 
 	return []byte(diff)
+}
+
 // GetRemoteState is used to view stored remote state.
 func (r Resource) GetRemoteState() []byte {
 	return r.remoteState
