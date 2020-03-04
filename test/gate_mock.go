@@ -32,6 +32,14 @@ func MockGateServerReturn200(data string) *httptest.Server {
 	}))
 }
 
+// MockGateServerReturn202 creates a HTTP server which returns code 202.
+func MockGateServerReturn202(data string) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusAccepted)
+	}))
+}
+
 // MockGateServerReturn404 creates a HTTP server which returns code 404 and data.
 func MockGateServerReturn404(data string) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
