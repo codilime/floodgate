@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"reflect"
 
+	"github.com/nsf/jsondiff"
+
 	"github.com/codilime/floodgate/cmd/gateclient"
 )
 
@@ -42,6 +44,51 @@ func (r Resource) IsChanged() (bool, error) {
 // GetLocalState returns local state of an object.
 func (r Resource) GetLocalState() ([]byte, error) {
 	return r.localState, nil
+}
+
+// GetFullDiff function returns diff against remote state
+func (r Resource) GetFullDiff() []byte {
+	options := new(jsondiff.Options)
+	_, diff := jsondiff.Compare(r.remoteState, r.localState, options)
+
+	return []byte(diff)
+}
+
+func (r Resource) getNormalizedRemoteState() ([]byte, error) {
+	var (
+		localJSON, remoteJSON map[string]interface{}
+	)
+	if err := json.Unmarshal(r.localState, &localJSON); err != nil {
+		return []byte("{}"), err
+	}
+
+	if err := json.Unmarshal(r.remoteState, &remoteJSON); err != nil {
+		return []byte("{}"), err
+	}
+
+	remoteJSONNormalized := make(map[string]interface{})
+	for k := range localJSON {
+		if key, exists := remoteJSON[k]; exists {
+			remoteJSONNormalized[k] = key
+		}
+	}
+
+	remoteJSONNormalizedByte, err := json.Marshal(remoteJSONNormalized)
+	if err != nil {
+		return []byte("{}"), err
+	}
+
+	return remoteJSONNormalizedByte, nil
+}
+
+// GetNormalizedDiff function returns diff on only managed resources
+func (r Resource) GetNormalizedDiff() []byte {
+	options := new(jsondiff.Options)
+	remoteState, _ := r.getNormalizedRemoteState()
+
+	_, diff := jsondiff.Compare(remoteState, r.localState, options)
+
+	return []byte(diff)
 }
 
 // GetRemoteState is used to view stored remote state.
