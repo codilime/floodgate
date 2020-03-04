@@ -57,7 +57,12 @@ func (pt PipelineTemplate) SaveRemoteState() error {
 	if err != nil {
 		return err
 	}
-	resp, err := pt.spinnakerAPI.V2PipelineTemplatesControllerApi.UpdateUsingPOST1(pt.spinnakerAPI.Context, pt.id, localStateJSON, nil)
+	var resp *http.Response
+	if string(pt.remoteState) == "{}" {
+		resp, err = pt.spinnakerAPI.V2PipelineTemplatesControllerApi.CreateUsingPOST1(pt.spinnakerAPI.Context, localStateJSON, nil)
+	} else {
+		resp, err = pt.spinnakerAPI.V2PipelineTemplatesControllerApi.UpdateUsingPOST1(pt.spinnakerAPI.Context, pt.id, localStateJSON, nil)
+	}
 	if resp != nil {
 		if resp.StatusCode != http.StatusAccepted {
 			return fmt.Errorf("Encountered an error saving pipeline, status code: %d", resp.StatusCode)
