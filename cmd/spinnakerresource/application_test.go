@@ -9,8 +9,6 @@ import (
 	"github.com/codilime/floodgate/test"
 )
 
-type fn func(string) *httptest.Server
-
 func TestApplication_Init(t *testing.T) {
 	type fields struct {
 		name         string
@@ -74,7 +72,7 @@ func TestApplication_loadRemoteState(t *testing.T) {
 	}
 	tests := []struct {
 		name       string
-		ts         fn
+		ts         test.MockGateServerFunction
 		remoteData string
 		fields     fields
 		wantErr    bool
