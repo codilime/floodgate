@@ -26,7 +26,7 @@ func main() {
 		newPipelineTemplate := &spr.PipelineTemplate{}
 		err = newPipelineTemplate.Init(client, pipelineTemplate)
 		if err != nil {
-			log.Fatalf("Encountered an error while processing %v", pipelineTemplate)
+			log.Fatalf("Encountered an error while processing pipeline template %v: %v", pipelineTemplate, err)
 		}
 		needToSave, err := newPipelineTemplate.IsChanged()
 		if err != nil {

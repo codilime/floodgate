@@ -18,9 +18,8 @@ type PipelineTemplate struct {
 
 // Init initialize pipeline template
 func (pt *PipelineTemplate) Init(api *gateclient.GateapiClient, localData map[string]interface{}) error {
-	err := pt.validate(localData)
-	if err != nil {
-		return fmt.Errorf("failed to initialize pipeline template: %w", err)
+	if err := pt.validate(localData); err != nil {
+		return err
 	}
 	id := localData["id"].(string)
 	localState, err := json.Marshal(localData)
@@ -46,7 +45,7 @@ func (pt *PipelineTemplate) loadRemoteState() error {
 			pt.remoteState = []byte("{}")
 			return nil
 		} else if resp.StatusCode != http.StatusOK {
-			return fmt.Errorf("Encountered an error while getting pipeline template with id %s, status code: %d", pt.id, resp.StatusCode)
+			return fmt.Errorf("failed to get pipeline template remote state, status code: %d", resp.StatusCode)
 		}
 		jsonPayload, err := json.Marshal(successPayload)
 		if err != nil {
@@ -75,7 +74,7 @@ func (pt PipelineTemplate) SaveRemoteState() error {
 	}
 	if resp != nil {
 		if resp.StatusCode != http.StatusAccepted {
-			return fmt.Errorf("Encountered an error saving pipeline, status code: %d", resp.StatusCode)
+			return fmt.Errorf("failed to save pipeline template, status code: %d", resp.StatusCode)
 		}
 		return nil
 	}
