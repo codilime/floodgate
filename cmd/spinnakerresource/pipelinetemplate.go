@@ -84,28 +84,38 @@ func (pt PipelineTemplate) SaveRemoteState() error {
 	return nil
 }
 
-func (pt *PipelineTemplate) validate(localData map[string]interface{}) error {
+func (pt PipelineTemplate) validate(localData map[string]interface{}) error {
+	errors := []error{}
 	if err := util.AssertMapKeyIsString(localData, "id", true); err != nil {
-		return err
+		errors = append(errors, err)
 	}
 	if err := util.AssertMapKeyIsString(localData, "schema", true); err != nil {
-		return err
+		errors = append(errors, err)
 	}
 	if err := util.AssertMapKeyIsStringMap(localData, "metadata", true); err != nil {
-		return err
+		errors = append(errors, err)
+		return util.CombineErrors(errors)
 	}
 	metadata := localData["metadata"].(map[string]interface{})
+	if err := pt.validateMetadata(metadata); err != nil {
+		errors = append(errors, err)
+	}
+	return util.CombineErrors(errors)
+}
+
+func (pt PipelineTemplate) validateMetadata(metadata map[string]interface{}) error {
+	errors := []error{}
 	if err := util.AssertMapKeyIsString(metadata, "name", true); err != nil {
-		return err
+		errors = append(errors, err)
 	}
 	if err := util.AssertMapKeyIsString(metadata, "description", true); err != nil {
-		return err
+		errors = append(errors, err)
 	}
 	if err := util.AssertMapKeyIsString(metadata, "owner", true); err != nil {
-		return err
+		errors = append(errors, err)
 	}
 	if err := util.AssertMapKeyIsInterfaceArray(metadata, "scopes", true); err != nil {
-		return err
+		errors = append(errors, err)
 	}
-	return nil
+	return util.CombineErrors(errors)
 }
