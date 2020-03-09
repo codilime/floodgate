@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/codilime/floodgate/cmd/util"
+
 	"github.com/codilime/floodgate/cmd/gateclient"
 )
 
@@ -15,9 +17,18 @@ type PipelineTemplate struct {
 }
 
 // Init initialize pipeline template
-func (pt *PipelineTemplate) Init(id string, api *gateclient.GateapiClient, localData []byte) error {
+func (pt *PipelineTemplate) Init(api *gateclient.GateapiClient, localData map[string]interface{}) error {
+	err := pt.validate(localData)
+	if err != nil {
+		return fmt.Errorf("failed to initialize pipeline template: %w", err)
+	}
+	id := localData["id"].(string)
+	localState, err := json.Marshal(localData)
+	if err != nil {
+		return err
+	}
 	pt.Resource = &Resource{
-		localState:   localData,
+		localState:   localState,
 		spinnakerAPI: api,
 	}
 	pt.id = id
@@ -69,6 +80,32 @@ func (pt PipelineTemplate) SaveRemoteState() error {
 		return nil
 	}
 	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (pt *PipelineTemplate) validate(localData map[string]interface{}) error {
+	if err := util.AssertMapKeyIsString(localData, "id", true); err != nil {
+		return err
+	}
+	if err := util.AssertMapKeyIsString(localData, "schema", true); err != nil {
+		return err
+	}
+	if err := util.AssertMapKeyIsStringMap(localData, "metadata", true); err != nil {
+		return err
+	}
+	metadata := localData["metadata"].(map[string]interface{})
+	if err := util.AssertMapKeyIsString(metadata, "name", true); err != nil {
+		return err
+	}
+	if err := util.AssertMapKeyIsString(metadata, "description", true); err != nil {
+		return err
+	}
+	if err := util.AssertMapKeyIsString(metadata, "owner", true); err != nil {
+		return err
+	}
+	if err := util.AssertMapKeyIsInterfaceArray(metadata, "scopes", true); err != nil {
 		return err
 	}
 	return nil

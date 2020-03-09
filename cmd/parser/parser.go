@@ -106,10 +106,6 @@ func (p *Parser) readObjects(objects []map[string]interface{}) error {
 			continue
 		}
 		if _, ok := object["variables"]; ok {
-			err := p.validatePipelineTemplate(object)
-			if err != nil {
-				return fmt.Errorf("Encountered an error while reading pipeline template %v: %w", object, err)
-			}
 			p.Resources.PipelineTemplates = append(p.Resources.PipelineTemplates, object)
 			continue
 		}
@@ -119,29 +115,6 @@ func (p *Parser) readObjects(objects []map[string]interface{}) error {
 			continue
 		}
 		return fmt.Errorf("object %v not of any known type", object)
-	}
-	return nil
-}
-
-func (p Parser) validatePipelineTemplate(object map[string]interface{}) error {
-	if _, ok := object["id"]; ok != true {
-		return fmt.Errorf("missing field 'id'")
-	}
-	metadata, ok := object["metadata"]
-	if ok != true {
-		return fmt.Errorf("missing field 'metadata'")
-	}
-	if _, ok := metadata.(map[string]interface{})["name"]; ok != true {
-		return fmt.Errorf("missing key 'name' in map 'metadata`")
-	}
-	if _, ok := metadata.(map[string]interface{})["owner"].(string); ok != true {
-		return fmt.Errorf("missing key 'owner' in map 'metadata'")
-	}
-	if _, ok := metadata.(map[string]interface{})["description"].(string); ok != true {
-		return fmt.Errorf("missing key 'description' in map 'metadata'")
-	}
-	if _, ok := metadata.(map[string]interface{})["scopes"].([]interface{}); ok != true {
-		return fmt.Errorf("missing key 'scopes' in map 'metadata'")
 	}
 	return nil
 }

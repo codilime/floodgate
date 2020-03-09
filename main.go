@@ -23,28 +23,23 @@ func main() {
 
 	client := gateclient.NewGateapiClient(floodgateConfig)
 	for _, pipelineTemplate := range p.Resources.PipelineTemplates {
-		pipelineTemplateJSON, err := json.Marshal(pipelineTemplate)
-		if err != nil {
-			log.Fatal(err)
-		}
-		id := pipelineTemplate["id"].(string)
 		newPipelineTemplate := &spr.PipelineTemplate{}
-		err = newPipelineTemplate.Init(id, client, pipelineTemplateJSON)
+		err = newPipelineTemplate.Init(client, pipelineTemplate)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("Encountered an error while processing %v", pipelineTemplate)
 		}
 		needToSave, err := newPipelineTemplate.IsChanged()
 		if err != nil {
 			log.Fatal(err)
 		}
 		if needToSave {
-			log.Printf("Saving local state of pipeline template with id %s to Spinnaker\n", id)
+			log.Printf("Saving local state of pipeline template %v to Spinnaker\n", pipelineTemplate)
 			err := newPipelineTemplate.SaveRemoteState()
 			if err != nil {
 				log.Fatal(err)
 			}
 		} else {
-			log.Printf("Pipeline template with id '%s': no need to save", id)
+			log.Printf("No need to save pipeline template %v", pipelineTemplate)
 		}
 	}
 	for _, pipeline := range p.Resources.Pipelines {
