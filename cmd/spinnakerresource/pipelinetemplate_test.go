@@ -10,7 +10,6 @@ import (
 func TestPipelineTemplate_Init(t *testing.T) {
 	type args struct {
 		id        string
-		name      string
 		localData []byte
 		ts        test.MockGateServerFunction
 	}
@@ -23,7 +22,6 @@ func TestPipelineTemplate_Init(t *testing.T) {
 			name: "with 200 OK response",
 			args: args{
 				id:        "test-pipeline-template",
-				name:      "Test pipeline template",
 				localData: []byte("{}"),
 				ts:        test.MockGateServerReturn200,
 			},
@@ -33,7 +31,6 @@ func TestPipelineTemplate_Init(t *testing.T) {
 			name: "with 404 Not Found response",
 			args: args{
 				id:        "test-pipeline-template",
-				name:      "Test pipeline template",
 				localData: []byte("{}"),
 				ts:        test.MockGateServerReturn404,
 			},
@@ -43,7 +40,6 @@ func TestPipelineTemplate_Init(t *testing.T) {
 			name: "with 500 ISE response",
 			args: args{
 				id:        "test-pipeline-template",
-				name:      "Test pipeline template",
 				localData: []byte("{}"),
 				ts:        test.MockGateServerReturn500,
 			},
@@ -56,7 +52,7 @@ func TestPipelineTemplate_Init(t *testing.T) {
 			defer ts.Close()
 			api := test.MockGateapiClient(ts.URL)
 			pt := &PipelineTemplate{}
-			err := pt.Init(tt.args.id, tt.args.name, api, tt.args.localData)
+			err := pt.Init(tt.args.id, api, tt.args.localData)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Test case %#v: got error %v, wantErr: %v", tt.name, err, tt.wantErr)
 			}
@@ -67,14 +63,12 @@ func TestPipelineTemplate_Init(t *testing.T) {
 func TestPipelineTemplate_loadRemoteState(t *testing.T) {
 	type fields struct {
 		id           string
-		name         string
 		localState   []byte
 		remoteState  []byte
 		spinnakerAPI *gateclient.GateapiClient
 	}
-	testPipelineTemplate := fields{
-		id:   "test-pipeline-template",
-		name: "Test pipeline template",
+	pipelineTemplate := fields{
+		id: "test-pipeline-template",
 	}
 	tests := []struct {
 		name       string
@@ -87,21 +81,21 @@ func TestPipelineTemplate_loadRemoteState(t *testing.T) {
 			name:       "with 200 OK response",
 			ts:         test.MockGateServerReturn200,
 			remoteData: "{}",
-			fields:     testPipelineTemplate,
+			fields:     pipelineTemplate,
 			wantErr:    false,
 		},
 		{
 			name:       "with 404 Not Found response",
 			ts:         test.MockGateServerReturn404,
 			remoteData: "{}",
-			fields:     testPipelineTemplate,
+			fields:     pipelineTemplate,
 			wantErr:    false,
 		},
 		{
 			name:       "with 500 ISE response",
 			ts:         test.MockGateServerReturn500,
 			remoteData: "{}",
-			fields:     testPipelineTemplate,
+			fields:     pipelineTemplate,
 			wantErr:    true,
 		},
 	}
@@ -112,7 +106,6 @@ func TestPipelineTemplate_loadRemoteState(t *testing.T) {
 			api := test.MockGateapiClient(ts.URL)
 			pt := &PipelineTemplate{
 				Resource: &Resource{
-					name:         tt.fields.name,
 					spinnakerAPI: api,
 				},
 				id: tt.fields.id,
@@ -130,14 +123,12 @@ func TestPipelineTemplate_loadRemoteState(t *testing.T) {
 func TestPipelineTemplate_SaveRemoteState(t *testing.T) {
 	type fields struct {
 		id           string
-		name         string
 		localState   []byte
 		remoteState  []byte
 		spinnakerAPI *gateclient.GateapiClient
 	}
 	testPipelineTemplate := fields{
 		id:         "test-pipeline-template",
-		name:       "Test pipeline template",
 		localState: []byte("{}"),
 	}
 	tests := []struct {
@@ -176,7 +167,6 @@ func TestPipelineTemplate_SaveRemoteState(t *testing.T) {
 			api := test.MockGateapiClient(ts.URL)
 			pt := PipelineTemplate{
 				Resource: &Resource{
-					name:         tt.fields.name,
 					localState:   tt.fields.localState,
 					remoteState:  tt.fields.remoteState,
 					spinnakerAPI: api,

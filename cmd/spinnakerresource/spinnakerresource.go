@@ -11,7 +11,6 @@ import (
 
 // Resource is basic struct for all spinnaker resources
 type Resource struct {
-	name                    string
 	localState, remoteState []byte
 	spinnakerAPI            *gateclient.GateapiClient
 }

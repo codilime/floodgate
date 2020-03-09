@@ -11,16 +11,17 @@ import (
 // Pipeline object
 type Pipeline struct {
 	*Resource
+	name    string
 	appName string
 }
 
 // Init initialize pipeline
 func (p *Pipeline) Init(name string, appName string, api *gateclient.GateapiClient, localData []byte) error {
 	p.Resource = &Resource{
-		name:         name,
 		localState:   localData,
 		spinnakerAPI: api,
 	}
+	p.name = name
 	p.appName = appName
 	err := p.loadRemoteState()
 	if err != nil {

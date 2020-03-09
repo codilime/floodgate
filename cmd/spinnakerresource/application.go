@@ -12,14 +12,15 @@ import (
 // Application object
 type Application struct {
 	*Resource
+	name string
 }
 
 // Init function for Application resource
 func (a *Application) Init(name string, api *gateclient.GateapiClient, localdata []byte) error {
 	a.Resource = &Resource{
-		name:         name,
 		spinnakerAPI: api,
 	}
+	a.name = name
 	err := a.loadRemoteState()
 	if err != nil {
 		return err

@@ -108,9 +108,9 @@ func TestApplication_loadRemoteState(t *testing.T) {
 
 			a := &Application{
 				Resource: &Resource{
-					name:         tt.fields.name,
 					spinnakerAPI: api,
 				},
+				name: tt.fields.name,
 			}
 			if err := a.loadRemoteState(); (err != nil) != tt.wantErr {
 				t.Errorf("Application.loadRemoteState() error = %v, wantErr %v", err, tt.wantErr)
@@ -141,11 +141,11 @@ func TestApplication_SaveRemoteState(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			a := Application{
 				Resource: &Resource{
-					name:         tt.fields.name,
 					localState:   tt.fields.localState,
 					remoteState:  tt.fields.remoteState,
 					spinnakerAPI: tt.fields.spinnakerAPI,
 				},
+				name: tt.fields.name,
 			}
 			if err := a.SaveRemoteState(); (err != nil) != tt.wantErr {
 				t.Errorf("Application.SaveRemoteState() error = %v, wantErr %v", err, tt.wantErr)

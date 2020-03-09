@@ -28,10 +28,8 @@ func main() {
 			log.Fatal(err)
 		}
 		id := pipelineTemplate["id"].(string)
-		metadata := pipelineTemplate["metadata"].(map[string]interface{})
-		name := metadata["name"].(string)
 		newPipelineTemplate := &spr.PipelineTemplate{}
-		err = newPipelineTemplate.Init(id, name, client, pipelineTemplateJSON)
+		err = newPipelineTemplate.Init(id, client, pipelineTemplateJSON)
 		if err != nil {
 			log.Fatal(err)
 		}

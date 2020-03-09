@@ -9,7 +9,6 @@ import (
 
 func TestResource_IsChanged(t *testing.T) {
 	type fields struct {
-		name         string
 		localState   []byte
 		remoteState  []byte
 		spinnakerAPI *gateclient.GateapiClient
@@ -23,7 +22,6 @@ func TestResource_IsChanged(t *testing.T) {
 		{
 			name: "Object is not changed",
 			fields: fields{
-				name:         "resource",
 				localState:   emptyJSON,
 				remoteState:  emptyJSON,
 				spinnakerAPI: &gateclient.GateapiClient{},
@@ -34,7 +32,6 @@ func TestResource_IsChanged(t *testing.T) {
 		{
 			name: "Object is changed",
 			fields: fields{
-				name:         "resource",
 				localState:   singleKeyJSON1,
 				remoteState:  singleKeyJSON0,
 				spinnakerAPI: &gateclient.GateapiClient{},
@@ -45,7 +42,6 @@ func TestResource_IsChanged(t *testing.T) {
 		{
 			name: "Object is not changed (more keys)",
 			fields: fields{
-				name:         "resource",
 				localState:   singleKeyJSON1,
 				remoteState:  twoKeysJSON1,
 				spinnakerAPI: &gateclient.GateapiClient{},
@@ -56,7 +52,6 @@ func TestResource_IsChanged(t *testing.T) {
 		{
 			name: "Object is changed (more keys)",
 			fields: fields{
-				name:         "resource",
 				localState:   singleKeyJSON0,
 				remoteState:  twoKeysJSON1,
 				spinnakerAPI: &gateclient.GateapiClient{},
@@ -67,7 +62,6 @@ func TestResource_IsChanged(t *testing.T) {
 		{
 			name: "localState is malformed",
 			fields: fields{
-				name:         "resource",
 				localState:   brokenJSON,
 				remoteState:  twoKeysJSON1,
 				spinnakerAPI: &gateclient.GateapiClient{},
@@ -78,7 +72,6 @@ func TestResource_IsChanged(t *testing.T) {
 		{
 			name: "remoteState is malformed",
 			fields: fields{
-				name:         "resource",
 				localState:   twoKeysJSON1,
 				remoteState:  brokenJSON,
 				spinnakerAPI: &gateclient.GateapiClient{},
@@ -90,7 +83,6 @@ func TestResource_IsChanged(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := Resource{
-				name:         tt.fields.name,
 				localState:   tt.fields.localState,
 				remoteState:  tt.fields.remoteState,
 				spinnakerAPI: tt.fields.spinnakerAPI,
@@ -109,7 +101,6 @@ func TestResource_IsChanged(t *testing.T) {
 
 func TestResource_GetLocalState(t *testing.T) {
 	type fields struct {
-		name         string
 		localState   []byte
 		remoteState  []byte
 		spinnakerAPI *gateclient.GateapiClient
@@ -123,7 +114,6 @@ func TestResource_GetLocalState(t *testing.T) {
 		{
 			name: "localState is returned",
 			fields: fields{
-				name:         "resource",
 				localState:   singleKeyJSON0,
 				remoteState:  emptyJSON,
 				spinnakerAPI: &gateclient.GateapiClient{},
@@ -135,7 +125,6 @@ func TestResource_GetLocalState(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := Resource{
-				name:         tt.fields.name,
 				localState:   tt.fields.localState,
 				remoteState:  tt.fields.remoteState,
 				spinnakerAPI: tt.fields.spinnakerAPI,
@@ -154,7 +143,6 @@ func TestResource_GetLocalState(t *testing.T) {
 
 func TestResource_GetFullDiff(t *testing.T) {
 	type fields struct {
-		name         string
 		localState   []byte
 		remoteState  []byte
 		spinnakerAPI *gateclient.GateapiClient
@@ -167,7 +155,6 @@ func TestResource_GetFullDiff(t *testing.T) {
 		{
 			name: "Empty remote json",
 			fields: fields{
-				name:         "resource",
 				localState:   singleKeyJSON0,
 				remoteState:  emptyJSON,
 				spinnakerAPI: &gateclient.GateapiClient{},
@@ -177,7 +164,6 @@ func TestResource_GetFullDiff(t *testing.T) {
 		{
 			name: "Empty local json",
 			fields: fields{
-				name:         "resource",
 				localState:   emptyJSON,
 				remoteState:  singleKeyJSON0,
 				spinnakerAPI: &gateclient.GateapiClient{},
@@ -187,7 +173,6 @@ func TestResource_GetFullDiff(t *testing.T) {
 		{
 			name: "Proper diff twice single key",
 			fields: fields{
-				name:         "resource",
 				localState:   singleKeyJSON0,
 				remoteState:  singleKeyJSON1,
 				spinnakerAPI: &gateclient.GateapiClient{},
@@ -197,7 +182,6 @@ func TestResource_GetFullDiff(t *testing.T) {
 		{
 			name: "Proper diff single key agains double key",
 			fields: fields{
-				name:         "resource",
 				localState:   twoKeysJSON1,
 				remoteState:  singleKeyJSON0,
 				spinnakerAPI: &gateclient.GateapiClient{},
@@ -207,7 +191,6 @@ func TestResource_GetFullDiff(t *testing.T) {
 		{
 			name: "Proper diff twice double key",
 			fields: fields{
-				name:         "resource",
 				localState:   twoKeysJSON0,
 				remoteState:  twoKeysJSON1,
 				spinnakerAPI: &gateclient.GateapiClient{},
@@ -217,7 +200,6 @@ func TestResource_GetFullDiff(t *testing.T) {
 		{
 			name: "Proper diff twice double key",
 			fields: fields{
-				name:         "resource",
 				localState:   complexKeysJSON0110,
 				remoteState:  complexKeysJSON1110,
 				spinnakerAPI: &gateclient.GateapiClient{},
@@ -228,7 +210,6 @@ func TestResource_GetFullDiff(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := Resource{
-				name:         tt.fields.name,
 				localState:   tt.fields.localState,
 				remoteState:  tt.fields.remoteState,
 				spinnakerAPI: tt.fields.spinnakerAPI,
@@ -306,7 +287,6 @@ func TestResource_GetNormalizedDiff(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := Resource{
-				name:         tt.fields.name,
 				localState:   tt.fields.localState,
 				remoteState:  tt.fields.remoteState,
 				spinnakerAPI: tt.fields.spinnakerAPI,
@@ -412,7 +392,6 @@ func TestResource_getNormalizedRemoteState(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := Resource{
-				name:         tt.fields.name,
 				localState:   tt.fields.localState,
 				remoteState:  tt.fields.remoteState,
 				spinnakerAPI: tt.fields.spinnakerAPI,
@@ -446,7 +425,6 @@ func TestResource_GetRemoteState(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &Resource{
-				name:         tt.fields.name,
 				localState:   tt.fields.localState,
 				remoteState:  tt.fields.remoteState,
 				spinnakerAPI: tt.fields.spinnakerAPI,

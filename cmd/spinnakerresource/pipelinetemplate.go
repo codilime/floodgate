@@ -15,9 +15,8 @@ type PipelineTemplate struct {
 }
 
 // Init initialize pipeline template
-func (pt *PipelineTemplate) Init(id string, name string, api *gateclient.GateapiClient, localData []byte) error {
+func (pt *PipelineTemplate) Init(id string, api *gateclient.GateapiClient, localData []byte) error {
 	pt.Resource = &Resource{
-		name:         name,
 		localState:   localData,
 		spinnakerAPI: api,
 	}
