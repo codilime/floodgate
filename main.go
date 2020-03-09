@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 
 	"github.com/codilime/floodgate/cmd/cli"
@@ -43,15 +42,11 @@ func main() {
 		}
 	}
 	for _, pipeline := range p.Resources.Pipelines {
-		pipelineJSON, err := json.Marshal(pipeline)
-		if err != nil {
-			log.Fatal(err)
-		}
-		pipelineName := pipeline["name"].(string)
-		pipelineApp := pipeline["application"].(string)
-		newPipeline := &spr.Pipeline{}
-		newPipeline.Init(pipelineName, pipelineApp, client, pipelineJSON)
 
+		newPipeline := &spr.Pipeline{}
+		if err := newPipeline.Init(client, pipeline); err != nil {
+			log.Fatalf("Encountered an error while processing pipeline %v: %v", pipeline, err)
+		}
 		needToSave, err := newPipeline.IsChanged()
 		if err != nil {
 			log.Fatal(err)
