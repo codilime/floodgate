@@ -6,24 +6,34 @@ import (
 	"net/http"
 
 	"github.com/codilime/floodgate/cmd/gateclient"
+	"github.com/codilime/floodgate/cmd/util"
 )
 
 // Pipeline object
 type Pipeline struct {
 	*Resource
-	appName string
+	name        string
+	application string
 }
 
 // Init initialize pipeline
-func (p *Pipeline) Init(name string, appName string, api *gateclient.GateapiClient, localData []byte) error {
+func (p *Pipeline) Init(api *gateclient.GateapiClient, localData map[string]interface{}) error {
+	if err := p.validate(localData); err != nil {
+		return err
+	}
+	name := localData["name"].(string)
+	application := localData["application"].(string)
+	localState, err := json.Marshal(localData)
+	if err != nil {
+		return err
+	}
 	p.Resource = &Resource{
-		name:         name,
-		localState:   localData,
+		localState:   localState,
 		spinnakerAPI: api,
 	}
-	p.appName = appName
-	err := p.loadRemoteState()
-	if err != nil {
+	p.name = name
+	p.application = application
+	if err := p.loadRemoteState(); err != nil {
 		return err
 	}
 	return nil
@@ -31,12 +41,12 @@ func (p *Pipeline) Init(name string, appName string, api *gateclient.GateapiClie
 
 // LoadRemoteState get remote resource
 func (p *Pipeline) loadRemoteState() error {
-	successPayload, resp, err := p.spinnakerAPI.ApplicationControllerApi.GetPipelineConfigUsingGET(p.spinnakerAPI.Context, p.appName, p.name)
+	successPayload, resp, err := p.spinnakerAPI.ApplicationControllerApi.GetPipelineConfigUsingGET(p.spinnakerAPI.Context, p.application, p.name)
 	if err != nil {
 		return err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("Encountered an error getting pipeline in pipeline %s with name %s, status code: %d", p.appName, p.name, resp.StatusCode)
+		return fmt.Errorf("Encountered an error getting pipeline in pipeline %s with name %s, status code: %d", p.application, p.name, resp.StatusCode)
 	}
 
 	jsonPayload, err := json.Marshal(successPayload)
@@ -64,5 +74,23 @@ func (p Pipeline) SaveRemoteState() error {
 		return fmt.Errorf("Encountered an error saving pipeline, status code: %d", saveResp.StatusCode)
 	}
 
+	return nil
+}
+
+func (p Pipeline) validate(localData map[string]interface{}) error {
+	if err := util.AssertMapKeyIsString(localData, "name", true); err != nil {
+		return err
+	}
+	if err := util.AssertMapKeyIsString(localData, "application", true); err != nil {
+		return err
+	}
+	// template is optional key, but it requires defined schema
+	err := util.AssertMapKeyIsStringMap(localData, "template", true)
+	if err == nil {
+		template := localData["template"].(map[string]interface{})
+		if err := util.AssertMapKeyIsString(template, "schema", true); err != nil {
+			return err
+		}
+	}
 	return nil
 }

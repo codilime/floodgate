@@ -6,22 +6,32 @@ import (
 	"net/http"
 
 	"github.com/codilime/floodgate/cmd/gateclient"
+	"github.com/codilime/floodgate/cmd/util"
 	gateapi "github.com/codilime/floodgate/gateapi"
 )
 
 // Application object
 type Application struct {
 	*Resource
+	name string
 }
 
 // Init function for Application resource
-func (a *Application) Init(name string, api *gateclient.GateapiClient, localdata []byte) error {
+func (a *Application) Init(api *gateclient.GateapiClient, localData map[string]interface{}) error {
+	if err := a.validate(localData); err != nil {
+		return err
+	}
+	name := localData["name"].(string)
+	localState, err := json.Marshal(localData)
+	if err != nil {
+		return err
+	}
 	a.Resource = &Resource{
-		name:         name,
+		localState:   localState,
 		spinnakerAPI: api,
 	}
-	err := a.loadRemoteState()
-	if err != nil {
+	a.name = name
+	if err := a.loadRemoteState(); err != nil {
 		return err
 	}
 	return nil
@@ -74,4 +84,15 @@ func (a Application) SaveRemoteState() error {
 		return err
 	}
 	return nil
+}
+
+func (a Application) validate(localData map[string]interface{}) error {
+	errors := []error{}
+	if err := util.AssertMapKeyIsString(localData, "name", true); err != nil {
+		errors = append(errors, err)
+	}
+	if err := util.AssertMapKeyIsString(localData, "email", true); err != nil {
+		errors = append(errors, err)
+	}
+	return util.CombineErrors(errors)
 }

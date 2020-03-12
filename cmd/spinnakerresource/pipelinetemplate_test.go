@@ -9,9 +9,7 @@ import (
 
 func TestPipelineTemplate_Init(t *testing.T) {
 	type args struct {
-		id        string
-		name      string
-		localData []byte
+		localData map[string]interface{}
 		ts        test.MockGateServerFunction
 	}
 	tests := []struct {
@@ -20,45 +18,127 @@ func TestPipelineTemplate_Init(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "with 200 OK response",
+			name: "server responds with 200 OK",
 			args: args{
-				id:        "test-pipeline-template",
-				name:      "Test pipeline template",
-				localData: []byte("{}"),
+				localData: testPipelineTemplate,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: false,
 		},
 		{
-			name: "with 404 Not Found response",
+			name: "server responds with 404 Not Found",
 			args: args{
-				id:        "test-pipeline-template",
-				name:      "Test pipeline template",
-				localData: []byte("{}"),
+				localData: testPipelineTemplate,
 				ts:        test.MockGateServerReturn404,
 			},
 			wantErr: false,
 		},
 		{
-			name: "with 500 ISE response",
+			name: "server responds with 500 ISE response",
 			args: args{
-				id:        "test-pipeline-template",
-				name:      "Test pipeline template",
-				localData: []byte("{}"),
+				localData: testPipelineTemplate,
 				ts:        test.MockGateServerReturn500,
+			},
+			wantErr: true,
+		},
+		{
+			name: "missing key id",
+			args: args{
+				localData: missingID,
+				ts:        test.MockGateServerReturn200,
+			},
+			wantErr: true,
+		},
+		{
+			name: "missing key metadata",
+			args: args{
+				localData: missingMetadata,
+				ts:        test.MockGateServerReturn200,
+			},
+			wantErr: true,
+		},
+		{
+			name: "missing key schema",
+			args: args{
+				localData: missingSchema,
+				ts:        test.MockGateServerReturn200,
+			},
+			wantErr: true,
+		},
+		{
+			name: "missing metadata key name",
+			args: args{
+				localData: missingMetadataName,
+				ts:        test.MockGateServerReturn200,
+			},
+			wantErr: true,
+		},
+		{
+			name: "missing metadata key description",
+			args: args{
+				localData: missingMetadataDescription,
+				ts:        test.MockGateServerReturn200,
+			},
+			wantErr: true,
+		},
+		{
+			name: "missing metadata key owner",
+			args: args{
+				localData: missingMetadataOwner,
+				ts:        test.MockGateServerReturn200,
+			},
+			wantErr: true,
+		},
+		{
+			name: "missing metadata key scopes",
+			args: args{
+				localData: missingMetadataScopes,
+				ts:        test.MockGateServerReturn200,
+			},
+			wantErr: true,
+		},
+		{
+			name: "empty metadata key id",
+			args: args{
+				localData: emptyID,
+				ts:        test.MockGateServerReturn200,
+			},
+			wantErr: true,
+		},
+		{
+			name: "empty metadata key name",
+			args: args{
+				localData: emptyMetadataName,
+				ts:        test.MockGateServerReturn200,
+			},
+			wantErr: true,
+		},
+		{
+			name: "empty metadata key description",
+			args: args{
+				localData: emptyMetadataDescription,
+				ts:        test.MockGateServerReturn200,
+			},
+			wantErr: true,
+		},
+		{
+			name: "empty metadata key owner",
+			args: args{
+				localData: emptyMetadataOwner,
+				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ts := tt.args.ts("")
+			ts := tt.args.ts("{}")
 			defer ts.Close()
 			api := test.MockGateapiClient(ts.URL)
 			pt := &PipelineTemplate{}
-			err := pt.Init(tt.args.id, tt.args.name, api, tt.args.localData)
+			err := pt.Init(api, tt.args.localData)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Test case %#v: got error %v, wantErr: %v", tt.name, err, tt.wantErr)
+				t.Errorf("got error %q, wantErr: %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -67,14 +147,12 @@ func TestPipelineTemplate_Init(t *testing.T) {
 func TestPipelineTemplate_loadRemoteState(t *testing.T) {
 	type fields struct {
 		id           string
-		name         string
 		localState   []byte
 		remoteState  []byte
 		spinnakerAPI *gateclient.GateapiClient
 	}
-	testPipelineTemplate := fields{
-		id:   "test-pipeline-template",
-		name: "Test pipeline template",
+	pipelineTemplate := fields{
+		id: "test-pipeline-template",
 	}
 	tests := []struct {
 		name       string
@@ -87,21 +165,21 @@ func TestPipelineTemplate_loadRemoteState(t *testing.T) {
 			name:       "with 200 OK response",
 			ts:         test.MockGateServerReturn200,
 			remoteData: "{}",
-			fields:     testPipelineTemplate,
+			fields:     pipelineTemplate,
 			wantErr:    false,
 		},
 		{
 			name:       "with 404 Not Found response",
 			ts:         test.MockGateServerReturn404,
 			remoteData: "{}",
-			fields:     testPipelineTemplate,
+			fields:     pipelineTemplate,
 			wantErr:    false,
 		},
 		{
 			name:       "with 500 ISE response",
 			ts:         test.MockGateServerReturn500,
 			remoteData: "{}",
-			fields:     testPipelineTemplate,
+			fields:     pipelineTemplate,
 			wantErr:    true,
 		},
 	}
@@ -112,16 +190,15 @@ func TestPipelineTemplate_loadRemoteState(t *testing.T) {
 			api := test.MockGateapiClient(ts.URL)
 			pt := &PipelineTemplate{
 				Resource: &Resource{
-					name:         tt.fields.name,
 					spinnakerAPI: api,
 				},
 				id: tt.fields.id,
 			}
 			if err := pt.loadRemoteState(); (err != nil) != tt.wantErr {
-				t.Errorf("Test case %#v: got error %v, wantErr: %v", tt.name, err, tt.wantErr)
+				t.Errorf("got error %q, wantErr: %v", err, tt.wantErr)
 			}
 			if !tt.wantErr && (string(pt.GetRemoteState()) != tt.remoteData) {
-				t.Errorf("Test case %#v: data was loaded but not correctly stored; got %q, want %q", tt.name, pt.remoteState, tt.remoteData)
+				t.Errorf("data was loaded but not correctly stored: got %q, want %q", pt.remoteState, tt.remoteData)
 			}
 		})
 	}
@@ -130,14 +207,12 @@ func TestPipelineTemplate_loadRemoteState(t *testing.T) {
 func TestPipelineTemplate_SaveRemoteState(t *testing.T) {
 	type fields struct {
 		id           string
-		name         string
 		localState   []byte
 		remoteState  []byte
 		spinnakerAPI *gateclient.GateapiClient
 	}
 	testPipelineTemplate := fields{
 		id:         "test-pipeline-template",
-		name:       "Test pipeline template",
 		localState: []byte("{}"),
 	}
 	tests := []struct {
@@ -176,7 +251,6 @@ func TestPipelineTemplate_SaveRemoteState(t *testing.T) {
 			api := test.MockGateapiClient(ts.URL)
 			pt := PipelineTemplate{
 				Resource: &Resource{
-					name:         tt.fields.name,
 					localState:   tt.fields.localState,
 					remoteState:  tt.fields.remoteState,
 					spinnakerAPI: api,
@@ -184,8 +258,161 @@ func TestPipelineTemplate_SaveRemoteState(t *testing.T) {
 				id: tt.fields.id,
 			}
 			if err := pt.SaveRemoteState(); (err != nil) != tt.wantErr {
-				t.Errorf("Test case %#v: got error %v, wantErr: %v", tt.name, err, tt.wantErr)
+				t.Errorf("got error %q, wantErr: %v", err, tt.wantErr)
 			}
 		})
 	}
+}
+
+var testPipelineTemplate = map[string]interface{}{
+	"id": "test-pipeline-template",
+	"metadata": map[string]interface{}{
+		"name":        "Test pipeline template",
+		"description": "Test pipeline template.",
+		"owner":       "example@example.com",
+		"scopes": []interface{}{
+			"",
+		},
+	},
+	"schema": "v2",
+}
+
+var missingID = map[string]interface{}{
+	"metadata": map[string]interface{}{
+		"name":        "Test pipeline template",
+		"description": "Test pipeline template.",
+		"owner":       "example@example.com",
+		"scopes": []interface{}{
+			"",
+		},
+	},
+	"schema": "v2",
+}
+
+var missingSchema = map[string]interface{}{
+	"id": "test-pipeline-template",
+	"metadata": map[string]interface{}{
+		"name":        "Test pipeline template",
+		"description": "Test pipeline template.",
+		"owner":       "example@example.com",
+		"scopes": []interface{}{
+			"",
+		},
+	},
+}
+
+var missingMetadata = map[string]interface{}{
+	"id":     "test-pipeline-template",
+	"schema": "v2",
+}
+
+var missingMetadataName = map[string]interface{}{
+	"id": "test-pipeline-template",
+	"metadata": map[string]interface{}{
+		"description": "Test pipeline template.",
+		"owner":       "example@example.com",
+		"scopes": []interface{}{
+			"",
+		},
+	},
+	"schema": "v2",
+}
+
+var missingMetadataDescription = map[string]interface{}{
+	"id": "test-pipeline-template",
+	"metadata": map[string]interface{}{
+		"name":  "Test pipeline template",
+		"owner": "example@example.com",
+		"scopes": []interface{}{
+			"",
+		},
+	},
+	"schema": "v2",
+}
+
+var missingMetadataOwner = map[string]interface{}{
+	"id": "test-pipeline-template",
+	"metadata": map[string]interface{}{
+		"name":        "Test pipeline template",
+		"description": "Test pipeline template.",
+		"scopes": []interface{}{
+			"",
+		},
+	},
+	"schema": "v2",
+}
+
+var missingMetadataScopes = map[string]interface{}{
+	"id": "test-pipeline-template",
+	"metadata": map[string]interface{}{
+		"name":        "Test pipeline template",
+		"description": "Test pipeline template.",
+		"owner":       "example@example.com",
+	},
+	"schema": "v2",
+}
+
+var emptyID = map[string]interface{}{
+	"id": "",
+	"metadata": map[string]interface{}{
+		"name":        "Test pipeline template",
+		"description": "Test pipeline template.",
+		"owner":       "example@example.com",
+		"scopes": []interface{}{
+			"",
+		},
+	},
+	"schema": "v2",
+}
+
+var emptySchema = map[string]interface{}{
+	"id": "test-pipeline-template",
+	"metadata": map[string]interface{}{
+		"name":        "Test pipeline template",
+		"description": "Test pipeline template.",
+		"owner":       "example@example.com",
+		"scopes": []interface{}{
+			"",
+		},
+	},
+	"schema": "",
+}
+
+var emptyMetadataName = map[string]interface{}{
+	"id": "test-pipeline-template",
+	"metadata": map[string]interface{}{
+		"name":        "",
+		"description": "Test pipeline template.",
+		"owner":       "example@example.com",
+		"scopes": []interface{}{
+			"",
+		},
+	},
+	"schema": "v2",
+}
+
+var emptyMetadataDescription = map[string]interface{}{
+	"id": "test-pipeline-template",
+	"metadata": map[string]interface{}{
+		"name":        "Test pipeline template",
+		"description": "",
+		"owner":       "example@example.com",
+		"scopes": []interface{}{
+			"",
+		},
+	},
+	"schema": "v2",
+}
+
+var emptyMetadataOwner = map[string]interface{}{
+	"id": "test-pipeline-template",
+	"metadata": map[string]interface{}{
+		"name":        "Test pipeline template",
+		"description": "Test pipeline template.",
+		"owner":       "",
+		"scopes": []interface{}{
+			"",
+		},
+	},
+	"schema": "v2",
 }

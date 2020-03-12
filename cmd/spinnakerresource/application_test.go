@@ -18,7 +18,7 @@ func TestApplication_Init(t *testing.T) {
 	}
 	type args struct {
 		name      string
-		localdata []byte
+		localdata map[string]interface{}
 		ts        *httptest.Server
 	}
 	tests := []struct {
@@ -30,7 +30,7 @@ func TestApplication_Init(t *testing.T) {
 			name: "with 200 OK response",
 			args: args{
 				name:      "app",
-				localdata: []byte("{}"),
+				localdata: testApplication,
 				ts:        test.MockGateServerReturn200(""),
 			},
 			wantErr: false,
@@ -39,7 +39,7 @@ func TestApplication_Init(t *testing.T) {
 			name: "with 500 ISE response",
 			args: args{
 				name:      "app",
-				localdata: []byte("{}"),
+				localdata: testApplication,
 				ts:        test.MockGateServerReturn500(""),
 			},
 			wantErr: true,
@@ -51,7 +51,7 @@ func TestApplication_Init(t *testing.T) {
 			defer ts.Close()
 			api := test.MockGateapiClient(ts.URL)
 			a := &Application{}
-			err := a.Init(tt.args.name, api, tt.args.localdata)
+			err := a.Init(api, tt.args.localdata)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Resource.SaveLocalState() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -108,9 +108,9 @@ func TestApplication_loadRemoteState(t *testing.T) {
 
 			a := &Application{
 				Resource: &Resource{
-					name:         tt.fields.name,
 					spinnakerAPI: api,
 				},
+				name: tt.fields.name,
 			}
 			if err := a.loadRemoteState(); (err != nil) != tt.wantErr {
 				t.Errorf("Application.loadRemoteState() error = %v, wantErr %v", err, tt.wantErr)
@@ -141,15 +141,38 @@ func TestApplication_SaveRemoteState(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			a := Application{
 				Resource: &Resource{
-					name:         tt.fields.name,
 					localState:   tt.fields.localState,
 					remoteState:  tt.fields.remoteState,
 					spinnakerAPI: tt.fields.spinnakerAPI,
 				},
+				name: tt.fields.name,
 			}
 			if err := a.SaveRemoteState(); (err != nil) != tt.wantErr {
 				t.Errorf("Application.SaveRemoteState() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
+}
+
+var testApplication = map[string]interface{}{
+	"name":           "test-application",
+	"description":    "Demo application",
+	"email":          "example@example.com",
+	"user":           "example@example.com",
+	"cloudProviders": "kubernetes",
+	"dataSources": map[string]interface{}{
+		"disabled": []string{},
+		"enabled":  []string{},
+	},
+	"platformHealthOnly":             false,
+	"platformHealthOnlyShowOverride": false,
+	"providerSettings": map[string]interface{}{
+		"aws": map[string]interface{}{
+			"useAmiBlockDeviceMappings": false,
+		},
+		"gce": map[string]interface{}{
+			"associatePublicIpAddress": false,
+		},
+	},
+	"trafficGuards": []string{},
 }
