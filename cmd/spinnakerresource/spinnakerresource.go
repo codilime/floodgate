@@ -98,11 +98,9 @@ func (r Resource) GetRemoteState() []byte {
 // Resourcer interface for Spinnaker resource
 type Resourcer interface {
 	// Init is used configure object and to load remote data into it
-	Init() error
+	Init(api *gateclient.GateapiClient, localData map[string]interface{}) error
 	// IsChanged is used to compare local and remmote state
 	IsChanged() (bool, error)
-	// SaveRemoteState is used to save state remotely
-	SaveRemoteState() error
 	// SaveLocalState is used to save state localy
-	SaveLocalState() ([]byte, error)
+	SaveLocalState() error
 }
