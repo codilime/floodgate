@@ -257,7 +257,7 @@ func TestPipelineTemplate_SaveRemoteState(t *testing.T) {
 				},
 				id: tt.fields.id,
 			}
-			if err := pt.SaveRemoteState(); (err != nil) != tt.wantErr {
+			if err := pt.SaveLocalState(); (err != nil) != tt.wantErr {
 				t.Errorf("got error %q, wantErr: %v", err, tt.wantErr)
 			}
 		})

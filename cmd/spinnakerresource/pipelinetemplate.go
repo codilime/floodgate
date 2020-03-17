@@ -59,8 +59,8 @@ func (pt *PipelineTemplate) loadRemoteState() error {
 	return nil
 }
 
-// SaveRemoteState save local state to Spinnaker
-func (pt PipelineTemplate) SaveRemoteState() error {
+// SaveLocalState save local state to Spinnaker
+func (pt PipelineTemplate) SaveLocalState() error {
 	var localStateJSON interface{}
 	err := json.Unmarshal(pt.localState, &localStateJSON)
 	if err != nil {
@@ -82,6 +82,21 @@ func (pt PipelineTemplate) SaveRemoteState() error {
 		return err
 	}
 	return nil
+}
+
+// LocalState get local state
+func (pt PipelineTemplate) LocalState() []byte {
+	return pt.localState
+}
+
+// RemoteState get remote state
+func (pt PipelineTemplate) RemoteState() []byte {
+	return pt.remoteState
+}
+
+// SaveRemoteState save remote state to local storage
+func (pt PipelineTemplate) SaveRemoteState() error {
+	return fmt.Errorf("Not implemented")
 }
 
 func (pt PipelineTemplate) validate(localData map[string]interface{}) error {

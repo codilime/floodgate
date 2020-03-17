@@ -1,7 +1,7 @@
 package spinnakerresource
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http/httptest"
 	"testing"
 
@@ -30,7 +30,7 @@ func TestApplication_Init(t *testing.T) {
 			name: "with 200 OK response",
 			args: args{
 				name:      "app",
-				localdata: testApplication,
+				localdata: testAppLocalData,
 				ts:        test.MockGateServerReturn200(""),
 			},
 			wantErr: false,
@@ -39,7 +39,7 @@ func TestApplication_Init(t *testing.T) {
 			name: "with 500 ISE response",
 			args: args{
 				name:      "app",
-				localdata: testApplication,
+				localdata: testAppLocalData,
 				ts:        test.MockGateServerReturn500(""),
 			},
 			wantErr: true,
@@ -73,39 +73,38 @@ func TestApplication_loadRemoteState(t *testing.T) {
 	tests := []struct {
 		name       string
 		ts         test.MockGateServerFunction
-		remoteData string
+		remoteData map[string]interface{}
 		fields     fields
 		wantErr    bool
 	}{
 		{
 			name:       "with 200 OK response",
 			ts:         test.MockGateServerReturn200,
-			remoteData: "{\"key\":1}",
+			remoteData: testAppRemoteData,
 			fields:     testApp,
 			wantErr:    false,
 		},
 		{
 			name:       "with 404 Not Found response",
 			ts:         test.MockGateServerReturn404,
-			remoteData: "{}",
+			remoteData: map[string]interface{}{"attributes": map[string]interface{}{}},
 			fields:     testApp,
 			wantErr:    false,
 		},
 		{
 			name:       "with 500 ISE response",
 			ts:         test.MockGateServerReturn500,
-			remoteData: "{}",
+			remoteData: testAppRemoteData,
 			fields:     testApp,
 			wantErr:    true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ts := tt.ts(tt.remoteData)
+			tsResponseData, _ := json.Marshal(tt.remoteData)
+			ts := tt.ts(string(tsResponseData))
 			defer ts.Close()
-			fmt.Println(ts.URL)
 			api := test.MockGateapiClient(ts.URL)
-
 			a := &Application{
 				Resource: &Resource{
 					spinnakerAPI: api,
@@ -115,9 +114,16 @@ func TestApplication_loadRemoteState(t *testing.T) {
 			if err := a.loadRemoteState(); (err != nil) != tt.wantErr {
 				t.Errorf("Application.loadRemoteState() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			fmt.Println(a.GetRemoteState())
-			if !tt.wantErr && (string(a.GetRemoteState()) != tt.remoteData) {
-				t.Errorf("Data was loaded but not correctly stored: expected '%s', got '%s'", tt.remoteData, a.remoteState)
+			remoteData := tt.remoteData["attributes"].(map[string]interface{})
+			if _, exists := tt.remoteData["clusters"]; exists {
+				clusters := tt.remoteData["clusters"].(map[string]interface{})
+				if len(clusters) > 0 {
+					remoteData["clusters"] = clusters
+				}
+			}
+			remoteState, _ := json.Marshal(remoteData)
+			if !tt.wantErr && (string(a.GetRemoteState()) != string(remoteState)) {
+				t.Errorf("Application.loadRemoteState(): data was loaded but not correctly stored. Expected '%s', got '%s'", remoteState, a.remoteState)
 			}
 		})
 	}
@@ -147,18 +153,18 @@ func TestApplication_SaveRemoteState(t *testing.T) {
 				},
 				name: tt.fields.name,
 			}
-			if err := a.SaveRemoteState(); (err != nil) != tt.wantErr {
-				t.Errorf("Application.SaveRemoteState() error = %v, wantErr %v", err, tt.wantErr)
+			if err := a.SaveLocalState(); (err != nil) != tt.wantErr {
+				t.Errorf("Application.SaveLocalState() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
 }
 
-var testApplication = map[string]interface{}{
-	"name":           "test-application",
-	"description":    "Demo application",
-	"email":          "example@example.com",
-	"user":           "example@example.com",
+var testAppLocalData = map[string]interface{}{
+	"name":           "testapplication",
+	"description":    "Test application",
+	"email":          "test@floodgate.com",
+	"user":           "test@floodgate.com",
 	"cloudProviders": "kubernetes",
 	"dataSources": map[string]interface{}{
 		"disabled": []string{},
@@ -175,4 +181,31 @@ var testApplication = map[string]interface{}{
 		},
 	},
 	"trafficGuards": []string{},
+}
+
+var testAppRemoteData = map[string]interface{}{
+	"name": "test-application",
+	"attributes": map[string]interface{}{
+		"name":           "testapplication",
+		"description":    "Test application",
+		"email":          "test@floodgate.com",
+		"user":           "test@floodgate.com",
+		"cloudProviders": "kubernetes",
+		"dataSources": map[string]interface{}{
+			"disabled": []string{},
+			"enabled":  []string{},
+		},
+		"platformHealthOnly":             false,
+		"platformHealthOnlyShowOverride": false,
+		"providerSettings": map[string]interface{}{
+			"aws": map[string]interface{}{
+				"useAmiBlockDeviceMappings": false,
+			},
+			"gce": map[string]interface{}{
+				"associatePublicIpAddress": false,
+			},
+		},
+		"trafficGuards": []string{},
+	},
+	"clusters": map[string]interface{}{},
 }

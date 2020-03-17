@@ -47,12 +47,24 @@ func (a *Application) loadRemoteState() error {
 		} else if resp.StatusCode != http.StatusOK {
 			return fmt.Errorf("Encountered an error getting application %s, status code: %d", a.name, resp.StatusCode)
 		}
-
-		jsonPayload, err := json.Marshal(payload)
+		var remoteData map[string]interface{}
+		if _, exists := payload["attributes"]; exists {
+			attributes, ok := payload["attributes"].(map[string]interface{})
+			if ok {
+				remoteData = attributes
+			}
+		}
+		if _, exists := payload["clusters"]; exists {
+			clusters, ok := payload["clusters"].(map[string]interface{})
+			if ok && len(clusters) > 0 {
+				remoteData["clusters"] = clusters
+			}
+		}
+		remoteState, err := json.Marshal(remoteData)
 		if err != nil {
 			return err
 		}
-		a.remoteState = jsonPayload
+		a.remoteState = remoteState
 	}
 
 	if err != nil {
@@ -62,15 +74,24 @@ func (a *Application) loadRemoteState() error {
 	return nil
 }
 
-// SaveRemoteState function for saving object to Spinnaker
-func (a Application) SaveRemoteState() error {
+// LocalState get local state
+func (a Application) LocalState() []byte {
+	return a.localState
+}
+
+// RemoteState get remote state
+func (a Application) RemoteState() []byte {
+	return a.remoteState
+}
+
+// SaveLocalState save local state to Spinnaker
+func (a Application) SaveLocalState() error {
 	var app map[string]interface{}
-	json.Unmarshal(a.localState, &app)
+	if err := json.Unmarshal(a.localState, &app); err != nil {
+		return fmt.Errorf("failed to unmarshal local state")
+	}
 	createApplicationTask := map[string]interface{}{
-		"job": map[string]interface{}{
-			"type":        "createApplication",
-			"application": "app",
-		},
+		"job":         []interface{}{map[string]interface{}{"type": "createApplication", "application": app}},
 		"application": a.name,
 		"description": "Creating application",
 	}
@@ -78,7 +99,6 @@ func (a Application) SaveRemoteState() error {
 	if err != nil {
 		return err
 	}
-
 	// TODO(wurbanski): Check if the application was actually created using TaskController
 	if err := a.spinnakerAPI.WaitForSuccessfulTask(task, 5); err != nil {
 		return err
@@ -87,6 +107,8 @@ func (a Application) SaveRemoteState() error {
 }
 
 func (a Application) validate(localData map[string]interface{}) error {
+	// TODO (mlembke): The Name of the application cannot have hyphens, or it will interfere with the naming convention.
+	// TODO (mlembke): see https://docs.armory.io/overview/your-first-application/
 	errors := []error{}
 	if err := util.AssertMapKeyIsString(localData, "name", true); err != nil {
 		errors = append(errors, err)

@@ -27,7 +27,6 @@ func (r Resource) IsChanged() (bool, error) {
 	if err := json.Unmarshal(r.remoteState, &remoteJSON); err != nil {
 		return false, err
 	}
-
 	for k := range localJSON {
 		if _, exists := remoteJSON[k]; !exists {
 			return true, nil
@@ -101,6 +100,10 @@ type Resourcer interface {
 	Init(api *gateclient.GateapiClient, localData map[string]interface{}) error
 	// IsChanged is used to compare local and remmote state
 	IsChanged() (bool, error)
-	// SaveLocalState is used to save state localy
+	// LocalState get resource's local state
+	LocalState() []byte
+	// RemoteState get resource's remote state
+	RemoteState() []byte
+	// SaveLocalState save resource's local state to Spinnaker
 	SaveLocalState() error
 }
