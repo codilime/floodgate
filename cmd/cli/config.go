@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/codilime/floodgate/config"
-	"gopkg.in/yaml.v2"
+	"github.com/ghodss/yaml"
 )
 
 // LoadConfig function is used to load configuration from file
