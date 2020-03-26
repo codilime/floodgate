@@ -6,6 +6,17 @@
 
 This project integrates multiple parts of "as-code" experience in Spinnaker, eg. API, Sponnet, Pipeline Templates for a complete GitOps workflow. 
 
+## Features
+
+- [x] Allows creating configuration of applications, pipeline templates and pipelines as file types:
+  - [x] JSONNET
+  - [x] JSON
+  - [x] YAML
+- [x] Updates only the parts of Spinnaker configuration that have actually changed
+- [x] Reports diffs in managed objects 
+- [ ] Works with all currently supported versions of Spinnaker
+- [ ] Is well suited to run in a CI system (single binary!)
+
 ## WIP: How to run
 
 This project uses the Go module system.
@@ -33,17 +44,6 @@ To run tests use:
 ```bash
 go test ./...
 ```
-
-## Features
-
-- [x] Allows creating configuration of applications, pipeline templates and pipelines as file types:
-  - [x] JSONNET
-  - [x] JSON
-  - [x] YAML
-- [x] Updates only the parts of Spinnaker configuration that have actually changed
-- [x] Reports diffs in managed objects 
-- [ ] Works with all currently supported versions of Spinnaker
-- [ ] Is well suited to run in a CI system (single binary!)
 
 ## Upcoming features
 
