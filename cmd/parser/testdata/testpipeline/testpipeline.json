@@ -1,0 +1,9 @@
+{
+   "application": "testpipelineapplication",
+   "keepWaitingPipelines": false,
+   "limitConcurrent": true,
+   "name": "testpipelinejsonnet",
+   "notifications": [ ],
+   "stages": [ ],
+   "triggers": [ ]
+}
