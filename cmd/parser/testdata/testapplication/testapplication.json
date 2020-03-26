@@ -1,0 +1,21 @@
+{
+    "name": "testappjson",
+    "description": "Test application",
+    "email": "testappjson@floodgate.com",
+    "trafficGuards": [],
+    "platformHealthOnlyShowOverride": false,
+    "platformHealthOnly": false,
+    "providerSettings": {
+        "gce": {
+            "associatePublicIpAddress": false
+        },
+        "aws": {
+            "useAmiBlockDeviceMappings": false
+        }
+    },
+    "user": "testuser@floodgate.com",
+    "dataSources": {
+        "disabled": [],
+        "enabled": []
+    }
+}
