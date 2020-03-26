@@ -5,15 +5,13 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.13.8
+      - image: circleci/golang:1.14.1
     working_directory: /go/src/github.com/codilime/floodgate
     steps:
       - checkout
       - run: 
           name: Get dependencies
-          command: |
-            go get -v -t -d ./...
-            go get -u golang.org/x/lint/golint
+          command: go mod download
       - run: 
           name: Examine source code with go vet
           command: go vet -v ./...
