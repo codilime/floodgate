@@ -17,6 +17,14 @@ This project integrates multiple parts of "as-code" experience in Spinnaker, eg.
 - [ ] Works with all currently supported versions of Spinnaker
 - [ ] Is well suited to run in a CI system (single binary!)
 
+## Upcoming features
+
+- [ ] Run as a microservice within Spinnaker installation for seamless integration
+
+## Build process
+
+TBD (Following #21)
+
 ## WIP: How to run
 
 This project uses the Go module system.
@@ -44,14 +52,6 @@ To run tests use:
 ```bash
 go test ./...
 ```
-
-## Upcoming features
-
-- [ ] Run as a microservice within Spinnaker installation for seamless integration
-
-## Build process
-
-TBD (Following #21)
 
 ## How to use?
 
