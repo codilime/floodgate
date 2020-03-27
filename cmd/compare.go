@@ -1,4 +1,4 @@
-package cli
+package cmd
 
 import (
 	"fmt"
@@ -7,11 +7,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// compareOptions store sync command options
+// compareOptions store compare command options
 type compareOptions struct {
 }
 
-// NewCompareCmd ?
+// NewCompareCmd create new compare command
 func NewCompareCmd(out io.Writer) *cobra.Command {
 	options := compareOptions{}
 	cmd := &cobra.Command{

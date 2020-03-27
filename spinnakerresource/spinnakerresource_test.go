@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/codilime/floodgate/cmd/gateclient"
+	"github.com/codilime/floodgate/gateclient"
 )
 
 func TestResource_IsChanged(t *testing.T) {

@@ -1,0 +1,22 @@
+{
+   "cloudProviders": "kubernetes",
+   "dataSources": {
+      "disabled": [],
+      "enabled": []
+   },
+   "description": "Example application created from JSON file.",
+   "email": "example@example.com",
+   "name": "jsonapp",
+   "platformHealthOnly": false,
+   "platformHealthOnlyShowOverride": false,
+   "providerSettings": {
+      "aws": {
+         "useAmiBlockDeviceMappings": false
+      },
+      "gce": {
+         "associatePublicIpAddress": false
+      }
+   },
+   "trafficGuards": [],
+   "user": "floodgate@example.com"
+}

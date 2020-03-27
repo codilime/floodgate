@@ -1,4 +1,4 @@
-package cli
+package cmd
 
 import (
 	"fmt"
@@ -7,11 +7,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// renderOptions store sync command options
+// renderOptions store render command options
 type renderOptions struct {
 }
 
-// NewRenderCmd ?
+// NewRenderCmd create new render command
 func NewRenderCmd(out io.Writer) *cobra.Command {
 	options := renderOptions{}
 	cmd := &cobra.Command{

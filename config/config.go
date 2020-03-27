@@ -1,8 +1,15 @@
 package config
 
-// DefaultLocation is where the config is usually at
-// TODO(wurbanski): move it
-var DefaultLocation = "config.yaml"
+import (
+	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"os/user"
+	"path/filepath"
+
+	"github.com/ghodss/yaml"
+)
 
 // Config is the default configuration for the app
 type Config struct {
@@ -15,4 +22,42 @@ type Config struct {
 	} `yaml:"auth"`
 	Libraries []string `yaml:"libraries"`
 	Resources []string `yaml:"resources"`
+}
+
+// LoadConfig function is used to load configuration from file
+func LoadConfig(locations ...string) (*Config, error) {
+	var location string
+	if len(locations) > 0 {
+		location = locations[0]
+	} else {
+		userHome := ""
+		usr, err := user.Current()
+		if err != nil {
+			// Fallback by trying to read $HOME
+			userHome = os.Getenv("HOME")
+			if userHome != "" {
+				err = nil
+			} else {
+				return nil, fmt.Errorf("failed to read current user from environment: %w", err)
+			}
+		} else {
+			userHome = usr.HomeDir
+		}
+		location = filepath.Join(userHome, ".config", "floodgate", "config.yaml")
+	}
+
+	conf := &Config{}
+
+	configFile, err := ioutil.ReadFile(location)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	err = yaml.Unmarshal(configFile, &conf)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	return conf, nil
+
 }

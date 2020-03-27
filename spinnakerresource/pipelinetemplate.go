@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/codilime/floodgate/cmd/util"
+	"github.com/codilime/floodgate/util"
 
-	"github.com/codilime/floodgate/cmd/gateclient"
+	"github.com/codilime/floodgate/gateclient"
 )
 
 // PipelineTemplate object

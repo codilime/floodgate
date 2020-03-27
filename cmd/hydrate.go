@@ -1,4 +1,4 @@
-package cli
+package cmd
 
 import (
 	"fmt"
@@ -7,11 +7,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// hydrateOptions store sync command options
+// hydrateOptions store hydrate command options
 type hydrateOptions struct {
 }
 
-// NewHydrateCmd ?
+// NewHydrateCmd create new hydrate command
 func NewHydrateCmd(out io.Writer) *cobra.Command {
 	options := hydrateOptions{}
 	cmd := &cobra.Command{

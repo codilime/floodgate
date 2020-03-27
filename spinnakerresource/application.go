@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/codilime/floodgate/cmd/gateclient"
-	"github.com/codilime/floodgate/cmd/util"
 	gateapi "github.com/codilime/floodgate/gateapi"
+	"github.com/codilime/floodgate/gateclient"
+	"github.com/codilime/floodgate/util"
 )
 
 // Application object

@@ -1,4 +1,4 @@
-package cli
+package cmd
 
 import (
 	"fmt"
@@ -7,11 +7,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// inspectOptions store sync command options
+// inspectOptions store inspect command options
 type inspectOptions struct {
 }
 
-// NewInspectCmd ?
+// NewInspectCmd create new inspect command
 func NewInspectCmd(out io.Writer) *cobra.Command {
 	options := inspectOptions{}
 	cmd := &cobra.Command{

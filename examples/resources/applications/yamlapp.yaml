@@ -1,0 +1,16 @@
+cloudProviders: kubernetes
+dataSources:
+  disabled: []
+  enabled: []
+description: "Example application created from YAML file."
+email: "example@example.com"
+name: yamlapp
+platformHealthOnly: false
+platformHealthOnlyShowOverride: false
+providerSettings:
+  aws:
+    useAmiBlockDeviceMappings: false
+  gce:
+    associatePublicIpAddress: false
+trafficGuards: []
+user: "floodgate@example.com"
