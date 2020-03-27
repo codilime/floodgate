@@ -17,7 +17,7 @@ type Sync struct {
 }
 
 // Sync sync Spinnaker with local resources' state
-func (s *Sync) Sync() error {
+func (s *Sync) SyncResources() error {
 	if err := s.syncApplications(); err != nil {
 		log.Fatal(err)
 	}
