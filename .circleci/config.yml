@@ -8,6 +8,12 @@ jobs:
       - image: circleci/openjdk:11.0.3-jdk-stretch
     steps:
       - run:
+          name: Get swagger jar
+          command: |
+            echo "edfb6e52297a60f0a8ef9b963b8a79c1a0878dfc swagger-codegen-cli.jar" > sha1sum.txt
+            wget https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/2.4.9/swagger-codegen-cli-2.4.9.jar -o swagger-codegen-cli.jar
+            sha1sum -c sha1sum.txt
+      - run:
           name: Get gate code
           command: git clone https://github.com/spinnaker/gate.git -b release-1.19.x
       - run:
@@ -15,6 +21,13 @@ jobs:
           command: |
             cd gate
             ./swagger/generate_swagger.sh
+      - run:
+          name: Generate api
+          command: |
+            java -jar swagger-codegen-cli.jar generate -i gate/swagger/swagger.json -l go -o gateapi
+      - persist_to_workspace:
+          paths:
+            - gate/swagger/swagger.json
       - store_artifacts:
           path: gate/swagger/swagger.json
           destination: swagger.json
