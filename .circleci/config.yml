@@ -1,9 +1,13 @@
 # Golang CircleCI 2.0 configuration file
 #
 # Check https://circleci.com/docs/2.0/language-go/ for more details
-version: 2
+version: 2.1
 jobs:
   generate_swagger:
+    parameters:
+      gate_api_branch:
+        type: string
+        default: master
     docker:
       - image: circleci/openjdk:11.0.3-jdk-stretch
     steps:
@@ -15,7 +19,7 @@ jobs:
             sha1sum -c sha1sum.txt
       - run:
           name: Get gate code
-          command: git clone https://github.com/spinnaker/gate.git -b release-1.19.x
+          command: git clone https://github.com/spinnaker/gate.git -b << parameters.gate_api_branch >>
       - run:
           name: Generate swagger.json
           command: |
@@ -30,6 +34,10 @@ jobs:
           path: gate/swagger/gate-swagger.json
           destination: gate-swagger.json
   build:
+    parameters:
+      gate_api_branch:
+        type: string
+        default: master
     docker:
       - image: circleci/golang:1.14.1
         environment:
@@ -77,10 +85,17 @@ jobs:
           destination: floodgate
 
 workflows:
-  version: 2
   commit:
     jobs:
-      - generate_swagger
+      - generate_swagger:
+          name: generate swagger api << matrix.gate_api_branch >>
+          matrix:
+            parameters:
+              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
       - build:
+          name: build against gate << matrix.gate_api_branch >>
+          matrix:
+            parameters:
+              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
           requires:
-            - generate_swagger
+            - generate swagger api << matrix.gate_api_branch >>
