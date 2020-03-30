@@ -3,6 +3,21 @@
 # Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2
 jobs:
+  generate_swagger:
+    docker:
+      - image: circleci/openjdk:11.0.3-jdk-stretch
+    steps:
+      - run:
+          name: Get gate code
+          command: git clone https://github.com/spinnaker/gate.git -b release-1.19.x
+      - run:
+          name: Generate swagger.json
+          command: |
+            cd gate
+            ./swagger/generate_swagger.sh
+      - store_artifacts:
+          path: gate/swagger/swagger.json
+          destination: swagger.json
   build:
     docker:
       - image: circleci/golang:1.14.1
