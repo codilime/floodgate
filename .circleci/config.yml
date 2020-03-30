@@ -23,8 +23,7 @@ jobs:
             ./swagger/generate_swagger.sh
       - run:
           name: Generate api
-          command: |
-            java -jar swagger-codegen-cli.jar generate -i gate/swagger/swagger.json -l go -o gateapi
+          command: java -jar swagger-codegen-cli.jar generate -i gate/swagger/swagger.json -l go -o gateapi
       - persist_to_workspace:
           paths:
             - gate/swagger/swagger.json
