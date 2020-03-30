@@ -50,3 +50,12 @@ jobs:
       - store_artifacts:
           path: /go/src/github.com/codilime/floodgate/floodgate
           destination: floodgate
+
+workflows:
+  version: 2
+  commit:
+    jobs:
+      - generate_swagger
+      - build:
+          requires:
+            - generate_swagger
