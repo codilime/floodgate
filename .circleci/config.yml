@@ -81,7 +81,7 @@ jobs:
             done
       - store_artifacts:
           path: /go/src/github.com/codilime/floodgate/floodgate
-          destination: floodgate
+          destination: floodgate-<< parameters.gate_api_branch >>
 
 workflows:
   commit:
