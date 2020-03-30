@@ -4,6 +4,8 @@
 version: 2.1
 jobs:
   generate_swagger:
+    environment:
+      SWAGGER_VERSION=2.4.9
     parameters:
       gate_api_branch:
         type: string
@@ -14,7 +16,6 @@ jobs:
       - run:
           name: Setup swagger-codegen
           command: |
-            SWAGGER_VERSION=2.4.9
             wget https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/${SWAGGER_VERSION}/swagger-codegen-cli-${SWAGGER_VERSION}.jar -O swagger-codegen-cli.jar
             wget https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/${SWAGGER_VERSION}/swagger-codegen-cli-${SWAGGER_VERSION}.jar.sha1 -O swagger-codegen-cli.jar.sha1
             echo ' swagger-codegen-cli.jar' >> swagger-codegen-cli.jar.sha1
