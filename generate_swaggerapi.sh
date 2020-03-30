@@ -1,8 +1,19 @@
-# generate API libraries using swagger
+# generate API libraries using swagger in docker
 
-docker pull swaggerapi/swagger-codegen-cli:latest
+SWAGGER_JSON=${1:-"gate-swagger.json"}
+SWAGGER_VERSION=$(cat gateapi/.swagger-codegen/VERSION)
 
-docker run --rm -v ${PWD}:/local -u $(id -u):$(id -g) swaggerapi/swagger-codegen-cli generate \
-    -i /local/gate-swagger.json \
+echo '* Using swagger-codegen-cli '${SWAGGER_VERSION}
+docker pull swaggerapi/swagger-codegen-cli:${SWAGGER_VERSION}
+
+echo '* Cleaning up gateapi directory'
+rm -rf gateapi/api gateapi/docs gateapi/*.go gateapi/*.md
+
+echo '* Generating new gateapi code using '${SWAGGER_JSON}' file...'
+docker run --rm -v ${PWD}:/local -u $(id -u):$(id -g) \
+    swaggerapi/swagger-codegen-cli:${SWAGGER_VERSION} \
+    generate \
+    -i /local/${SWAGGER_JSON} \
     -l go \
     -o /local/gateapi
+
