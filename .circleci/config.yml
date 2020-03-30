@@ -25,6 +25,7 @@ jobs:
           name: Generate api
           command: java -jar swagger-codegen-cli.jar generate -i gate/swagger/swagger.json -l go -o gateapi
       - persist_to_workspace:
+          root: ./
           paths:
             - gate/swagger/swagger.json
       - store_artifacts:
