@@ -11,7 +11,7 @@ jobs:
           name: Get swagger jar
           command: |
             echo "edfb6e52297a60f0a8ef9b963b8a79c1a0878dfc swagger-codegen-cli.jar" > sha1sum.txt
-            wget https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/2.4.9/swagger-codegen-cli-2.4.9.jar -o swagger-codegen-cli.jar
+            wget https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/2.4.9/swagger-codegen-cli-2.4.9.jar -O swagger-codegen-cli.jar
             sha1sum -c sha1sum.txt
       - run:
           name: Get gate code
