@@ -9,7 +9,7 @@ jobs:
     parameters:
       gate_api_branch:
         type: string
-        default: master
+        default: release-1.19.x
     docker:
       - image: circleci/openjdk:11.0.3-jdk-stretch
     steps:
@@ -41,11 +41,12 @@ jobs:
       - store_artifacts:
           path: gate/swagger/gate-swagger.json
           destination: gate-swagger.json
+
   build:
     parameters:
       gate_api_branch:
         type: string
-        default: master
+        default: release-1.19.x
     docker:
       - image: circleci/golang:1.14.1
         environment:
@@ -84,7 +85,14 @@ jobs:
           destination: floodgate-<< parameters.gate_api_branch >>
 
 workflows:
-  commit:
+  periodic:
+    triggers:
+      - schedule:
+          cron: "15 2,8,14,20 * * *"
+          filters:
+            branches:
+              only:
+                - master
     jobs:
       - generate_swagger:
           name: generate swagger api << matrix.gate_api_branch >>
@@ -98,3 +106,11 @@ workflows:
               gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
           requires:
             - generate swagger api << matrix.gate_api_branch >>
+  commit:
+    jobs:
+      - generate_swagger:
+          name: generate swagger api
+      - build:
+          name: build against gate
+          requires:
+            - generate swagger api
