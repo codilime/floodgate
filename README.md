@@ -23,6 +23,31 @@ This project integrates multiple parts of "as-code" experience in Spinnaker, eg.
 
 ## Build process
 
+This repository contains a "known-working" version of `gate-swagger.json` file, which is a definition of Gate's API, used to generate client code in go using `swagger-codegen`.
+
+CircleCI process uses the `swagger-codegen-cli` JAR file to generate the API client at build time.
+
+As a developer, you can use `generate_swaggerapi.sh` script, which will use Docker to generate go client code for Gate API in the `gateapi` directory. For example:
+
+```
+./generate_swaggerapi.sh gate-swagger.json
+* Using swagger-codegen-cli 2.4.12
+2.4.12: Pulling from swaggerapi/swagger-codegen-cli
+e7c96db7181b: Already exists
+f910a506b6cb: Already exists
+b6abafe80f63: Already exists
+36ebbdce0651: Pull complete
+Digest: sha256:fc24e10784390e27fae893a57da7353d695e641920f3eb58f706ee54af92ebed
+Status: Downloaded newer image for swaggerapi/swagger-codegen-cli:2.4.12
+docker.io/swaggerapi/swagger-codegen-cli:2.4.12
+* Cleaning up gateapi directory
+* Generating new gateapi code using gate-swagger.json file...
+[main] INFO io.swagger.parser.Swagger20Parser - reading from /local/gate-swagger.json
+[...]
+```
+
+**Note:** This will remove current contents of `gateapi` directory!
+
 TBD (Following #21)
 
 ## WIP: How to run
