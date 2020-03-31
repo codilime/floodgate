@@ -1,9 +1,0 @@
-endpoint: https://localhost
-insecure: true
-auth:
-  user: admin
-  password: password
-libraries:
-  - sponnet
-resources:
-  - resources

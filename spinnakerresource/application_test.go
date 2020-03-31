@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/codilime/floodgate/cmd/gateclient"
+	"github.com/codilime/floodgate/gateclient"
 	"github.com/codilime/floodgate/test"
 )
 

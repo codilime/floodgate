@@ -6,7 +6,7 @@ import (
 
 	"github.com/nsf/jsondiff"
 
-	"github.com/codilime/floodgate/cmd/gateclient"
+	"github.com/codilime/floodgate/gateclient"
 )
 
 // Resource is basic struct for all spinnaker resources

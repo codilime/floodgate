@@ -3,7 +3,7 @@ package spinnakerresource
 import (
 	"testing"
 
-	"github.com/codilime/floodgate/cmd/gateclient"
+	"github.com/codilime/floodgate/gateclient"
 	"github.com/codilime/floodgate/test"
 )
 
