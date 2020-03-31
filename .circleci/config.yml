@@ -35,7 +35,7 @@ jobs:
           command: |
             cd /floodgate/gate
             ./swagger/generate_swagger.sh
-            cp ./swagger/swagger.json ../gate-swagger.json
+            cp ./swagger/swagger.json ./gate-swagger.json
       - run:
           name: Generate gateapi go code
           command: java -jar /floodgate/bin/swagger-codegen-cli.jar generate -l go -i /floodgate/gate/gate-swagger.json -o /floodgate/gateapi
