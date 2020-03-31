@@ -28,7 +28,7 @@ func NewRootCmd(out io.Writer) *cobra.Command {
 		SilenceErrors: true,
 		Version:       version.String(),
 	}
-	cmd.PersistentFlags().StringVar(&options.configFile, "config", "", "path to config file (default ./config.yaml)")
+	cmd.PersistentFlags().StringVar(&options.configFile, "config", "", "path to config file (default $HOME/.config/floodgate/config.yaml)")
 	cmd.PersistentFlags().BoolVarP(&options.quiet, "quiet", "q", false, "squelch non-essential output")
 
 	cmd.AddCommand(NewSyncCmd(out))
