@@ -27,9 +27,11 @@ type Config struct {
 // LoadConfig function is used to load configuration from file
 func LoadConfig(locations ...string) (*Config, error) {
 	var location string
-	if len(locations) > 0 {
-		location = locations[0]
-	} else {
+	if len(locations) == 0 {
+		return nil, fmt.Errorf("no config file provided")
+	}
+	location = locations[0]
+	if location == "" {
 		userHome := ""
 		usr, err := user.Current()
 		if err != nil {
