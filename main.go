@@ -1,29 +1,15 @@
 package main
 
 import (
-	"log"
+	"fmt"
+	"os"
 
-	"github.com/codilime/floodgate/cmd/cli"
-	"github.com/codilime/floodgate/cmd/gateclient"
-	"github.com/codilime/floodgate/cmd/parser"
-	"github.com/codilime/floodgate/cmd/sync"
+	"github.com/codilime/floodgate/cmd"
 )
 
 func main() {
-	floodgateConfig, _ := cli.LoadConfig("config.yaml")
-
-	p := parser.CreateParser(floodgateConfig.Libraries)
-
-	err := p.LoadObjectsFromDirectories(floodgateConfig.Resources)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Print("resources: ", p.Resources)
-
-	client := gateclient.NewGateapiClient(floodgateConfig)
-	sync := &sync.Sync{}
-	sync.Init(p, client)
-	if err := sync.Sync(); err != nil {
-		log.Fatal(err)
+	if err := cmd.Execute(os.Stdout); err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(1)
 	}
 }
