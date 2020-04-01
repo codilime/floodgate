@@ -11,14 +11,38 @@ import (
 
 // Sync synchornize resources with Spinnaker
 type Sync struct {
-	client *gateclient.GateapiClient
-	parser *parser.Parser
+	resources struct {
+		Applications      []*spr.Application
+		Pipelines         []*spr.Pipeline
+		PipelineTemplates []*spr.PipelineTemplate
+	}
 }
 
 // Init initialize sync
-func (s *Sync) Init(client *gateclient.GateapiClient, parser *parser.Parser) {
-	s.client = client
-	s.parser = parser
+func (s *Sync) Init(client *gateclient.GateapiClient, resourceData *parser.ResourceData) error {
+	for _, localData := range resourceData.Applications {
+		application := &spr.Application{}
+		if err := application.Init(client, localData); err != nil {
+			return err
+		}
+		s.resources.Applications = append(s.resources.Applications, application)
+	}
+	for _, localData := range resourceData.Pipelines {
+		pipeline := &spr.Pipeline{}
+		if err := pipeline.Init(client, localData); err != nil {
+			return err
+		}
+		s.resources.Pipelines = append(s.resources.Pipelines, pipeline)
+	}
+	for _, localData := range resourceData.PipelineTemplates {
+		pipelineTemplate := &spr.PipelineTemplate{}
+		if err := pipelineTemplate.Init(client, localData); err != nil {
+			return err
+		}
+		s.resources.PipelineTemplates = append(s.resources.PipelineTemplates, pipelineTemplate)
+
+	}
+	return nil
 }
 
 // SyncResources synchronize resources with Spinnaker
@@ -35,10 +59,7 @@ func (s *Sync) SyncResources() error {
 	return nil
 }
 
-func (s Sync) syncResource(resource spr.Resourcer, localData map[string]interface{}) (bool, error) {
-	if err := resource.Init(s.client, localData); err != nil {
-		return false, err
-	}
+func (s Sync) syncResource(resource spr.Resourcer) (bool, error) {
 	needToSave, err := resource.IsChanged()
 	if err != nil {
 		return false, err
@@ -54,14 +75,15 @@ func (s Sync) syncResource(resource spr.Resourcer, localData map[string]interfac
 
 func (s Sync) syncApplications() error {
 	log.Print("Syncing applications")
-	for _, applicationData := range s.parser.Resources.Applications {
-		application := &spr.Application{}
-		synced, err := s.syncResource(application, applicationData)
+	for _, application := range s.resources.Applications {
+		synced, err := s.syncResource(application)
 		if err != nil {
-			return fmt.Errorf("failed to sync application: %v", err)
+			return fmt.Errorf("failed to sync application: %v", application)
 		}
 		if !synced {
-			log.Printf("No need to save application %v", applicationData)
+			log.Printf("No need to save application %v", application)
+		} else {
+			log.Printf("Successfully synced application %v", application)
 		}
 	}
 	return nil
@@ -69,14 +91,13 @@ func (s Sync) syncApplications() error {
 
 func (s Sync) syncPipelines() error {
 	log.Print("Syncing pipelines")
-	for _, pipelineData := range s.parser.Resources.Pipelines {
-		pipeline := &spr.Pipeline{}
-		synced, err := s.syncResource(pipeline, pipelineData)
+	for _, pipeline := range s.resources.Pipelines {
+		synced, err := s.syncResource(pipeline)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to sync pipeline: %v", pipeline)
 		}
 		if !synced {
-			log.Printf("No need to save pipeline %v", pipelineData)
+			log.Printf("No need to save pipeline %v", pipeline)
 		}
 	}
 	return nil
@@ -84,14 +105,13 @@ func (s Sync) syncPipelines() error {
 
 func (s Sync) syncPipelineTemplates() error {
 	log.Print("Syncing pipeline templates")
-	for _, pipelineTemplateData := range s.parser.Resources.PipelineTemplates {
-		pipelineTemplate := &spr.PipelineTemplate{}
-		synced, err := s.syncResource(pipelineTemplate, pipelineTemplateData)
+	for _, pipelineTemplate := range s.resources.PipelineTemplates {
+		synced, err := s.syncResource(pipelineTemplate)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to sync pipeline template: %v", pipelineTemplate)
 		}
 		if !synced {
-			log.Printf("No need to save pipeline template %v", pipelineTemplateData)
+			log.Printf("No need to save pipeline template %v", pipelineTemplate)
 		}
 	}
 	return nil

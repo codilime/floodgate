@@ -48,7 +48,9 @@ func runSync(cmd *cobra.Command, options syncOptions) error {
 		return err
 	}
 	sync := &sync.Sync{}
-	sync.Init(client, p)
+	if err := sync.Init(client, &p.Resources); err != nil {
+		return err
+	}
 	if err := sync.SyncResources(); err != nil {
 		return err
 	}
