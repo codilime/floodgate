@@ -446,40 +446,10 @@ var complexKeysJSON0110 = []byte("{\"key1\":{\"key2\":0,\"key3\":1},\"key4\":{\"
 var complexKeysJSON1110 = []byte("{\"key1\":{\"key2\":1,\"key3\":1},\"key4\":{\"key5\":1,\"key6\":0}}")
 var complexKeysJSON1111 = []byte("{\"key7\":{\"key8\":1,\"key9\":1},\"key4\":{\"key5\":1,\"key6\":1}}")
 var normalizedRemovedKeys = []byte("{\"key4\":{\"key5\":1,\"key6\":1}}")
-var singleKeyJSON0DiffMore = `@ ["key1"]
-+ 0
-`
-
-var singleKeyJSON0DiffLess = `@ ["key1"]
-- 0
-`
-
-var singleDiff = `@ ["key1"]
-- 1
-+ 0
-`
-
-var oneKeyChanged01 = `@ ["key1"]
-- 0
-+ 1
-@ ["key2"]
-+ 1
-`
-
-var twoKeysChanged10 = `@ ["key1"]
-- 1
-+ 0
-@ ["key2"]
-- 1
-+ 0
-`
-
-var nestedChange = `@ ["key1","key2"]
-- 1
-+ 0
-`
-
-var normalizedNewKey = `@ ["key1"]
-- {"key2":1,"key3":1}
-+ 0
-`
+var singleKeyJSON0DiffMore = "@ [\"key1\"]\n+ 0\n"
+var singleKeyJSON0DiffLess = "@ [\"key1\"]\n- 0\n"
+var singleDiff = "@ [\"key1\"]\n- 1\n+ 0\n"
+var oneKeyChanged01 = "@ [\"key1\"]\n- 0\n+ 1\n@ [\"key2\"]\n+ 1\n"
+var twoKeysChanged10 = "@ [\"key1\"]\n- 1\n+ 0\n@ [\"key2\"]\n- 1\n+ 0\n"
+var nestedChange = "@ [\"key1\",\"key2\"]\n- 1\n+ 0\n"
+var normalizedNewKey = "@ [\"key1\"]\n- {\"key2\":1,\"key3\":1}\n+ 0\n"
