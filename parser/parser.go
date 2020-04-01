@@ -12,8 +12,8 @@ import (
 	"github.com/google/go-jsonnet"
 )
 
-// SpinnakerResources contains all the managed SpinnakerResources defined for Floodgate.
-type SpinnakerResources struct {
+// ResourceData contains all the managed ResourceData defined for Floodgate.
+type ResourceData struct {
 	Applications      []map[string]interface{}
 	Pipelines         []map[string]interface{}
 	PipelineTemplates []map[string]interface{}
@@ -22,7 +22,7 @@ type SpinnakerResources struct {
 // Parser extends jsonnet VM with floodgate-specific configuration.
 type Parser struct {
 	*jsonnet.VM
-	Resources SpinnakerResources
+	Resources ResourceData
 }
 
 // CreateParser creates an instance of Floodgate resources parser.
