@@ -13,7 +13,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Prepare extra dirrectories
+          name: Prepare extra directories
           command: |
             sudo mkdir /floodgate
             sudo chmod 777 /floodgate
@@ -117,6 +117,6 @@ workflows:
       - generate_swagger:
           name: generate swagger api
       - build:
-          name: build against gate
+          name: build
           requires:
             - generate swagger api
