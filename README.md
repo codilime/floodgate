@@ -48,7 +48,16 @@ docker.io/swaggerapi/swagger-codegen-cli:2.4.12
 
 **Note:** This will remove current contents of `gateapi` directory!
 
-TBD (Following #21)
+You can also obtain the same using raw java file, like in CI:
+
+```
+$ SWAGGER_VERSION=$(cat gateapi/.swagger-codegen/VERSION)
+$ wget https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/${SWAGGER_VERSION}/swagger-codegen-cli-${SWAGGER_VERSION}.jar -O /tmp/swagger-codegen-cli.jar
+$ rm -r gateapi
+$ java -jar /tmp/swagger-codegen-cli.jar generate -l go -i gate-swagger.json -o gateapi
+```
+
+**Note:** This will remove current contents of `gateapi` directory!
 
 ## WIP: How to run
 

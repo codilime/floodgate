@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/codilime/floodgate/cmd/gateclient"
 	gateapi "github.com/codilime/floodgate/gateapi"
+	"github.com/codilime/floodgate/gateclient"
 )
 
 // MockGateServerFunction is a handler to a function for Gate server mock

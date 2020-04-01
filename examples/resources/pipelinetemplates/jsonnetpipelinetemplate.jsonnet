@@ -1,11 +1,11 @@
 local pipelineTemplates = import 'v2PipelineTemplate.libsonnet';
 
 local metadata = pipelineTemplates.metadata()
-.withName('Demo pipeline template')
-.withDescription('Demo Pipeline Template.')
-.withOwner('demo-app-user@example.com')
+.withName('Example pipeline template from Jsonnet')
+.withDescription('Example pipeline template created from Jsonnet file.')
+.withOwner('floodgate@example.com')
 .withScopes(['global']);
 
 pipelineTemplates.pipelineTemplate()
-.withId('demo-pipeline-template')
+.withId('jsonnetpt')
 .withMetadata(metadata)
