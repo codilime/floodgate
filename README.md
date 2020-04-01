@@ -94,4 +94,3 @@ WIP (Following #19)
 ## License
 
 Floodgate is licensed under Apache 2.0 License, following other Spinnaker's components.
-
