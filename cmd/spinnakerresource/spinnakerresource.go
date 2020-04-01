@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"reflect"
 
-	"github.com/nsf/jsondiff"
+	jd "github.com/josephburnett/jd/lib"
 
 	"github.com/codilime/floodgate/cmd/gateclient"
 )
@@ -45,11 +45,11 @@ func (r Resource) GetLocalState() ([]byte, error) {
 }
 
 // GetFullDiff function returns diff against remote state
-func (r Resource) GetFullDiff() []byte {
-	options := new(jsondiff.Options)
-	_, diff := jsondiff.Compare(r.remoteState, r.localState, options)
+func (r Resource) GetFullDiff() string {
+	a, _ := jd.ReadJsonString(string(r.remoteState))
+	b, _ := jd.ReadJsonString(string(r.localState))
 
-	return []byte(diff)
+	return a.Diff(b).Render()
 }
 
 func (r Resource) getNormalizedRemoteState() ([]byte, error) {
@@ -80,13 +80,12 @@ func (r Resource) getNormalizedRemoteState() ([]byte, error) {
 }
 
 // GetNormalizedDiff function returns diff on only managed resources
-func (r Resource) GetNormalizedDiff() []byte {
-	options := new(jsondiff.Options)
+func (r Resource) GetNormalizedDiff() string {
 	remoteState, _ := r.getNormalizedRemoteState()
+	a, _ := jd.ReadJsonString(string(remoteState))
+	b, _ := jd.ReadJsonString(string(r.localState))
 
-	_, diff := jsondiff.Compare(remoteState, r.localState, options)
-
-	return []byte(diff)
+	return a.Diff(b).Render()
 }
 
 // GetRemoteState is used to view stored remote state.
