@@ -91,6 +91,29 @@ go test ./...
 
 WIP (Following #19)
 
+JSON comparison is achieved using an external library. For full output specification please check https://github.com/josephburnett/jd#diff-language
+
+Simple example:
+
+a.json:
+`{"hungry":"true", "pizza":{"eat":"true","like":"true"},"pasta":{"eat":"true","like":"false"}}`
+
+b.json:
+`{"hungry":"false", "pizza":{"eat":"true","like":"true"},"pasta":{"eat":"false","like":"true"}}`
+
+Difference between a.json and b.json:
+```
+@ ["hungry"]
+- "true"
++ "false"
+@ ["pasta","eat"]
+- "true"
++ "false"
+@ ["pasta","like"]
+- "false"
++ "true"
+```
+
 ## License
 
 Floodgate is licensed under Apache 2.0 License, following other Spinnaker's components.
