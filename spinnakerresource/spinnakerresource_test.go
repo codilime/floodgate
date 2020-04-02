@@ -150,7 +150,7 @@ func TestResource_GetFullDiff(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
-		want   []byte
+		want   string
 	}{
 		{
 			name: "Empty remote json",
@@ -159,7 +159,7 @@ func TestResource_GetFullDiff(t *testing.T) {
 				remoteState:  emptyJSON,
 				spinnakerAPI: &gateclient.GateapiClient{},
 			},
-			want: singleKeyJSON0Diff,
+			want: singleKeyJSON0DiffMore,
 		},
 		{
 			name: "Empty local json",
@@ -168,7 +168,7 @@ func TestResource_GetFullDiff(t *testing.T) {
 				remoteState:  singleKeyJSON0,
 				spinnakerAPI: &gateclient.GateapiClient{},
 			},
-			want: singleKeyJSON0Diff,
+			want: singleKeyJSON0DiffLess,
 		},
 		{
 			name: "Proper diff twice single key",
@@ -198,7 +198,7 @@ func TestResource_GetFullDiff(t *testing.T) {
 			want: twoKeysChanged10,
 		},
 		{
-			name: "Proper diff twice double key",
+			name: "Proper diff twice complex double key",
 			fields: fields{
 				localState:   complexKeysJSON0110,
 				remoteState:  complexKeysJSON1110,
@@ -231,7 +231,7 @@ func TestResource_GetNormalizedDiff(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
-		want   []byte
+		want   string
 	}{
 		{
 			name: "Proper diff twice single key",
@@ -244,7 +244,7 @@ func TestResource_GetNormalizedDiff(t *testing.T) {
 			want: singleDiff,
 		},
 		{
-			name: "Proper diff single key agains double key",
+			name: "Proper diff single key against double key",
 			fields: fields{
 				name:         "resource",
 				localState:   twoKeysJSON1,
@@ -437,21 +437,19 @@ func TestResource_GetRemoteState(t *testing.T) {
 }
 
 var emptyJSON = []byte("{}")
+var brokenJSON = []byte("{")
 var singleKeyJSON0 = []byte("{\"key1\":0}")
 var singleKeyJSON1 = []byte("{\"key1\":1}")
-var singleKeyJSON0Diff = []byte("{\n\"key1\": 0\n}")
 var twoKeysJSON0 = []byte("{\"key1\":0, \"key2\": 0}")
 var twoKeysJSON1 = []byte("{\"key1\":1, \"key2\": 1}")
 var complexKeysJSON0110 = []byte("{\"key1\":{\"key2\":0,\"key3\":1},\"key4\":{\"key5\":1,\"key6\":0}}")
 var complexKeysJSON1110 = []byte("{\"key1\":{\"key2\":1,\"key3\":1},\"key4\":{\"key5\":1,\"key6\":0}}")
 var complexKeysJSON1111 = []byte("{\"key7\":{\"key8\":1,\"key9\":1},\"key4\":{\"key5\":1,\"key6\":1}}")
-var brokenJSON = []byte("{")
-var singleDiff = []byte("{\n\"key1\": 1 => 0\n}")
-var oneKeyChanged01 = []byte("{\n\"key1\": 0 => 1,\n\"key2\": 1\n}")
-var twoKeysChanged10 = []byte("{\n\"key1\": 1 => 0,\n\"key2\": 1 => 0\n}")
-var newKeyAdded = []byte("{\n\"key1\": {} => 0,\n\"key4\": {\n\"key5\": 1,\n\"key6\": 0\n}\n}")
-var nestedChange = []byte("{\n\"key1\": {\n\"key2\": 1 => 0,\n\"key3\": 1\n},\n\"key4\": {\n\"key5\": 1,\n\"key6\": 0\n}\n}")
-var addingNestedKey = []byte("{\n\"key1\": {\n\"key2\": 0,\n\"key3\": 1\n},\n\"key4\": {\n\"key5\": 1,\n\"key6\": 1 => 0\n},\n\"key7\": {\n\"key8\": 1,\n\"key9\": 1\n}\n}")
-var normalizedNewKey = []byte("{\n\"key1\": {} => 0\n}")
-var normalizedKeyChanged = []byte("{\n\"key1\": {\n\"key2\": 0,\n\"key3\": 1\n},\n\"key4\": {\n\"key5\": 1,\n\"key6\": 1 => 0\n}\n}")
 var normalizedRemovedKeys = []byte("{\"key4\":{\"key5\":1,\"key6\":1}}")
+var singleKeyJSON0DiffMore = "@ [\"key1\"]\n+ 0\n"
+var singleKeyJSON0DiffLess = "@ [\"key1\"]\n- 0\n"
+var singleDiff = "@ [\"key1\"]\n- 1\n+ 0\n"
+var oneKeyChanged01 = "@ [\"key1\"]\n- 0\n+ 1\n@ [\"key2\"]\n+ 1\n"
+var twoKeysChanged10 = "@ [\"key1\"]\n- 1\n+ 0\n@ [\"key2\"]\n- 1\n+ 0\n"
+var nestedChange = "@ [\"key1\",\"key2\"]\n- 1\n+ 0\n"
+var normalizedNewKey = "@ [\"key1\"]\n- {\"key2\":1,\"key3\":1}\n+ 0\n"
