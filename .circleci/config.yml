@@ -116,14 +116,8 @@ workflows:
   commit:
     jobs:
       - generate_swagger:
-          name: generate swagger api << matrix.gate_api_branch >>
-          matrix:
-            parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+          name: generate swagger api
       - build:
-          name: build against gate << matrix.gate_api_branch >>
-          matrix:
-            parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+          name: build
           requires:
-            - generate swagger api << matrix.gate_api_branch >>
+            - generate swagger api
