@@ -97,6 +97,7 @@ Simple example:
 
 a.json:
 `{"hungry":"true", "pizza":{"eat":"true","like":"true"},"pasta":{"eat":"true","like":"false"}}`
+
 b.json:
 `{"hungry":"false", "pizza":{"eat":"true","like":"true"},"pasta":{"eat":"false","like":"true"}}`
 
