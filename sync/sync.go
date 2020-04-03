@@ -2,7 +2,8 @@ package sync
 
 import (
 	"fmt"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/codilime/floodgate/gateclient"
 	"github.com/codilime/floodgate/parser"
