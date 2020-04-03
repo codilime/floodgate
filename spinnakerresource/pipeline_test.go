@@ -52,7 +52,7 @@ func TestPipeline_Init(t *testing.T) {
 		{
 			name: "missing key name",
 			args: args{
-				localData: missingName,
+				localData: PipelineWithMissingName,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
@@ -60,7 +60,15 @@ func TestPipeline_Init(t *testing.T) {
 		{
 			name: "missing key application",
 			args: args{
-				localData: missingApplication,
+				localData: PipelineWithMissingApplication,
+				ts:        test.MockGateServerReturn200,
+			},
+			wantErr: true,
+		},
+		{
+			name: "missing key id",
+			args: args{
+				localData: PipelineWithMissingID,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
@@ -68,7 +76,7 @@ func TestPipeline_Init(t *testing.T) {
 		{
 			name: "empty key name",
 			args: args{
-				localData: emptyName,
+				localData: PipelineWithEmptyName,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
@@ -76,7 +84,15 @@ func TestPipeline_Init(t *testing.T) {
 		{
 			name: "empty key application",
 			args: args{
-				localData: emptyApplication,
+				localData: PipelineWithEmptyApplication,
+				ts:        test.MockGateServerReturn200,
+			},
+			wantErr: true,
+		},
+		{
+			name: "empty key id",
+			args: args{
+				localData: PipelineWithEmptyID,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
@@ -84,7 +100,7 @@ func TestPipeline_Init(t *testing.T) {
 		{
 			name: "missing schema for template",
 			args: args{
-				localData: missingSchemaForTemplate,
+				localData: PipelineWithMissingSchemaForTemplate,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
@@ -92,7 +108,7 @@ func TestPipeline_Init(t *testing.T) {
 		{
 			name: "empty schema for template",
 			args: args{
-				localData: emptySchemaForTemplate,
+				localData: PipelineWithEmptySchemaForTemplate,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
@@ -100,7 +116,7 @@ func TestPipeline_Init(t *testing.T) {
 		{
 			name: "template invalid type",
 			args: args{
-				localData: templateIsOfInvalidType,
+				localData: PipelineWithTemplateOfInvalidType,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: false,
@@ -249,50 +265,70 @@ func TestPipeline_SaveLocalState(t *testing.T) {
 var testPipeline = map[string]interface{}{
 	"name":        "Test pipeline.",
 	"application": "Test pipeline application.",
+	"id":          "testpipeline",
 }
 
 var testPipelineWithTemplate = map[string]interface{}{
 	"name":        "Test pipeline.",
 	"application": "Test pipeline application.",
+	"id":          "testpipeline",
 	"metadata": map[string]interface{}{
 		"schema": "v2",
 	},
 }
 
-var emptyName = map[string]interface{}{
+var PipelineWithEmptyName = map[string]interface{}{
 	"name":        "",
 	"application": "Test pipeline application.",
+	"id":          "testpipeline",
 }
 
-var emptyApplication = map[string]interface{}{
+var PipelineWithEmptyApplication = map[string]interface{}{
 	"name":        "Test pipeline.",
 	"application": "",
+	"id":          "testpipeline",
 }
 
-var missingName = map[string]interface{}{
-	"application": "Test pipeline application.",
-}
-
-var missingApplication = map[string]interface{}{
-	"name": "Test pipeline.",
-}
-
-var missingSchemaForTemplate = map[string]interface{}{
+var PipelineWithEmptyID = map[string]interface{}{
 	"name":        "Test pipeline.",
 	"application": "Test pipeline application.",
+	"id":          "",
+}
+
+var PipelineWithMissingName = map[string]interface{}{
+	"application": "Test pipeline application.",
+	"id":          "testpipeline",
+}
+
+var PipelineWithMissingApplication = map[string]interface{}{
+	"name": "Test pipeline.",
+	"id":   "testpipeline",
+}
+
+var PipelineWithMissingID = map[string]interface{}{
+	"name":        "Test pipeline.",
+	"application": "Test pipeline application.",
+}
+
+var PipelineWithMissingSchemaForTemplate = map[string]interface{}{
+	"name":        "Test pipeline.",
+	"application": "Test pipeline application.",
+	"id":          "testpipeline",
 	"template":    map[string]interface{}{"": ""},
 }
 
-var emptySchemaForTemplate = map[string]interface{}{
+var PipelineWithEmptySchemaForTemplate = map[string]interface{}{
 	"name":        "Test pipeline.",
 	"application": "Test pipeline application.",
+	"id":          "testpipeline",
 	"template": map[string]interface{}{
 		"schema": "",
 	},
 }
 
-var templateIsOfInvalidType = map[string]interface{}{
+var PipelineWithTemplateOfInvalidType = map[string]interface{}{
 	"name":        "Test pipeline.",
 	"application": "Test pipeline application.",
+	"id":          "testpipeline",
 	"template":    "definitely not a map[string]interface{}",
 }

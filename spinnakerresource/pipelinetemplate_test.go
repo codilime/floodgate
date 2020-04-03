@@ -44,7 +44,7 @@ func TestPipelineTemplate_Init(t *testing.T) {
 		{
 			name: "missing key id",
 			args: args{
-				localData: missingID,
+				localData: PipelineWithMissingID,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
@@ -52,7 +52,7 @@ func TestPipelineTemplate_Init(t *testing.T) {
 		{
 			name: "missing key metadata",
 			args: args{
-				localData: missingMetadata,
+				localData: PipelineTemplateWithMissingMetadata,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
@@ -60,7 +60,7 @@ func TestPipelineTemplate_Init(t *testing.T) {
 		{
 			name: "missing key schema",
 			args: args{
-				localData: missingSchema,
+				localData: PipelineTemplateWithMissingSchema,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
@@ -68,7 +68,7 @@ func TestPipelineTemplate_Init(t *testing.T) {
 		{
 			name: "missing metadata key name",
 			args: args{
-				localData: missingMetadataName,
+				localData: PipelineTemplateWithMissingMetadataName,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
@@ -76,7 +76,7 @@ func TestPipelineTemplate_Init(t *testing.T) {
 		{
 			name: "missing metadata key description",
 			args: args{
-				localData: missingMetadataDescription,
+				localData: PipelineTemplateWithMissingMetadataDescription,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
@@ -84,7 +84,7 @@ func TestPipelineTemplate_Init(t *testing.T) {
 		{
 			name: "missing metadata key owner",
 			args: args{
-				localData: missingMetadataOwner,
+				localData: PipelineTemplateWithMissingMetadataOwner,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
@@ -92,7 +92,7 @@ func TestPipelineTemplate_Init(t *testing.T) {
 		{
 			name: "missing metadata key scopes",
 			args: args{
-				localData: missingMetadataScopes,
+				localData: PipelineTemplateWithMissingMetadataScopes,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
@@ -100,7 +100,7 @@ func TestPipelineTemplate_Init(t *testing.T) {
 		{
 			name: "empty metadata key id",
 			args: args{
-				localData: emptyID,
+				localData: PipelineWithEmptyID,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
@@ -108,7 +108,7 @@ func TestPipelineTemplate_Init(t *testing.T) {
 		{
 			name: "empty metadata key name",
 			args: args{
-				localData: emptyMetadataName,
+				localData: PipelineTemplateWithEmptyMetadataName,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
@@ -116,7 +116,7 @@ func TestPipelineTemplate_Init(t *testing.T) {
 		{
 			name: "empty metadata key description",
 			args: args{
-				localData: emptyMetadataDescription,
+				localData: PipelineTemplateWithEmptyMetadataDescription,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
@@ -124,7 +124,7 @@ func TestPipelineTemplate_Init(t *testing.T) {
 		{
 			name: "empty metadata key owner",
 			args: args{
-				localData: emptyMetadataOwner,
+				localData: PipelineTemplateWithEmptyMetadataOwner,
 				ts:        test.MockGateServerReturn200,
 			},
 			wantErr: true,
@@ -277,7 +277,7 @@ var testPipelineTemplate = map[string]interface{}{
 	"schema": "v2",
 }
 
-var missingID = map[string]interface{}{
+var PipelineTemplateWithMissingID = map[string]interface{}{
 	"metadata": map[string]interface{}{
 		"name":        "Test pipeline template",
 		"description": "Test pipeline template.",
@@ -289,7 +289,7 @@ var missingID = map[string]interface{}{
 	"schema": "v2",
 }
 
-var missingSchema = map[string]interface{}{
+var PipelineTemplateWithMissingSchema = map[string]interface{}{
 	"id": "test-pipeline-template",
 	"metadata": map[string]interface{}{
 		"name":        "Test pipeline template",
@@ -301,12 +301,12 @@ var missingSchema = map[string]interface{}{
 	},
 }
 
-var missingMetadata = map[string]interface{}{
+var PipelineTemplateWithMissingMetadata = map[string]interface{}{
 	"id":     "test-pipeline-template",
 	"schema": "v2",
 }
 
-var missingMetadataName = map[string]interface{}{
+var PipelineTemplateWithMissingMetadataName = map[string]interface{}{
 	"id": "test-pipeline-template",
 	"metadata": map[string]interface{}{
 		"description": "Test pipeline template.",
@@ -318,7 +318,7 @@ var missingMetadataName = map[string]interface{}{
 	"schema": "v2",
 }
 
-var missingMetadataDescription = map[string]interface{}{
+var PipelineTemplateWithMissingMetadataDescription = map[string]interface{}{
 	"id": "test-pipeline-template",
 	"metadata": map[string]interface{}{
 		"name":  "Test pipeline template",
@@ -330,7 +330,7 @@ var missingMetadataDescription = map[string]interface{}{
 	"schema": "v2",
 }
 
-var missingMetadataOwner = map[string]interface{}{
+var PipelineTemplateWithMissingMetadataOwner = map[string]interface{}{
 	"id": "test-pipeline-template",
 	"metadata": map[string]interface{}{
 		"name":        "Test pipeline template",
@@ -342,7 +342,7 @@ var missingMetadataOwner = map[string]interface{}{
 	"schema": "v2",
 }
 
-var missingMetadataScopes = map[string]interface{}{
+var PipelineTemplateWithMissingMetadataScopes = map[string]interface{}{
 	"id": "test-pipeline-template",
 	"metadata": map[string]interface{}{
 		"name":        "Test pipeline template",
@@ -352,7 +352,7 @@ var missingMetadataScopes = map[string]interface{}{
 	"schema": "v2",
 }
 
-var emptyID = map[string]interface{}{
+var PipelineTemplateWithEmptyID = map[string]interface{}{
 	"id": "",
 	"metadata": map[string]interface{}{
 		"name":        "Test pipeline template",
@@ -365,7 +365,7 @@ var emptyID = map[string]interface{}{
 	"schema": "v2",
 }
 
-var emptySchema = map[string]interface{}{
+var PipelineTemplateWithEmptySchema = map[string]interface{}{
 	"id": "test-pipeline-template",
 	"metadata": map[string]interface{}{
 		"name":        "Test pipeline template",
@@ -378,7 +378,7 @@ var emptySchema = map[string]interface{}{
 	"schema": "",
 }
 
-var emptyMetadataName = map[string]interface{}{
+var PipelineTemplateWithEmptyMetadataName = map[string]interface{}{
 	"id": "test-pipeline-template",
 	"metadata": map[string]interface{}{
 		"name":        "",
@@ -391,7 +391,7 @@ var emptyMetadataName = map[string]interface{}{
 	"schema": "v2",
 }
 
-var emptyMetadataDescription = map[string]interface{}{
+var PipelineTemplateWithEmptyMetadataDescription = map[string]interface{}{
 	"id": "test-pipeline-template",
 	"metadata": map[string]interface{}{
 		"name":        "Test pipeline template",
@@ -404,7 +404,7 @@ var emptyMetadataDescription = map[string]interface{}{
 	"schema": "v2",
 }
 
-var emptyMetadataOwner = map[string]interface{}{
+var PipelineTemplateWithEmptyMetadataOwner = map[string]interface{}{
 	"id": "test-pipeline-template",
 	"metadata": map[string]interface{}{
 		"name":        "Test pipeline template",

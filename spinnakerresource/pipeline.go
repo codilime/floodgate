@@ -14,6 +14,7 @@ type Pipeline struct {
 	*Resource
 	name        string
 	application string
+	id          string
 }
 
 // Init initialize pipeline
@@ -23,6 +24,7 @@ func (p *Pipeline) Init(api *gateclient.GateapiClient, localData map[string]inte
 	}
 	name := localData["name"].(string)
 	application := localData["application"].(string)
+	id := localData["id"].(string)
 	localState, err := json.Marshal(localData)
 	if err != nil {
 		return err
@@ -33,10 +35,21 @@ func (p *Pipeline) Init(api *gateclient.GateapiClient, localData map[string]inte
 	}
 	p.name = name
 	p.application = application
+	p.id = id
 	if err := p.loadRemoteState(); err != nil {
 		return err
 	}
 	return nil
+}
+
+// Name get pipeline name
+func (p Pipeline) Name() string {
+	return p.name
+}
+
+// ID get pipeline id
+func (p Pipeline) ID() string {
+	return p.id
 }
 
 // LoadRemoteState get remote resource
@@ -92,6 +105,9 @@ func (p Pipeline) validate(localData map[string]interface{}) error {
 		return err
 	}
 	if err := util.AssertMapKeyIsString(localData, "application", true); err != nil {
+		return err
+	}
+	if err := util.AssertMapKeyIsString(localData, "id", true); err != nil {
 		return err
 	}
 	// template is optional key, but it requires defined schema
