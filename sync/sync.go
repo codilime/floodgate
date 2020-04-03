@@ -9,13 +9,17 @@ import (
 	spr "github.com/codilime/floodgate/spinnakerresource"
 )
 
+// SpinnakerResources Spinnaker resources collection
+type SpinnakerResources struct {
+	Applications      []*spr.Application
+	Pipelines         []*spr.Pipeline
+	PipelineTemplates []*spr.PipelineTemplate
+}
+
 // Sync synchornize resources with Spinnaker
 type Sync struct {
-	resources struct {
-		Applications      []*spr.Application
-		Pipelines         []*spr.Pipeline
-		PipelineTemplates []*spr.PipelineTemplate
-	}
+	resources         SpinnakerResources
+	desyncedResources SpinnakerResources
 }
 
 // Init initialize sync
@@ -26,6 +30,13 @@ func (s *Sync) Init(client *gateclient.GateapiClient, resourceData *parser.Resou
 			return err
 		}
 		s.resources.Applications = append(s.resources.Applications, application)
+		changed, err := application.IsChanged()
+		if err != nil {
+			return err
+		}
+		if changed {
+			s.desyncedResources.Applications = append(s.desyncedResources.Applications, application)
+		}
 	}
 	for _, localData := range resourceData.Pipelines {
 		pipeline := &spr.Pipeline{}
@@ -33,6 +44,13 @@ func (s *Sync) Init(client *gateclient.GateapiClient, resourceData *parser.Resou
 			return err
 		}
 		s.resources.Pipelines = append(s.resources.Pipelines, pipeline)
+		changed, err := pipeline.IsChanged()
+		if err != nil {
+			return err
+		}
+		if changed {
+			s.desyncedResources.Pipelines = append(s.desyncedResources.Pipelines, pipeline)
+		}
 	}
 	for _, localData := range resourceData.PipelineTemplates {
 		pipelineTemplate := &spr.PipelineTemplate{}
@@ -40,9 +58,20 @@ func (s *Sync) Init(client *gateclient.GateapiClient, resourceData *parser.Resou
 			return err
 		}
 		s.resources.PipelineTemplates = append(s.resources.PipelineTemplates, pipelineTemplate)
-
+		changed, err := pipelineTemplate.IsChanged()
+		if err != nil {
+			return err
+		}
+		if changed {
+			s.desyncedResources.PipelineTemplates = append(s.desyncedResources.PipelineTemplates, pipelineTemplate)
+		}
 	}
 	return nil
+}
+
+// DesyncedResources desynchornized resources
+func (s Sync) DesyncedResources() SpinnakerResources {
+	return s.desyncedResources
 }
 
 // SyncResources synchronize resources with Spinnaker

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"io"
 
 	c "github.com/codilime/floodgate/config"
@@ -41,7 +42,6 @@ func runSync(cmd *cobra.Command, options syncOptions) error {
 	if err != nil {
 		return err
 	}
-	// TODO(mlembke): check if there's no error with client
 	client := gateclient.NewGateapiClient(config)
 	p := parser.CreateParser(config.Libraries)
 	if err := p.LoadObjectsFromDirectories(config.Resources); err != nil {
@@ -51,8 +51,34 @@ func runSync(cmd *cobra.Command, options syncOptions) error {
 	if err := sync.Init(client, &p.Resources); err != nil {
 		return err
 	}
-	if err := sync.SyncResources(); err != nil {
-		return err
+	if options.dryRun {
+		desyncedResources := sync.DesyncedResources()
+		fmt.Println("Following resources are changed:")
+		printResources(desyncedResources)
+	} else {
+		if err := sync.SyncResources(); err != nil {
+			return err
+		}
 	}
 	return nil
+}
+
+func printResources(resources sync.SpinnakerResources) {
+	for _, application := range resources.Applications {
+		fmt.Println("Application:", application.Name())
+		fmt.Println("Changes:")
+		fmt.Println(application.GetFullDiff())
+	}
+	for _, pipeline := range resources.Pipelines {
+		line := fmt.Sprintf("Pipeline: %s (%s)", pipeline.ID(), pipeline.Name())
+		fmt.Println(line)
+		fmt.Println("Changes:")
+		fmt.Println(pipeline.GetFullDiff())
+	}
+	for _, pipelineTemplate := range resources.PipelineTemplates {
+		line := fmt.Sprintf("Pipeline template: %s (%s)", pipelineTemplate.ID(), pipelineTemplate.Name())
+		fmt.Println(line)
+		fmt.Println("Changes:")
+		fmt.Println(pipelineTemplate.GetFullDiff())
+	}
 }
