@@ -45,7 +45,7 @@ func (pt PipelineTemplate) ID() string {
 	return pt.id
 }
 
-// Name get pipeline template id
+// Name get pipeline template name
 func (pt PipelineTemplate) Name() string {
 	return pt.name
 }
