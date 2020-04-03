@@ -52,9 +52,8 @@ func runSync(cmd *cobra.Command, options syncOptions) error {
 		return err
 	}
 	if options.dryRun {
-		desyncedResources := sync.DesyncedResources()
-		fmt.Println("Following resources are changed:")
-		printResources(desyncedResources)
+		changes := sync.GetChanges()
+		printChangedResources(changes)
 	} else {
 		if err := sync.SyncResources(); err != nil {
 			return err
@@ -63,22 +62,18 @@ func runSync(cmd *cobra.Command, options syncOptions) error {
 	return nil
 }
 
-func printResources(resources sync.SpinnakerResources) {
-	for _, application := range resources.Applications {
-		fmt.Println("Application:", application.Name())
-		fmt.Println("Changes:")
-		fmt.Println(application.GetFullDiff())
-	}
-	for _, pipeline := range resources.Pipelines {
-		line := fmt.Sprintf("Pipeline: %s (%s)", pipeline.ID(), pipeline.Name())
+func printChangedResources(changes []sync.ResourceChange) {
+	fmt.Println("Following resources are changed:")
+	for _, change := range changes {
+		var line string
+		if change.ID != "" {
+			line = fmt.Sprintf("Resource: %s (%s)", change.ID, change.Name)
+		} else {
+			line = fmt.Sprintf("Resource: %s", change.Name)
+		}
 		fmt.Println(line)
+		fmt.Println("Type:", change.Type)
 		fmt.Println("Changes:")
-		fmt.Println(pipeline.GetFullDiff())
-	}
-	for _, pipelineTemplate := range resources.PipelineTemplates {
-		line := fmt.Sprintf("Pipeline template: %s (%s)", pipelineTemplate.ID(), pipelineTemplate.Name())
-		fmt.Println(line)
-		fmt.Println("Changes:")
-		fmt.Println(pipelineTemplate.GetFullDiff())
+		fmt.Println(change.Changes)
 	}
 }

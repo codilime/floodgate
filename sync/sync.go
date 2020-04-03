@@ -16,6 +16,14 @@ type SpinnakerResources struct {
 	PipelineTemplates []*spr.PipelineTemplate
 }
 
+// ResourceChange store resource change
+type ResourceChange struct {
+	Type    string
+	ID      string
+	Name    string
+	Changes string
+}
+
 // Sync synchornize resources with Spinnaker
 type Sync struct {
 	resources         SpinnakerResources
@@ -69,9 +77,42 @@ func (s *Sync) Init(client *gateclient.GateapiClient, resourceData *parser.Resou
 	return nil
 }
 
-// DesyncedResources desynchornized resources
-func (s Sync) DesyncedResources() SpinnakerResources {
-	return s.desyncedResources
+// GetChanges get resources' changes
+func (s Sync) GetChanges() (changes []ResourceChange) {
+	for _, application := range s.resources.Applications {
+		var change string
+		changed, err := application.IsChanged()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if changed {
+			change = application.GetFullDiff()
+			changes = append(changes, ResourceChange{Type: "application", ID: "", Name: application.Name(), Changes: change})
+		}
+	}
+	for _, pipeline := range s.resources.Pipelines {
+		var change string
+		changed, err := pipeline.IsChanged()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if changed {
+			change = pipeline.GetFullDiff()
+			changes = append(changes, ResourceChange{Type: "pipeline", ID: pipeline.ID(), Name: pipeline.Name(), Changes: change})
+		}
+	}
+	for _, pipelineTemplate := range s.resources.PipelineTemplates {
+		var change string
+		changed, err := pipelineTemplate.IsChanged()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if changed {
+			change = pipelineTemplate.GetFullDiff()
+			changes = append(changes, ResourceChange{Type: "pipelinetemplate", ID: pipelineTemplate.ID(), Name: pipelineTemplate.Name(), Changes: change})
+		}
+	}
+	return
 }
 
 // SyncResources synchronize resources with Spinnaker
