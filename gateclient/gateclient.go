@@ -3,10 +3,11 @@ package gateclient
 import (
 	"crypto/tls"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/codilime/floodgate/config"
 	gateapi "github.com/codilime/floodgate/gateapi"

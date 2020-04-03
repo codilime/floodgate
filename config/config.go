@@ -3,10 +3,11 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/user"
 	"path/filepath"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/ghodss/yaml"
 )

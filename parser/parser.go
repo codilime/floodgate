@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/ghodss/yaml"
 	"github.com/google/go-jsonnet"
+	log "github.com/sirupsen/logrus"
 )
 
 // ResourceData contains all the managed ResourceData defined for Floodgate.
