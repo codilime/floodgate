@@ -37,6 +37,11 @@ func (a *Application) Init(api *gateclient.GateapiClient, localData map[string]i
 	return nil
 }
 
+// Name get application name
+func (a Application) Name() string {
+	return a.name
+}
+
 func (a *Application) loadRemoteState() error {
 	var optionals gateapi.GetApplicationUsingGETOpts
 	payload, resp, err := a.spinnakerAPI.ApplicationControllerApi.GetApplicationUsingGET(a.spinnakerAPI.Context, a.name, &optionals)

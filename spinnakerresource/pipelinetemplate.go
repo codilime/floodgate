@@ -13,7 +13,8 @@ import (
 // PipelineTemplate object
 type PipelineTemplate struct {
 	*Resource
-	id string
+	id   string
+	name string
 }
 
 // Init initialize pipeline template
@@ -22,6 +23,7 @@ func (pt *PipelineTemplate) Init(api *gateclient.GateapiClient, localData map[st
 		return err
 	}
 	id := localData["id"].(string)
+	name := localData["metadata"].(map[string]interface{})["name"].(string)
 	localState, err := json.Marshal(localData)
 	if err != nil {
 		return err
@@ -31,10 +33,21 @@ func (pt *PipelineTemplate) Init(api *gateclient.GateapiClient, localData map[st
 		spinnakerAPI: api,
 	}
 	pt.id = id
+	pt.name = name
 	if err := pt.loadRemoteState(); err != nil {
 		return err
 	}
 	return nil
+}
+
+// ID get pipeline template id
+func (pt PipelineTemplate) ID() string {
+	return pt.id
+}
+
+// Name get pipeline template id
+func (pt PipelineTemplate) Name() string {
+	return pt.name
 }
 
 // loadRemoteState load resource state from Spinnaker
