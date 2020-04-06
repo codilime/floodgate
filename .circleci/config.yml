@@ -116,6 +116,10 @@ jobs:
           destination: floodgate-<< parameters.gate_api_branch >>
 
   start_minnaker:
+    parameters:
+      gate_api_branch:
+        type: string
+        default: release-1.19.x
     machine:
       image: circleci/classic:201808-01
     steps:
@@ -129,19 +133,20 @@ jobs:
       - run:
           name: Check if everything is still working
           command: |
+            export NEED_SPINNAKER_VERSION=$( echo << parameters.gate_api_branch >> | egrep -o "[0-9]\.[0-9]+" )
             kind get clusters
             kubectl get pods -n spinnaker
 
 
 workflows:
   periodic:
-    triggers:
-      - schedule:
-          cron: "15 2 * * *"
-          filters:
-            branches:
-              only:
-                - master
+          #    triggers:
+          #      - schedule:
+          #          cron: "15 2 * * *"
+          #          filters:
+          #            branches:
+          #              only:
+          #                - master
     jobs:
       - generate_swagger:
           name: generate swagger api << matrix.gate_api_branch >>
@@ -155,6 +160,13 @@ workflows:
               gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
           requires:
             - generate swagger api << matrix.gate_api_branch >>
+      - start_minnaker:
+          name: test Floodgate with working Spinnaker << matrix.gate_api_branch >>
+           matrix:
+            parameters:
+              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+          requires:
+            - build against gate << matrix.gate_api_branch >>
   commit:
     jobs:
       - generate_swagger:
