@@ -24,7 +24,7 @@ export MINIO_SECRET_KEY=minio123
 echo $MINIO_SECRET_KEY | hal -q config storage s3 edit --path-style-access=true --endpoint "http://minio-service:9000" --access-key-id $MINIO_ACCESS_KEY --secret-access-key
 hal -q config storage edit --type s3
 hal -q config features edit --pipeline-templates true
-NEED_SPINNAKER_VERSION=${NEED_SPINNAKER_VERSION:1.19}
+export NEED_SPINNAKER_VERSION=${NEED_SPINNAKER_VERSION:-1.19}
 hal -q version list
 hal -q config version edit --version $(hal -q version list  | grep "^ -" | awk '{ print $2 }' | grep ${NEED_SPINNAKER_VERSION})
 hal -q deploy apply
