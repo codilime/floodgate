@@ -1,7 +1,31 @@
-# Golang CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2.1
+
+commands:
+  install_toolset:
+    description: "Install needed extra tools"
+    steps:
+      - run:
+          name: Intall tools
+          command: |
+            curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v0.7.0/kind-$(uname)-amd64
+            chmod +x ./kind
+            sudo mv ./kind /usr/local/bin/
+            curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+            chmod +x ./kubectl
+            sudo mv ./kubectl /usr/local/bin/
+    
+  wait_for_dpkg:
+    description: "Wait for packaging operations to finish"
+    steps:
+      - run:
+          name: Wait for packaging operations to finish
+          command: |
+            sleep 10
+            while systemctl status apt-daily >/dev/null || systemctl status apt-daily-upgrade >/dev/null || sudo fuser /var/{lib/{dpkg,apt/lists},cache/apt/archives}/lock; do
+              echo "waiting 30s for dpkg locks..."
+              sleep 30
+            done
+
 jobs:
   generate_swagger:
     parameters:
@@ -91,6 +115,24 @@ jobs:
           path: /go/src/github.com/codilime/floodgate/floodgate
           destination: floodgate-<< parameters.gate_api_branch >>
 
+  start_minnaker:
+    machine:
+      image: circleci/classic:201808-01
+    steps:
+      - checkout
+      - install_toolset
+      - wait_for_dpkg
+      - run:
+          name: Install Spinnaker
+          command: |
+            .circleci/libs/install-and-run-spinnaker.sh
+      - run:
+          name: Check if everything is still working
+          command: |
+            kind get clusters
+            kubectl get pods -n spinnaker
+
+
 workflows:
   periodic:
     triggers:
@@ -121,3 +163,7 @@ workflows:
           name: build
           requires:
             - generate swagger api
+      - start_minnaker:
+          name: test Floodgate with working Spinnaker
+          requires:
+            - build
