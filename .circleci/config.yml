@@ -162,7 +162,7 @@ workflows:
             - generate swagger api << matrix.gate_api_branch >>
       - start_minnaker:
           name: test Floodgate with working Spinnaker << matrix.gate_api_branch >>
-           matrix:
+          matrix:
             parameters:
               gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
           requires:
