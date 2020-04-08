@@ -38,7 +38,7 @@ func runInspect(cmd *cobra.Command, options inspectOptions) error {
 	fmt.Println("Current Spinnaker resource status:")
 	fmt.Println("\nApplications:")
 	fmt.Println(resourceHandler.GetAllApplicationsRemoteState())
-	fmt.Println("\nPipelines")
+	fmt.Println("\nPipelines:")
 	fmt.Println(resourceHandler.GetAllPipelinesRemoteState())
 	fmt.Println("\nPipeline templates:")
 	fmt.Println(resourceHandler.GetAllPipelineTemplatesRemoteState())
