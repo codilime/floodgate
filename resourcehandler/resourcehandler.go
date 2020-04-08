@@ -1,4 +1,4 @@
-package sync
+package resourcehandler
 
 import (
 	"fmt"
@@ -25,26 +25,26 @@ type ResourceChange struct {
 	Changes string
 }
 
-// Sync synchornize resources with Spinnaker
-type Sync struct {
+// ResourceHandler synchornize resources with Spinnaker
+type ResourceHandler struct {
 	resources         SpinnakerResources
 	desyncedResources SpinnakerResources
 }
 
 // Init initialize sync
-func (s *Sync) Init(client *gateclient.GateapiClient, resourceData *parser.ResourceData) error {
+func (rh *ResourceHandler) Init(client *gateclient.GateapiClient, resourceData *parser.ResourceData) error {
 	for _, localData := range resourceData.Applications {
 		application := &spr.Application{}
 		if err := application.Init(client, localData); err != nil {
 			return err
 		}
-		s.resources.Applications = append(s.resources.Applications, application)
+		rh.resources.Applications = append(rh.resources.Applications, application)
 		changed, err := application.IsChanged()
 		if err != nil {
 			return err
 		}
 		if changed {
-			s.desyncedResources.Applications = append(s.desyncedResources.Applications, application)
+			rh.desyncedResources.Applications = append(rh.desyncedResources.Applications, application)
 		}
 	}
 	for _, localData := range resourceData.Pipelines {
@@ -52,13 +52,13 @@ func (s *Sync) Init(client *gateclient.GateapiClient, resourceData *parser.Resou
 		if err := pipeline.Init(client, localData); err != nil {
 			return err
 		}
-		s.resources.Pipelines = append(s.resources.Pipelines, pipeline)
+		rh.resources.Pipelines = append(rh.resources.Pipelines, pipeline)
 		changed, err := pipeline.IsChanged()
 		if err != nil {
 			return err
 		}
 		if changed {
-			s.desyncedResources.Pipelines = append(s.desyncedResources.Pipelines, pipeline)
+			rh.desyncedResources.Pipelines = append(rh.desyncedResources.Pipelines, pipeline)
 		}
 	}
 	for _, localData := range resourceData.PipelineTemplates {
@@ -66,21 +66,21 @@ func (s *Sync) Init(client *gateclient.GateapiClient, resourceData *parser.Resou
 		if err := pipelineTemplate.Init(client, localData); err != nil {
 			return err
 		}
-		s.resources.PipelineTemplates = append(s.resources.PipelineTemplates, pipelineTemplate)
+		rh.resources.PipelineTemplates = append(rh.resources.PipelineTemplates, pipelineTemplate)
 		changed, err := pipelineTemplate.IsChanged()
 		if err != nil {
 			return err
 		}
 		if changed {
-			s.desyncedResources.PipelineTemplates = append(s.desyncedResources.PipelineTemplates, pipelineTemplate)
+			rh.desyncedResources.PipelineTemplates = append(rh.desyncedResources.PipelineTemplates, pipelineTemplate)
 		}
 	}
 	return nil
 }
 
 // GetChanges get resources' changes
-func (s Sync) GetChanges() (changes []ResourceChange) {
-	for _, application := range s.resources.Applications {
+func (rh ResourceHandler) GetChanges() (changes []ResourceChange) {
+	for _, application := range rh.resources.Applications {
 		var change string
 		changed, err := application.IsChanged()
 		if err != nil {
@@ -91,7 +91,7 @@ func (s Sync) GetChanges() (changes []ResourceChange) {
 			changes = append(changes, ResourceChange{Type: "application", ID: "", Name: application.Name(), Changes: change})
 		}
 	}
-	for _, pipeline := range s.resources.Pipelines {
+	for _, pipeline := range rh.resources.Pipelines {
 		var change string
 		changed, err := pipeline.IsChanged()
 		if err != nil {
@@ -102,7 +102,7 @@ func (s Sync) GetChanges() (changes []ResourceChange) {
 			changes = append(changes, ResourceChange{Type: "pipeline", ID: pipeline.ID(), Name: pipeline.Name(), Changes: change})
 		}
 	}
-	for _, pipelineTemplate := range s.resources.PipelineTemplates {
+	for _, pipelineTemplate := range rh.resources.PipelineTemplates {
 		var change string
 		changed, err := pipelineTemplate.IsChanged()
 		if err != nil {
@@ -117,20 +117,20 @@ func (s Sync) GetChanges() (changes []ResourceChange) {
 }
 
 // SyncResources synchronize resources with Spinnaker
-func (s *Sync) SyncResources() error {
-	if err := s.syncApplications(); err != nil {
+func (rh *ResourceHandler) SyncResources() error {
+	if err := rh.syncApplications(); err != nil {
 		log.Fatal(err)
 	}
-	if err := s.syncPipelines(); err != nil {
+	if err := rh.syncPipelines(); err != nil {
 		log.Fatal(err)
 	}
-	if err := s.syncPipelineTemplates(); err != nil {
+	if err := rh.syncPipelineTemplates(); err != nil {
 		log.Fatal(err)
 	}
 	return nil
 }
 
-func (s Sync) syncResource(resource spr.Resourcer) (bool, error) {
+func (rh ResourceHandler) syncResource(resource spr.Resourcer) (bool, error) {
 	needToSave, err := resource.IsChanged()
 	if err != nil {
 		return false, err
@@ -144,10 +144,10 @@ func (s Sync) syncResource(resource spr.Resourcer) (bool, error) {
 	return true, nil
 }
 
-func (s Sync) syncApplications() error {
+func (rh ResourceHandler) syncApplications() error {
 	log.Print("Syncing applications")
-	for _, application := range s.resources.Applications {
-		synced, err := s.syncResource(application)
+	for _, application := range rh.resources.Applications {
+		synced, err := rh.syncResource(application)
 		if err != nil {
 			return fmt.Errorf("failed to sync application: %v", application)
 		}
@@ -160,10 +160,10 @@ func (s Sync) syncApplications() error {
 	return nil
 }
 
-func (s Sync) syncPipelines() error {
+func (rh ResourceHandler) syncPipelines() error {
 	log.Print("Syncing pipelines")
-	for _, pipeline := range s.resources.Pipelines {
-		synced, err := s.syncResource(pipeline)
+	for _, pipeline := range rh.resources.Pipelines {
+		synced, err := rh.syncResource(pipeline)
 		if err != nil {
 			return fmt.Errorf("failed to sync pipeline: %v", pipeline)
 		}
@@ -174,10 +174,10 @@ func (s Sync) syncPipelines() error {
 	return nil
 }
 
-func (s Sync) syncPipelineTemplates() error {
+func (rh ResourceHandler) syncPipelineTemplates() error {
 	log.Print("Syncing pipeline templates")
-	for _, pipelineTemplate := range s.resources.PipelineTemplates {
-		synced, err := s.syncResource(pipelineTemplate)
+	for _, pipelineTemplate := range rh.resources.PipelineTemplates {
+		synced, err := rh.syncResource(pipelineTemplate)
 		if err != nil {
 			return fmt.Errorf("failed to sync pipeline template: %v", pipelineTemplate)
 		}
@@ -186,4 +186,28 @@ func (s Sync) syncPipelineTemplates() error {
 		}
 	}
 	return nil
+}
+
+// GetAllApplicationsRemoteState returns a concatenated string of applications JSONs.
+func (rh *ResourceHandler) GetAllApplicationsRemoteState() (state string) {
+	for _, application := range rh.resources.Applications {
+		state += string(application.GetRemoteState())
+	}
+	return
+}
+
+// GetAllPipelinesRemoteState returns a concatenated string of pipelines JSONs.
+func (rh *ResourceHandler) GetAllPipelinesRemoteState() (state string) {
+	for _, pipeline := range rh.resources.Pipelines {
+		state += string(pipeline.GetRemoteState())
+	}
+	return
+}
+
+// GetAllPipelineTemplatesRemoteState returns a concatenated string of pipeline templates JSONs.
+func (rh *ResourceHandler) GetAllPipelineTemplatesRemoteState() (state string) {
+	for _, pipelineTemplate := range rh.resources.Applications {
+		state += string(pipelineTemplate.GetRemoteState())
+	}
+	return
 }

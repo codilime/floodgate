@@ -4,10 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	c "github.com/codilime/floodgate/config"
-	"github.com/codilime/floodgate/gateclient"
-	"github.com/codilime/floodgate/parser"
-	"github.com/codilime/floodgate/sync"
+	rh "github.com/codilime/floodgate/resourcehandler"
 	"github.com/spf13/cobra"
 )
 
@@ -38,31 +35,22 @@ func runSync(cmd *cobra.Command, options syncOptions) error {
 	if err != nil {
 		return err
 	}
-	config, err := c.LoadConfig(configPath)
-	if err != nil {
-		return err
-	}
-	client := gateclient.NewGateapiClient(config)
-	p := parser.CreateParser(config.Libraries)
-	if err := p.LoadObjectsFromDirectories(config.Resources); err != nil {
-		return err
-	}
-	sync := &sync.Sync{}
-	if err := sync.Init(client, &p.Resources); err != nil {
+	resourceHandler, err := getResourceHandler(configPath)
+	if (err != nil) {
 		return err
 	}
 	if options.dryRun {
-		changes := sync.GetChanges()
+		changes := resourceHandler.GetChanges()
 		printChangedResources(changes)
 	} else {
-		if err := sync.SyncResources(); err != nil {
+		if err := resourceHandler.SyncResources(); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func printChangedResources(changes []sync.ResourceChange) {
+func printChangedResources(changes []rh.ResourceChange) {
 	fmt.Println("Following resources are changed:")
 	for _, change := range changes {
 		var line string

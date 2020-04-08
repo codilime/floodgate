@@ -26,5 +26,21 @@ func NewInspectCmd(out io.Writer) *cobra.Command {
 }
 
 func runInspect(cmd *cobra.Command, options inspectOptions) error {
-	return fmt.Errorf("not implemented")
+	flags := cmd.InheritedFlags()
+	configPath, err := flags.GetString("config")
+	if err != nil {
+		return err
+	}
+	resourceHandler, err := getResourceHandler(configPath)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Current Spinnaker resource status:")
+	fmt.Println("\nApplications:")
+	fmt.Println(resourceHandler.GetAllApplicationsRemoteState())
+	fmt.Println("\nPipelines")
+	fmt.Println(resourceHandler.GetAllPipelinesRemoteState())
+	fmt.Println("\nPipeline templates:")
+	fmt.Println(resourceHandler.GetAllPipelineTemplatesRemoteState())
+	return nil
 }
