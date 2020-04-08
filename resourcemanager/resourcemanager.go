@@ -2,21 +2,13 @@ package resourcemanager
 
 import (
 	"fmt"
-
-	log "github.com/sirupsen/logrus"
+	"log"
 
 	c "github.com/codilime/floodgate/config"
 	"github.com/codilime/floodgate/gateclient"
 	"github.com/codilime/floodgate/parser"
 	spr "github.com/codilime/floodgate/spinnakerresource"
 )
-
-// SpinnakerResources Spinnaker resources collection
-type SpinnakerResources struct {
-	Applications      []*spr.Application
-	Pipelines         []*spr.Pipeline
-	PipelineTemplates []*spr.PipelineTemplate
-}
 
 // ResourceChange store resource change
 type ResourceChange struct {
@@ -28,8 +20,7 @@ type ResourceChange struct {
 
 // ResourceManager stores Spinnaker resources and has methods for access, syncing etc.
 type ResourceManager struct {
-	resources         SpinnakerResources
-	desyncedResources SpinnakerResources
+	resources spr.SpinnakerResources
 }
 
 // Init initialize sync
@@ -50,13 +41,6 @@ func (rm *ResourceManager) Init(configPath string) error {
 			return err
 		}
 		rm.resources.Applications = append(rm.resources.Applications, application)
-		changed, err := application.IsChanged()
-		if err != nil {
-			return err
-		}
-		if changed {
-			rm.desyncedResources.Applications = append(rm.desyncedResources.Applications, application)
-		}
 	}
 	for _, localData := range resourceData.Pipelines {
 		pipeline := &spr.Pipeline{}
@@ -64,13 +48,6 @@ func (rm *ResourceManager) Init(configPath string) error {
 			return err
 		}
 		rm.resources.Pipelines = append(rm.resources.Pipelines, pipeline)
-		changed, err := pipeline.IsChanged()
-		if err != nil {
-			return err
-		}
-		if changed {
-			rm.desyncedResources.Pipelines = append(rm.desyncedResources.Pipelines, pipeline)
-		}
 	}
 	for _, localData := range resourceData.PipelineTemplates {
 		pipelineTemplate := &spr.PipelineTemplate{}
@@ -78,13 +55,6 @@ func (rm *ResourceManager) Init(configPath string) error {
 			return err
 		}
 		rm.resources.PipelineTemplates = append(rm.resources.PipelineTemplates, pipelineTemplate)
-		changed, err := pipelineTemplate.IsChanged()
-		if err != nil {
-			return err
-		}
-		if changed {
-			rm.desyncedResources.PipelineTemplates = append(rm.desyncedResources.PipelineTemplates, pipelineTemplate)
-		}
 	}
 	return nil
 }
