@@ -1,13 +1,14 @@
-package cmd
+package common
 
 import (
 	c "github.com/codilime/floodgate/config"
 	"github.com/codilime/floodgate/gateclient"
 	"github.com/codilime/floodgate/parser"
-	rh "github.com/codilime/floodgate/resourcehandler"
+	rm "github.com/codilime/floodgate/resourcemanager"
 )
 
-func getResourceHandler(configPath string) (*rh.ResourceHandler, error) {
+// GetResourceManager return a pointer to a initialized ResourceManager instance.
+func GetResourceManager(configPath string) (*rm.ResourceManager, error) {
 	config, err := c.LoadConfig(configPath)
 	if err != nil {
 		return nil, err
@@ -17,9 +18,9 @@ func getResourceHandler(configPath string) (*rh.ResourceHandler, error) {
 	if err := p.LoadObjectsFromDirectories(config.Resources); err != nil {
 		return nil, err
 	}
-	resourceHandler := &rh.ResourceHandler{}
-	if err := resourceHandler.Init(client, &p.Resources); err != nil {
+	resourceManager := &rm.ResourceManager{}
+	if err := resourceManager.Init(client, &p.Resources); err != nil {
 		return nil, err
 	}
-	return resourceHandler, nil
+	return resourceManager, nil
 }

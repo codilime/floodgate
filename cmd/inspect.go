@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/codilime/floodgate/common"
 	"github.com/spf13/cobra"
 )
 
@@ -31,16 +32,16 @@ func runInspect(cmd *cobra.Command, options inspectOptions) error {
 	if err != nil {
 		return err
 	}
-	resourceHandler, err := getResourceHandler(configPath)
+	resourceManager, err := common.GetResourceManager(configPath)
 	if err != nil {
 		return err
 	}
 	fmt.Println("Current Spinnaker resource status:")
 	fmt.Println("\nApplications:")
-	fmt.Println(resourceHandler.GetAllApplicationsRemoteState())
+	fmt.Println(resourceManager.GetAllApplicationsRemoteState())
 	fmt.Println("\nPipelines:")
-	fmt.Println(resourceHandler.GetAllPipelinesRemoteState())
+	fmt.Println(resourceManager.GetAllPipelinesRemoteState())
 	fmt.Println("\nPipeline templates:")
-	fmt.Println(resourceHandler.GetAllPipelineTemplatesRemoteState())
+	fmt.Println(resourceManager.GetAllPipelineTemplatesRemoteState())
 	return nil
 }

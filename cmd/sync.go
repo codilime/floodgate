@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	rh "github.com/codilime/floodgate/resourcehandler"
+	"github.com/codilime/floodgate/common"
+	rm "github.com/codilime/floodgate/resourcemanager"
 	"github.com/spf13/cobra"
 )
 
@@ -35,22 +36,22 @@ func runSync(cmd *cobra.Command, options syncOptions) error {
 	if err != nil {
 		return err
 	}
-	resourceHandler, err := getResourceHandler(configPath)
-	if (err != nil) {
+	resourceManager, err := common.GetResourceManager(configPath)
+	if err != nil {
 		return err
 	}
 	if options.dryRun {
-		changes := resourceHandler.GetChanges()
+		changes := resourceManager.GetChanges()
 		printChangedResources(changes)
 	} else {
-		if err := resourceHandler.SyncResources(); err != nil {
+		if err := resourceManager.SyncResources(); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func printChangedResources(changes []rh.ResourceChange) {
+func printChangedResources(changes []rm.ResourceChange) {
 	fmt.Println("Following resources are changed:")
 	for _, change := range changes {
 		var line string
