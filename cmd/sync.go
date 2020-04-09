@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/codilime/floodgate/common"
 	rm "github.com/codilime/floodgate/resourcemanager"
 	"github.com/spf13/cobra"
 )
@@ -36,8 +35,8 @@ func runSync(cmd *cobra.Command, options syncOptions) error {
 	if err != nil {
 		return err
 	}
-	resourceManager, err := common.GetResourceManager(configPath)
-	if err != nil {
+	resourceManager := &rm.ResourceManager{}
+	if err := resourceManager.Init(configPath); err != nil {
 		return err
 	}
 	if options.dryRun {

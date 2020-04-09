@@ -5,6 +5,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	c "github.com/codilime/floodgate/config"
 	"github.com/codilime/floodgate/gateclient"
 	"github.com/codilime/floodgate/parser"
 	spr "github.com/codilime/floodgate/spinnakerresource"
@@ -32,7 +33,17 @@ type ResourceManager struct {
 }
 
 // Init initialize sync
-func (rm *ResourceManager) Init(client *gateclient.GateapiClient, resourceData *parser.ResourceData) error {
+func (rm *ResourceManager) Init(configPath string) error {
+	config, err := c.LoadConfig(configPath)
+	if err != nil {
+		return err
+	}
+	client := gateclient.NewGateapiClient(config)
+	p := parser.CreateParser(config.Libraries)
+	if err := p.LoadObjectsFromDirectories(config.Resources); err != nil {
+		return err
+	}
+	resourceData := &p.Resources
 	for _, localData := range resourceData.Applications {
 		application := &spr.Application{}
 		if err := application.Init(client, localData); err != nil {
