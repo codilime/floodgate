@@ -26,7 +26,7 @@ type ResourceChange struct {
 	Changes string
 }
 
-// ResourceManager synchornize resources with Spinnaker
+// ResourceManager stores Spinnaker resources and has methods for access, syncing etc.
 type ResourceManager struct {
 	resources         SpinnakerResources
 	desyncedResources SpinnakerResources
