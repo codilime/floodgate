@@ -136,7 +136,7 @@ jobs:
       - checkout
       - install_toolset
       - attach_workspace:
-          at: /
+          at: ./
       - wait_for_dpkg
       - run:
           name: Install Spinnaker
