@@ -120,7 +120,7 @@ jobs:
       - persist_to_workspace:
           root: /floodgate/bin
           paths:
-            -floodgate
+            - floodgate
       - store_artifacts:
           path: /go/src/github.com/codilime/floodgate/floodgate
           destination: floodgate-<< parameters.gate_api_branch >>
