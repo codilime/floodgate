@@ -1,0 +1,11 @@
+endpoint: https://127.0.0.1/api/v1
+insecure: true
+auth:
+  user: admin
+  password: VRCm9L80yO3FHTKeVthtxknfGq1b10WqInKoBFqozphGcrGi
+libraries:
+  - sponnet
+resources:
+  - resources/applications
+  - resources/pipelines
+  - resources/pipelinetemplates
