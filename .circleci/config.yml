@@ -111,6 +111,15 @@ jobs:
             do
               golint -set_exit_status $GOSRCFILE
             done
+      - run:
+          name: Copy binaries for later use
+          command: |
+            mkdir -p /floodgate/bin
+            cp /go/src/github.com/codilime/floodgate/floodgate /floodgate/bin/floodgate
+      - persist_to_workspace:
+          root: /floodgate/bin
+          paths:
+            -floodgate
       - store_artifacts:
           path: /go/src/github.com/codilime/floodgate/floodgate
           destination: floodgate-<< parameters.gate_api_branch >>
@@ -125,6 +134,8 @@ jobs:
     steps:
       - checkout
       - install_toolset
+      - attach_workspace:
+          at: /
       - wait_for_dpkg
       - run:
           name: Install Spinnaker
