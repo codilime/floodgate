@@ -51,6 +51,8 @@ hal -q config features edit --pipeline-templates true
 export NEED_SPINNAKER_VERSION=${NEED_SPINNAKER_VERSION:-1.19}
 hal -q version list
 hal -q config version edit --version $(hal -q version list  | grep "^ -" | awk '{ print $2 }' | grep ${NEED_SPINNAKER_VERSION})
+hal config security ui edit --override-base-url='http://spinnaker'
+hal config security api edit --override-base-url='http://spinnaker/api/v1'
 
 # Install Spinnaker
 hal -q deploy apply

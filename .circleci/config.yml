@@ -137,6 +137,9 @@ jobs:
       - install_toolset
       - attach_workspace:
           at: ./
+      - run:
+          name: Update /etc/hosts
+          command: sudo bash -c 'echo "127.1.2.3 spinnaker" >> /etc/hosts'
       - wait_for_dpkg
       - run:
           name: Install Spinnaker
