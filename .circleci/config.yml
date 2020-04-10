@@ -114,7 +114,8 @@ jobs:
       - run:
           name: Copy binaries for later use
           command: |
-            mkdir -p /floodgate/bin
+            sudo kdir -p /floodgate/bin
+            sudo chmod 777 /floodgate/bin
             cp /go/src/github.com/codilime/floodgate/floodgate /floodgate/bin/floodgate
       - persist_to_workspace:
           root: /floodgate/bin
