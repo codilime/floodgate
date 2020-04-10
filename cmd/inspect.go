@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 
+	rm "github.com/codilime/floodgate/resourcemanager"
 	"github.com/spf13/cobra"
 )
 
@@ -26,5 +27,21 @@ func NewInspectCmd(out io.Writer) *cobra.Command {
 }
 
 func runInspect(cmd *cobra.Command, options inspectOptions) error {
-	return fmt.Errorf("not implemented")
+	flags := cmd.InheritedFlags()
+	configPath, err := flags.GetString("config")
+	if err != nil {
+		return err
+	}
+	resourceManager := &rm.ResourceManager{}
+	if err := resourceManager.Init(configPath); err != nil {
+		return err
+	}
+	fmt.Println("Current Spinnaker resource status:")
+	fmt.Println("\nApplications:")
+	fmt.Println(resourceManager.GetAllApplicationsRemoteState())
+	fmt.Println("\nPipelines:")
+	fmt.Println(resourceManager.GetAllPipelinesRemoteState())
+	fmt.Println("\nPipeline templates:")
+	fmt.Println(resourceManager.GetAllPipelineTemplatesRemoteState())
+	return nil
 }
