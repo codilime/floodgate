@@ -60,6 +60,7 @@ hal config security ui edit --override-base-url='http://spinnaker'
 hal config security api edit --override-base-url='http://spinnaker/api/v1'
 ### Extra parameters for Gate and Deck
 echo 'window.spinnakerSettings.authEnabled = true;' > ~/.hal/default/profiles/settings-local.js
+mkdir -p ~/.hal/default/service-settings
 echo 'healthEndpoint: /api/v1/health' > ~/.hal/default/service-settings/gate.yml
 cat <<EOF > ~/.hal/default/profiles/gate-local.yml
 server:
