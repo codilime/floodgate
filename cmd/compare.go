@@ -42,16 +42,16 @@ func runCompare(cmd *cobra.Command, options compareOptions) error {
 		return nil
 	}
 	printCompareDiff(changes)
-	return errors.New("diff over")
+	return errors.New("end diff")
 }
 
 func printCompareDiff(changes []rm.ResourceChange) {
 	for _, change := range changes {
 		var line string
 		if change.ID != "" {
-			line = fmt.Sprintf("%s %s", change.ID, change.Type)
+			line = fmt.Sprintf("%s (%s) (%s)", change.ID, change.Name, change.Type)
 		} else {
-			line = fmt.Sprintf("%s %s", change.Name, change.Type)
+			line = fmt.Sprintf("%s (%s)", change.Name, change.Type)
 		}
 		fmt.Println(line)
 		fmt.Println(change.Changes)
