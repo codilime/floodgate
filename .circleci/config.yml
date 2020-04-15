@@ -149,7 +149,8 @@ jobs:
             mkdir -p /floodgate/resources
             cp -r sponnet /floodgate/libs/
             cp -r examples /floodgate/resources/
-            cp floodgate //floodgate/bin/
+            cp floodgate /floodgate/bin/
+            chmod +x /floodgate/bin/floodgate
       - install_toolset
       - run:
           name: Update /etc/hosts
