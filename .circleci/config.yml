@@ -169,12 +169,18 @@ jobs:
               sudo netstat -tulpan | grep LISTEN >> /floodgate/monitoring.txt
               sudo ps -aux >> /floodgate/monitoring.txt
               sudo echo "---------------------------------------------------------------------------" >> /floodgate/monitoring.txt
+              sleep 1
             done
       - run:
           name: Install Spinnaker and configure Floodgate       
           command: |
             export NEED_SPINNAKER_VERSION=$( echo << parameters.gate_api_branch >> | egrep -o "[0-9]\.[0-9]+" )
             .circleci/libs/install-and-run-spinnaker.sh
+          until [ $( curl -w '%{http_code}' -o /dev/null http://spinnaker/api/v1 ) -eq 302 ]
+          do
+                echo "Waiting for Spinnaker"
+                sleep 10
+          done
       - run:
           name: Test Floodgate against running Spinnaker instance
           command: |
