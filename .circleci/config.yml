@@ -134,24 +134,41 @@ jobs:
       image: circleci/classic:201808-01
     steps:
       - checkout
-      - install_toolset
+      - run:
+          name: Update submodules - sponnet
+          command: git submodule init && git submodule update
       - attach_workspace:
           at: ./
+      - run:
+          name: Prepare directoried
+          command: |
+            mkdir -p /floodgate/bin
+            mkdir -p /floodgate/libs
+            mkdir -p /floodgate/resources
+            cp -r sponnet /floodgate/libs/
+            cp -r examples /floodgate/resources/
+            cp floodgate //floodgate/bin/
+      - install_toolset
       - run:
           name: Update /etc/hosts
           command: sudo bash -c 'echo "127.1.2.3 spinnaker" >> /etc/hosts'
       - wait_for_dpkg
       - run:
-          name: Install Spinnaker
+          name: Install Spinnaker and configure Floodgate       
           command: |
             export NEED_SPINNAKER_VERSION=$( echo << parameters.gate_api_branch >> | egrep -o "[0-9]\.[0-9]+" )
             .circleci/libs/install-and-run-spinnaker.sh
       - run:
-          name: Check if everything is still working
+          name: Test Floodgate against running Spinnaker instance
           command: |
-            export NEED_SPINNAKER_VERSION=$( echo << parameters.gate_api_branch >> | egrep -o "[0-9]\.[0-9]+" )
-            kind get clusters
-            kubectl get pods -n spinnaker
+            echo "#############################################"
+            echo "#    First sync - should save resources     #"
+            echo "#############################################"
+            /floodgate/bin/floodgate --config ~/floodgate.yaml sync
+            echo "#############################################"
+            echo "#  Second sync - should not sync anything   #"
+            echo "#############################################"
+            /floodgate/bin/floodgate --config ~/floodgate.yaml sync
 
 
 workflows:

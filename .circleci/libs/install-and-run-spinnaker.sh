@@ -114,3 +114,17 @@ spec:
 EOF
 kubectl -n spinnaker apply -f spin-ingress.yaml
 
+# Generate Floodgate config file
+cat <<EOF > ~/floodgate.conf
+endpoint: http://127.0.0.1/api/v1
+auth:
+  user: admin
+  password: ${GATE_PASS}
+libraries:
+  - /floodgate/libs/sponnet
+resources:
+  - /floodgate/resources/examples/resources/applications
+  - /floodgate/resources/examples/resources/pipelines
+  - /floodgate/resources/examples/resources/pipelinetemplates
+EOF
+
