@@ -142,6 +142,8 @@ jobs:
       - run:
           name: Prepare directoried
           command: |
+            sudo mkdir /floodgate
+            sudo chmod 777 /floodgate
             mkdir -p /floodgate/bin
             mkdir -p /floodgate/libs
             mkdir -p /floodgate/resources
