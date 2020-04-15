@@ -161,6 +161,7 @@ jobs:
       - run:
           name: Test Floodgate against running Spinnaker instance
           command: |
+            /floodgate/bin/floodgate --version
             echo "#############################################"
             echo "#    First sync - should save resources     #"
             echo "#############################################"
