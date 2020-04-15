@@ -157,6 +157,20 @@ jobs:
           command: sudo bash -c 'echo "127.1.2.3 spinnaker" >> /etc/hosts'
       - wait_for_dpkg
       - run:
+          name: Resources monitoring
+          background: true
+          command: |
+            while [ 1 ] ;
+            do
+              sudo echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" >> /floodgate/monitoring.txt
+              sudo date +%s >> /floodgate/monitoring.txt
+              sudo uptime >> /floodgate/monitoring.txt
+              sudo free >> /floodgate/monitoring.txt
+              sudo netstat -tulpan | grep LISTEN >> /floodgate/monitoring.txt
+              sudo ps -aux >> /floodgate/monitoring.txt
+              sudo echo "---------------------------------------------------------------------------" >> /floodgate/monitoring.txt
+            done
+      - run:
           name: Install Spinnaker and configure Floodgate       
           command: |
             export NEED_SPINNAKER_VERSION=$( echo << parameters.gate_api_branch >> | egrep -o "[0-9]\.[0-9]+" )
@@ -173,6 +187,9 @@ jobs:
             echo "#  Second sync - should not sync anything   #"
             echo "#############################################"
             /floodgate/bin/floodgate --config ~/floodgate.yaml sync
+      - store_artifacts:
+          path: /floodgate/monitoring.txt
+          destination: monitoring.txt
 
 
 workflows:
