@@ -79,6 +79,13 @@ You can also specify a path to the config file using the `--config` flag.
 
 Additionally, you can find example resources in the `examples/resources` directory.
 
+**Note:** To allow Floodgate to control pipeline templates apply those commands to your environment:
+```bash
+hal config features edit --pipeline-templates true
+hal config features edit --managed-pipeline-templates-v2-ui true
+hal config apply
+```
+
 To run tests use:
 ```bash
 go test $GOPATH/src/github.com/codilime/floodgate/...
