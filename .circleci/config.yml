@@ -168,11 +168,11 @@ jobs:
             echo "#############################################"
             echo "#    First sync - should save resources     #"
             echo "#############################################"
-            /floodgate/bin/floodgate -q --config ~/floodgate.yaml sync
+            /floodgate/bin/floodgate --config ~/floodgate.yaml sync
             echo "#############################################"
             echo "#  Second sync - should not sync anything   #"
             echo "#############################################"
-            /floodgate/bin/floodgate -q --config ~/floodgate.yaml sync
+            /floodgate/bin/floodgate --config ~/floodgate.yaml sync
 
 
 workflows:

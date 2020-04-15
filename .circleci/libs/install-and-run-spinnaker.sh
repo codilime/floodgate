@@ -116,7 +116,7 @@ kubectl -n spinnaker apply -f spin-ingress.yaml
 
 # Generate Floodgate config file
 cat <<EOF > ~/floodgate.yaml
-endpoint: http://127.0.0.1/api/v1
+endpoint: http://spinnaker/api/v1
 auth:
   user: admin
   password: ${GATE_PASS}
