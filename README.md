@@ -83,7 +83,7 @@ Additionally, you can find example resources in the `examples/resources` directo
 ```bash
 hal config features edit --pipeline-templates true
 hal config features edit --managed-pipeline-templates-v2-ui true
-hal config apply
+hal deploy apply
 ```
 
 To run tests use:
