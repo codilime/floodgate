@@ -170,7 +170,7 @@ jobs:
           name: Test Floodgate against running Spinnaker instance
           command: |
             /floodgate/bin/floodgate --version
-            /floodgate/bin/floodgate --config ~/floodgate.yaml compare
+            /floodgate/bin/floodgate --config ~/floodgate.yaml compare || echo $?
             /floodgate/bin/floodgate --config ~/floodgate.yaml sync
             /floodgate/bin/floodgate --config ~/floodgate.yaml compare
 
