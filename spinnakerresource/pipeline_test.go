@@ -136,7 +136,7 @@ func TestPipeline_Init(t *testing.T) {
 	}
 }
 
-func TestPipeline_loadRemoteState(t *testing.T) {
+func TestPipeline_LoadRemoteState(t *testing.T) {
 	type fields struct {
 		name         string
 		application  string
@@ -183,13 +183,11 @@ func TestPipeline_loadRemoteState(t *testing.T) {
 			defer ts.Close()
 			api := test.MockGateapiClient(ts.URL)
 			p := &Pipeline{
-				Resource: &Resource{
-					spinnakerAPI: api,
-				},
+				Resource:    &Resource{},
 				name:        tt.fields.name,
 				application: tt.fields.application,
 			}
-			if err := p.loadRemoteState(); (err != nil) != tt.wantErr {
+			if err := p.LoadRemoteState(api); (err != nil) != tt.wantErr {
 				t.Errorf("Pipeline.loadRemoteState() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if !tt.wantErr && (string(p.GetRemoteState()) != tt.remoteData) {
@@ -248,14 +246,13 @@ func TestPipeline_SaveLocalState(t *testing.T) {
 			api := test.MockGateapiClient(ts.URL)
 			p := Pipeline{
 				Resource: &Resource{
-					localState:   tt.fields.localState,
-					remoteState:  tt.fields.remoteState,
-					spinnakerAPI: api,
+					localState:  tt.fields.localState,
+					remoteState: tt.fields.remoteState,
 				},
 				name:        tt.fields.name,
 				application: tt.fields.application,
 			}
-			if err := p.SaveLocalState(); (err != nil) != tt.wantErr {
+			if err := p.SaveLocalState(api); (err != nil) != tt.wantErr {
 				t.Errorf("Pipeline.SaveLocalState() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

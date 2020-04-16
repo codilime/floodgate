@@ -22,6 +22,7 @@ type ResourceChange struct {
 // ResourceManager stores Spinnaker resources and has methods for access, syncing etc.
 type ResourceManager struct {
 	resources spr.SpinnakerResources
+	client    *gc.GateapiClient
 }
 
 // Init initialize sync
@@ -30,7 +31,8 @@ func (rm *ResourceManager) Init(configPath string) error {
 	if err != nil {
 		return err
 	}
-	parser, err := p.NewResourceParser()
+	rm.client = gc.NewGateapiClient(config)
+	parser, err := p.NewResourceParser(config.Libraries...)
 	if err != nil {
 		return err
 	}
@@ -38,28 +40,7 @@ func (rm *ResourceManager) Init(configPath string) error {
 	if err != nil {
 		return err
 	}
-	client := gc.NewGateapiClient(config)
-	for _, localData := range resourceData.Applications {
-		application := &spr.Application{}
-		if err := application.Init(client, localData); err != nil {
-			return err
-		}
-		rm.resources.Applications = append(rm.resources.Applications, application)
-	}
-	for _, localData := range resourceData.Pipelines {
-		pipeline := &spr.Pipeline{}
-		if err := pipeline.Init(client, localData); err != nil {
-			return err
-		}
-		rm.resources.Pipelines = append(rm.resources.Pipelines, pipeline)
-	}
-	for _, localData := range resourceData.PipelineTemplates {
-		pipelineTemplate := &spr.PipelineTemplate{}
-		if err := pipelineTemplate.Init(client, localData); err != nil {
-			return err
-		}
-		rm.resources.PipelineTemplates = append(rm.resources.PipelineTemplates, pipelineTemplate)
-	}
+	rm.createResourcesFromData(resourceData)
 	return nil
 }
 
@@ -123,7 +104,7 @@ func (rm ResourceManager) syncResource(resource spr.Resourcer) (bool, error) {
 	if !needToSave {
 		return false, nil
 	}
-	if err := resource.SaveLocalState(); err != nil {
+	if err := resource.SaveLocalState(rm.client); err != nil {
 		return false, err
 	}
 	return true, nil
@@ -195,4 +176,29 @@ func (rm *ResourceManager) GetAllPipelineTemplatesRemoteState() (state string) {
 		state += string(pipelineTemplate.GetRemoteState())
 	}
 	return
+}
+
+func (rm *ResourceManager) createResourcesFromData(resourceData *p.ParsedResourceData) error {
+	for _, localData := range resourceData.Applications {
+		application := &spr.Application{}
+		if err := application.Init(rm.client, localData); err != nil {
+			return err
+		}
+		rm.resources.Applications = append(rm.resources.Applications, application)
+	}
+	for _, localData := range resourceData.Pipelines {
+		pipeline := &spr.Pipeline{}
+		if err := pipeline.Init(rm.client, localData); err != nil {
+			return err
+		}
+		rm.resources.Pipelines = append(rm.resources.Pipelines, pipeline)
+	}
+	for _, localData := range resourceData.PipelineTemplates {
+		pipelineTemplate := &spr.PipelineTemplate{}
+		if err := pipelineTemplate.Init(rm.client, localData); err != nil {
+			return err
+		}
+		rm.resources.PipelineTemplates = append(rm.resources.PipelineTemplates, pipelineTemplate)
+	}
+	return nil
 }

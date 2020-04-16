@@ -7,7 +7,7 @@ import (
 
 	"github.com/codilime/floodgate/util"
 
-	"github.com/codilime/floodgate/gateclient"
+	gc "github.com/codilime/floodgate/gateclient"
 )
 
 // PipelineTemplate object
@@ -18,7 +18,7 @@ type PipelineTemplate struct {
 }
 
 // Init initialize pipeline template
-func (pt *PipelineTemplate) Init(api *gateclient.GateapiClient, localData map[string]interface{}) error {
+func (pt *PipelineTemplate) Init(api *gc.GateapiClient, localData map[string]interface{}) error {
 	if err := pt.validate(localData); err != nil {
 		return err
 	}
@@ -29,13 +29,14 @@ func (pt *PipelineTemplate) Init(api *gateclient.GateapiClient, localData map[st
 		return err
 	}
 	pt.Resource = &Resource{
-		localState:   localState,
-		spinnakerAPI: api,
+		localState: localState,
 	}
 	pt.id = id
 	pt.name = name
-	if err := pt.loadRemoteState(); err != nil {
-		return err
+	if api != nil {
+		if err := pt.LoadRemoteState(api); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -50,9 +51,9 @@ func (pt PipelineTemplate) Name() string {
 	return pt.name
 }
 
-// loadRemoteState load resource state from Spinnaker
-func (pt *PipelineTemplate) loadRemoteState() error {
-	successPayload, resp, err := pt.spinnakerAPI.V2PipelineTemplatesControllerApi.GetUsingGET2(pt.spinnakerAPI.Context, pt.id, nil)
+// LoadRemoteState load resource's remote state from Spinnaker
+func (pt *PipelineTemplate) LoadRemoteState(spinnakerAPI *gc.GateapiClient) error {
+	successPayload, resp, err := spinnakerAPI.V2PipelineTemplatesControllerApi.GetUsingGET2(spinnakerAPI.Context, pt.id, nil)
 	if resp != nil {
 		if resp.StatusCode == http.StatusNotFound {
 			pt.remoteState = []byte("{}")
@@ -73,7 +74,7 @@ func (pt *PipelineTemplate) loadRemoteState() error {
 }
 
 // SaveLocalState save local state to Spinnaker
-func (pt PipelineTemplate) SaveLocalState() error {
+func (pt PipelineTemplate) SaveLocalState(spinnakerAPI *gc.GateapiClient) error {
 	var localStateJSON interface{}
 	err := json.Unmarshal(pt.localState, &localStateJSON)
 	if err != nil {
@@ -81,9 +82,9 @@ func (pt PipelineTemplate) SaveLocalState() error {
 	}
 	var resp *http.Response
 	if string(pt.remoteState) == "{}" {
-		resp, err = pt.spinnakerAPI.V2PipelineTemplatesControllerApi.CreateUsingPOST1(pt.spinnakerAPI.Context, localStateJSON, nil)
+		resp, err = spinnakerAPI.V2PipelineTemplatesControllerApi.CreateUsingPOST1(spinnakerAPI.Context, localStateJSON, nil)
 	} else {
-		resp, err = pt.spinnakerAPI.V2PipelineTemplatesControllerApi.UpdateUsingPOST1(pt.spinnakerAPI.Context, pt.id, localStateJSON, nil)
+		resp, err = spinnakerAPI.V2PipelineTemplatesControllerApi.UpdateUsingPOST1(spinnakerAPI.Context, pt.id, localStateJSON, nil)
 	}
 	if resp != nil {
 		if resp.StatusCode != http.StatusAccepted {

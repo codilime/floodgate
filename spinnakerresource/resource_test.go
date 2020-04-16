@@ -83,9 +83,8 @@ func TestResource_IsChanged(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := Resource{
-				localState:   tt.fields.localState,
-				remoteState:  tt.fields.remoteState,
-				spinnakerAPI: tt.fields.spinnakerAPI,
+				localState:  tt.fields.localState,
+				remoteState: tt.fields.remoteState,
 			}
 			got, err := r.IsChanged()
 			if (err != nil) != tt.wantErr {
@@ -125,9 +124,8 @@ func TestResource_GetLocalState(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := Resource{
-				localState:   tt.fields.localState,
-				remoteState:  tt.fields.remoteState,
-				spinnakerAPI: tt.fields.spinnakerAPI,
+				localState:  tt.fields.localState,
+				remoteState: tt.fields.remoteState,
 			}
 			got, err := r.GetLocalState()
 			if (err != nil) != tt.wantErr {
@@ -210,9 +208,8 @@ func TestResource_GetFullDiff(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := Resource{
-				localState:   tt.fields.localState,
-				remoteState:  tt.fields.remoteState,
-				spinnakerAPI: tt.fields.spinnakerAPI,
+				localState:  tt.fields.localState,
+				remoteState: tt.fields.remoteState,
 			}
 			if got := r.GetFullDiff(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Resource.GetFullDiff() = %s, want %s", got, tt.want)
@@ -287,9 +284,8 @@ func TestResource_GetNormalizedDiff(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := Resource{
-				localState:   tt.fields.localState,
-				remoteState:  tt.fields.remoteState,
-				spinnakerAPI: tt.fields.spinnakerAPI,
+				localState:  tt.fields.localState,
+				remoteState: tt.fields.remoteState,
 			}
 			if got := r.GetNormalizedDiff(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Resource.GetNormalizedDiff() = %s, want %s", got, tt.want)
@@ -392,9 +388,8 @@ func TestResource_getNormalizedRemoteState(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := Resource{
-				localState:   tt.fields.localState,
-				remoteState:  tt.fields.remoteState,
-				spinnakerAPI: tt.fields.spinnakerAPI,
+				localState:  tt.fields.localState,
+				remoteState: tt.fields.remoteState,
 			}
 			got, err := r.getNormalizedRemoteState()
 			if (err != nil) != tt.wantErr {
@@ -425,9 +420,8 @@ func TestResource_GetRemoteState(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &Resource{
-				localState:   tt.fields.localState,
-				remoteState:  tt.fields.remoteState,
-				spinnakerAPI: tt.fields.spinnakerAPI,
+				localState:  tt.fields.localState,
+				remoteState: tt.fields.remoteState,
 			}
 			if got := r.GetRemoteState(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Resource.GetRemoteState() = %v, want %v", got, tt.want)

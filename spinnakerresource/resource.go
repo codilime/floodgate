@@ -12,7 +12,6 @@ import (
 // Resource is basic struct for all spinnaker resources
 type Resource struct {
 	localState, remoteState []byte
-	spinnakerAPI            *gateclient.GateapiClient
 }
 
 // IsChanged is used to compare local and remmote state
@@ -103,6 +102,8 @@ type Resourcer interface {
 	LocalState() []byte
 	// RemoteState get resource's remote state
 	RemoteState() []byte
+	// LoadRemoteState load resource's remote state from Spinnaker
+	LoadRemoteState(spinnakerAPI *gateclient.GateapiClient) error
 	// SaveLocalState save resource's local state to Spinnaker
-	SaveLocalState() error
+	SaveLocalState(spinnakerAPI *gateclient.GateapiClient) error
 }

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/codilime/floodgate/gateclient"
+	gc "github.com/codilime/floodgate/gateclient"
 	"github.com/codilime/floodgate/util"
 )
 
@@ -18,7 +18,7 @@ type Pipeline struct {
 }
 
 // Init initialize pipeline
-func (p *Pipeline) Init(api *gateclient.GateapiClient, localData map[string]interface{}) error {
+func (p *Pipeline) Init(api *gc.GateapiClient, localData map[string]interface{}) error {
 	if err := p.validate(localData); err != nil {
 		return err
 	}
@@ -30,14 +30,15 @@ func (p *Pipeline) Init(api *gateclient.GateapiClient, localData map[string]inte
 		return err
 	}
 	p.Resource = &Resource{
-		localState:   localState,
-		spinnakerAPI: api,
+		localState: localState,
 	}
 	p.name = name
 	p.application = application
 	p.id = id
-	if err := p.loadRemoteState(); err != nil {
-		return err
+	if api != nil {
+		if err := p.LoadRemoteState(api); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -52,9 +53,9 @@ func (p Pipeline) ID() string {
 	return p.id
 }
 
-// LoadRemoteState get remote resource
-func (p *Pipeline) loadRemoteState() error {
-	successPayload, resp, err := p.spinnakerAPI.ApplicationControllerApi.GetPipelineConfigUsingGET(p.spinnakerAPI.Context, p.application, p.name)
+// LoadRemoteState load resource's remote state from Spinnaker
+func (p *Pipeline) LoadRemoteState(spinnakerAPI *gc.GateapiClient) error {
+	successPayload, resp, err := spinnakerAPI.ApplicationControllerApi.GetPipelineConfigUsingGET(spinnakerAPI.Context, p.application, p.name)
 	if err != nil {
 		return err
 	}
@@ -82,14 +83,14 @@ func (p Pipeline) RemoteState() []byte {
 }
 
 // SaveLocalState save local state to Spinnaker
-func (p Pipeline) SaveLocalState() error {
+func (p Pipeline) SaveLocalState(spinnakerAPI *gc.GateapiClient) error {
 	var jsonPayload interface{}
 	err := json.Unmarshal(p.localState, &jsonPayload)
 	if err != nil {
 		return err
 	}
 
-	saveResp, err := p.spinnakerAPI.PipelineControllerApi.SavePipelineUsingPOST(p.spinnakerAPI.Context, jsonPayload)
+	saveResp, err := spinnakerAPI.PipelineControllerApi.SavePipelineUsingPOST(spinnakerAPI.Context, jsonPayload)
 	if err != nil {
 		return err
 	}

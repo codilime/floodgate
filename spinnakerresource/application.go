@@ -7,6 +7,7 @@ import (
 
 	gateapi "github.com/codilime/floodgate/gateapi"
 	"github.com/codilime/floodgate/gateclient"
+	gc "github.com/codilime/floodgate/gateclient"
 	"github.com/codilime/floodgate/util"
 )
 
@@ -17,7 +18,7 @@ type Application struct {
 }
 
 // Init function for Application resource
-func (a *Application) Init(api *gateclient.GateapiClient, localData map[string]interface{}) error {
+func (a *Application) Init(api *gc.GateapiClient, localData map[string]interface{}) error {
 	if err := a.validate(localData); err != nil {
 		return err
 	}
@@ -27,12 +28,13 @@ func (a *Application) Init(api *gateclient.GateapiClient, localData map[string]i
 		return err
 	}
 	a.Resource = &Resource{
-		localState:   localState,
-		spinnakerAPI: api,
+		localState: localState,
 	}
 	a.name = name
-	if err := a.loadRemoteState(); err != nil {
-		return err
+	if api != nil {
+		if err := a.LoadRemoteState(api); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -42,9 +44,10 @@ func (a Application) Name() string {
 	return a.name
 }
 
-func (a *Application) loadRemoteState() error {
+// LoadRemoteState load resource's remote state from Spinnaker
+func (a *Application) LoadRemoteState(spinnakerAPI *gc.GateapiClient) error {
 	var optionals gateapi.GetApplicationUsingGETOpts
-	payload, resp, err := a.spinnakerAPI.ApplicationControllerApi.GetApplicationUsingGET(a.spinnakerAPI.Context, a.name, &optionals)
+	payload, resp, err := spinnakerAPI.ApplicationControllerApi.GetApplicationUsingGET(spinnakerAPI.Context, a.name, &optionals)
 	if resp != nil {
 		if resp.StatusCode == http.StatusNotFound {
 			a.remoteState = []byte("{}")
@@ -90,7 +93,7 @@ func (a Application) RemoteState() []byte {
 }
 
 // SaveLocalState save local state to Spinnaker
-func (a Application) SaveLocalState() error {
+func (a Application) SaveLocalState(spinnakerAPI *gateclient.GateapiClient) error {
 	var app map[string]interface{}
 	if err := json.Unmarshal(a.localState, &app); err != nil {
 		return fmt.Errorf("failed to unmarshal local state")
@@ -100,12 +103,12 @@ func (a Application) SaveLocalState() error {
 		"application": a.name,
 		"description": "Creating application",
 	}
-	task, _, err := a.spinnakerAPI.TaskControllerApi.TaskUsingPOST1(a.spinnakerAPI.Context, createApplicationTask)
+	task, _, err := spinnakerAPI.TaskControllerApi.TaskUsingPOST1(spinnakerAPI.Context, createApplicationTask)
 	if err != nil {
 		return err
 	}
 	// TODO(wurbanski): Check if the application was actually created using TaskController
-	if err := a.spinnakerAPI.WaitForSuccessfulTask(task, 5); err != nil {
+	if err := spinnakerAPI.WaitForSuccessfulTask(task, 5); err != nil {
 		return err
 	}
 	return nil
