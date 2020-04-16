@@ -1,6 +1,9 @@
 package util
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 // CombineErrors combine array of errors into one
 func CombineErrors(errors []error) error {
@@ -18,4 +21,18 @@ func CombineErrors(errors []error) error {
 		}
 	}
 	return combinedErr
+}
+
+// CreateDirs create directories
+func CreateDirs(dirPaths ...string) error {
+	for _, dirPath := range dirPaths {
+		if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+			if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+	return nil
 }

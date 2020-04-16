@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 
+	c "github.com/codilime/floodgate/config"
 	rm "github.com/codilime/floodgate/resourcemanager"
 	"github.com/spf13/cobra"
 )
@@ -32,8 +33,12 @@ func runInspect(cmd *cobra.Command, options inspectOptions) error {
 	if err != nil {
 		return err
 	}
+	config, err := c.LoadConfig(configPath)
+	if err != nil {
+		return err
+	}
 	resourceManager := &rm.ResourceManager{}
-	if err := resourceManager.Init(configPath); err != nil {
+	if err := resourceManager.Init(config); err != nil {
 		return err
 	}
 	fmt.Println("Current Spinnaker resource status:")
