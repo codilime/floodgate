@@ -1,3 +1,5 @@
+---
+# source: https://raw.githubusercontent.com/minio/minio/master/docs/orchestration/kubernetes/minio-standalone-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:

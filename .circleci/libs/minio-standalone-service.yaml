@@ -1,3 +1,5 @@
+---
+# source: https://raw.githubusercontent.com/minio/minio/master/docs/orchestration/kubernetes/minio-standalone-service.yaml
 apiVersion: v1
 kind: Service
 metadata:
