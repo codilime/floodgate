@@ -11,14 +11,6 @@ import (
 	spr "github.com/codilime/floodgate/spinnakerresource"
 )
 
-// ResourceChange store resource change
-type ResourceChange struct {
-	Type    string
-	ID      string
-	Name    string
-	Changes string
-}
-
 // ResourceManager stores Spinnaker resources and has methods for access, syncing etc.
 type ResourceManager struct {
 	resources spr.SpinnakerResources
