@@ -2,11 +2,12 @@ package resourcemanager
 
 import (
 	"fmt"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 
 	c "github.com/codilime/floodgate/config"
-	"github.com/codilime/floodgate/gateclient"
-	"github.com/codilime/floodgate/parser"
+	gc "github.com/codilime/floodgate/gateclient"
+	p "github.com/codilime/floodgate/parser"
 	spr "github.com/codilime/floodgate/spinnakerresource"
 )
 
@@ -29,12 +30,15 @@ func (rm *ResourceManager) Init(configPath string) error {
 	if err != nil {
 		return err
 	}
-	client := gateclient.NewGateapiClient(config)
-	p := parser.CreateParser(config.Libraries)
-	if err := p.LoadObjectsFromDirectories(config.Resources); err != nil {
+	parser, err := p.NewResourceParser()
+	if err != nil {
 		return err
 	}
-	resourceData := &p.Resources
+	resourceData, err := parser.ParseDirectories(config.Resources)
+	if err != nil {
+		return err
+	}
+	client := gc.NewGateapiClient(config)
 	for _, localData := range resourceData.Applications {
 		application := &spr.Application{}
 		if err := application.Init(client, localData); err != nil {

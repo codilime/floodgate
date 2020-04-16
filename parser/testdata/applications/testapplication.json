@@ -1,10 +1,11 @@
 {
     "name": "testappjson",
-    "description": "Test application",
-    "email": "testappjson@floodgate.com",
+    "description": "Test application from JSON file.",
+    "email": "example@example.com",
     "trafficGuards": [],
     "platformHealthOnlyShowOverride": false,
     "platformHealthOnly": false,
+    "cloudProviders": "kubernetes",
     "providerSettings": {
         "gce": {
             "associatePublicIpAddress": false
@@ -13,7 +14,7 @@
             "useAmiBlockDeviceMappings": false
         }
     },
-    "user": "testuser@floodgate.com",
+    "user": "example@example.com",
     "dataSources": {
         "disabled": [],
         "enabled": []
