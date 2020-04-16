@@ -130,6 +130,9 @@ jobs:
       gate_api_branch:
         type: string
         default: release-1.19.x
+      floodgate_extra_params:
+        type: string
+        default: ""
     machine:
       image: circleci/classic:201808-01
     steps:
@@ -170,19 +173,19 @@ jobs:
           name: Test Floodgate against running Spinnaker instance
           command: |
             /floodgate/bin/floodgate --version
-            /floodgate/bin/floodgate --config ~/floodgate.yaml compare || echo $?
-            /floodgate/bin/floodgate --config ~/floodgate.yaml sync
-            /floodgate/bin/floodgate --config ~/floodgate.yaml compare
+            /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml compare && exit 1 || echo "Found changes"
+            /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml sync
+            /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml compare
 
 workflows:
   periodic:
-    triggers:
-      - schedule:
-          cron: "15 2 * * *"
-          filters:
-            branches:
-              only:
-                - master
+          #    triggers:
+          #      - schedule:
+          #          cron: "15 2 * * *"
+          #          filters:
+          #            branches:
+          #              only:
+          #                - master
     jobs:
       - generate_swagger:
           name: generate swagger api << matrix.gate_api_branch >>
@@ -213,5 +216,6 @@ workflows:
             - generate swagger api
       - start_minnaker:
           name: test Floodgate with working Spinnaker
+          floodgate_extra_params: "-q"
           requires:
             - build
