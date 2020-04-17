@@ -26,10 +26,8 @@ hal -q config deploy edit --type distributed --account-name my-k8s-v2-account
 
 ## Install minio
 kubectl create namespace spinnaker
-kubectl -n spinnaker create -f "${EXEC_DIR}/minio-standalone-pvc.yaml"
-kubectl -n spinnaker create -f "${EXEC_DIR}/minio-standalone-deployment.yaml"
-sed -i 's/LoadBalancer/ClusterIP/g' "${EXEC_DIR}/minio-standalone-service.yaml"
-kubectl -n spinnaker create -f "${EXEC_DIR}/minio-standalone-service.yaml"
+sed -i 's/LoadBalancer/ClusterIP/g' "${EXEC_DIR}/minio-standalone.yaml"
+kubectl -n spinnaker create -f "${EXEC_DIR}/minio-standalone.yaml"
 mkdir -p ~/.hal/default/profiles
 echo "spinnaker.s3.versioning: false" >> ~/.hal/default/profiles/front50-local.yml
 
@@ -63,7 +61,7 @@ done
 kubectl apply -f "${EXEC_DIR}/ingress-mandatory.yaml"
 kubectl apply -f "${EXEC_DIR}/ingress-service-nodeport.yaml"
 kubectl patch deployments -n ingress-nginx nginx-ingress-controller -p '{"spec":{"template":{"spec":{"containers":[{"name":"nginx-ingress-controller","ports":[{"containerPort":80,"hostPort":80},{"containerPort":443,"hostPort":443}]}],"nodeSelector":{"ingress-ready":"true"},"tolerations":[{"key":"node-role.kubernetes.io/master","operator":"Equal","effect":"NoSchedule"}]}}}}'
-kubectl -n spinnaker apply -f "${EXEC_DIR}/spin-ingress.yaml"
+kubectl -n spinnaker apply -f "${EXEC_DIR}/spinnaker-ingress.yaml"
 
 # Generate Floodgate config file
 sed -i "s/GATE_PASS/${GATE_PASS}/g" "${EXEC_DIR}/floodgate-config.yaml"
