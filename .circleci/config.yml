@@ -1,7 +1,31 @@
-# Golang CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2.1
+
+commands:
+  install_toolset:
+    description: "Install needed extra tools"
+    steps:
+      - run:
+          name: Install tools
+          command: |
+            curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v0.7.0/kind-$(uname)-amd64
+            chmod +x ./kind
+            sudo mv ./kind /usr/local/bin/
+            curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+            chmod +x ./kubectl
+            sudo mv ./kubectl /usr/local/bin/
+    
+  wait_for_dpkg:
+    description: "Wait for packaging operations to finish"
+    steps:
+      - run:
+          name: Wait for packaging operations to finish
+          command: |
+            sleep 10
+            while systemctl status apt-daily >/dev/null || systemctl status apt-daily-upgrade >/dev/null || sudo fuser /var/{lib/{dpkg,apt/lists},cache/apt/archives}/lock; do
+              echo "waiting 30s for dpkg locks..."
+              sleep 30
+            done
+
 jobs:
   generate_swagger:
     parameters:
@@ -87,9 +111,71 @@ jobs:
             do
               golint -set_exit_status $GOSRCFILE
             done
+      - run:
+          name: Copy binaries for later use
+          command: |
+            sudo mkdir -p /floodgate/bin
+            sudo chmod 777 /floodgate/bin
+            cp /go/src/github.com/codilime/floodgate/floodgate /floodgate/bin/floodgate
+      - persist_to_workspace:
+          root: /floodgate/bin
+          paths:
+            - floodgate
       - store_artifacts:
           path: /go/src/github.com/codilime/floodgate/floodgate
           destination: floodgate-<< parameters.gate_api_branch >>
+
+  start_spinnaker:
+    parameters:
+      gate_api_branch:
+        type: string
+        default: release-1.19.x
+      floodgate_extra_params:
+        type: string
+        default: ""
+    machine:
+      image: circleci/classic:201808-01
+    steps:
+      - checkout
+      - run:
+          name: Update submodules - sponnet
+          command: git submodule init && git submodule update
+      - attach_workspace:
+          at: ./
+      - run:
+          name: Prepare directories
+          command: |
+            sudo mkdir /floodgate
+            sudo chmod 777 /floodgate
+            mkdir -p /floodgate/bin
+            mkdir -p /floodgate/libs
+            mkdir -p /floodgate/resources
+            cp -r sponnet /floodgate/libs/
+            cp -r examples /floodgate/resources/
+            cp floodgate /floodgate/bin/
+            chmod +x /floodgate/bin/floodgate
+      - install_toolset
+      - run:
+          name: Update /etc/hosts
+          command: sudo bash -c 'echo "127.1.2.3 spinnaker" >> /etc/hosts'
+      - wait_for_dpkg
+      - run:
+          name: Install Spinnaker and configure Floodgate       
+          command: |
+            export NEED_SPINNAKER_VERSION=$( echo << parameters.gate_api_branch >> | egrep -o "[0-9]\.[0-9]+" )
+            .circleci/libs/install-and-run-spinnaker.sh
+            until [ $( curl -w '%{http_code}' -o /dev/null http://spinnaker/api/v1 ) -eq 302 ]
+            do
+                echo "Waiting for Spinnaker"
+                sleep 10
+            done
+      - run:
+          name: Test Floodgate against running Spinnaker instance
+          command: |
+            /floodgate/bin/floodgate --version
+            /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml compare && exit 1 || echo "Found changes"
+            /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml sync
+            /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml compare
 
 workflows:
   periodic:
@@ -113,6 +199,14 @@ workflows:
               gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
           requires:
             - generate swagger api << matrix.gate_api_branch >>
+      - start_spinnaker:
+          name: test floodgate with working spinnaker << matrix.gate_api_branch >>
+          matrix:
+            parameters:
+              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+          requires:
+            - build against gate << matrix.gate_api_branch >>
+
   commit:
     jobs:
       - generate_swagger:
@@ -121,3 +215,12 @@ workflows:
           name: build
           requires:
             - generate swagger api
+      - start_spinnaker:
+          filters:
+            branches:
+              only:
+                - master
+          name: test floodgate with working spinnaker
+          floodgate_extra_params: "-q"
+          requires:
+            - build
