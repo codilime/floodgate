@@ -2,7 +2,7 @@
    "application": "testpipelineapplication",
    "keepWaitingPipelines": false,
    "limitConcurrent": true,
-   "name": "testpipelinejsonnet",
+   "name": "testpipelinejson",
    "notifications": [ ],
    "stages": [ ],
    "triggers": [ ]
