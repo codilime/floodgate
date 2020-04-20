@@ -82,13 +82,18 @@ Additionally, you can find example resources in the `examples/resources` directo
 **Note:** To allow Floodgate to control pipeline templates apply those commands to your environment:
 ```bash
 hal config features edit --pipeline-templates true
+hal deploy apply
+```
+
+**Note:** To view pipeline templates in the UI use:
+```bash
 hal config features edit --managed-pipeline-templates-v2-ui true
 hal deploy apply
 ```
 
-To run tests use:
+To run tests, navigate to the root of the repository and run this command:
 ```bash
-go test $GOPATH/src/github.com/codilime/floodgate/...
+go test ./...
 ```
 
 ## How to use?
