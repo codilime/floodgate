@@ -1,9 +1,12 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 
+	c "github.com/codilime/floodgate/config"
+	rm "github.com/codilime/floodgate/resourcemanager"
 	"github.com/spf13/cobra"
 )
 
@@ -26,5 +29,36 @@ func NewCompareCmd(out io.Writer) *cobra.Command {
 }
 
 func runCompare(cmd *cobra.Command, options compareOptions) error {
-	return fmt.Errorf("not implemented")
+	flags := cmd.InheritedFlags()
+	configPath, err := flags.GetString("config")
+	if err != nil {
+		return err
+	}
+	config, err := c.LoadConfig(configPath)
+	if err != nil {
+		return err
+	}
+	resourceManager := &rm.ResourceManager{}
+	if err := resourceManager.Init(config); err != nil {
+		return err
+	}
+	changes := resourceManager.GetChanges()
+	if len(changes) == 0 {
+		return nil
+	}
+	printCompareDiff(changes)
+	return errors.New("end diff")
+}
+
+func printCompareDiff(changes []rm.ResourceChange) {
+	for _, change := range changes {
+		var line string
+		if change.ID != "" {
+			line = fmt.Sprintf("%s (%s) (%s)", change.ID, change.Name, change.Type)
+		} else {
+			line = fmt.Sprintf("%s (%s)", change.Name, change.Type)
+		}
+		fmt.Println(line)
+		fmt.Println(change.Changes)
+	}
 }

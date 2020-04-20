@@ -1,91 +1,50 @@
 package resourcemanager
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
 
 	c "github.com/codilime/floodgate/config"
-	"github.com/codilime/floodgate/gateclient"
-	"github.com/codilime/floodgate/parser"
+	gc "github.com/codilime/floodgate/gateclient"
+	p "github.com/codilime/floodgate/parser"
+	fl "github.com/codilime/floodgate/parser/fileloader"
 	spr "github.com/codilime/floodgate/spinnakerresource"
+	"github.com/codilime/floodgate/util"
 )
-
-// SpinnakerResources Spinnaker resources collection
-type SpinnakerResources struct {
-	Applications      []*spr.Application
-	Pipelines         []*spr.Pipeline
-	PipelineTemplates []*spr.PipelineTemplate
-}
-
-// ResourceChange store resource change
-type ResourceChange struct {
-	Type    string
-	ID      string
-	Name    string
-	Changes string
-}
 
 // ResourceManager stores Spinnaker resources and has methods for access, syncing etc.
 type ResourceManager struct {
-	resources         SpinnakerResources
-	desyncedResources SpinnakerResources
+	resources spr.SpinnakerResources
+	client    *gc.GateapiClient
 }
 
 // Init initialize sync
-func (rm *ResourceManager) Init(configPath string) error {
-	config, err := c.LoadConfig(configPath)
+func (rm *ResourceManager) Init(config *c.Config, customOptions ...Option) error {
+	options := Options{}
+	for _, option := range customOptions {
+		option(&options)
+	}
+	if len(options.fileLoaders) == 0 {
+		options.fileLoaders = []fl.FileLoader{
+			fl.NewJSONLoader(),
+			fl.NewJsonnetLoader(config.Libraries...),
+			fl.NewYAMLLoader(),
+		}
+	}
+	rm.client = gc.NewGateapiClient(config)
+	parser, err := p.NewParser(options.fileLoaders...)
 	if err != nil {
 		return err
 	}
-	client := gateclient.NewGateapiClient(config)
-	p := parser.CreateParser(config.Libraries)
-	if err := p.LoadObjectsFromDirectories(config.Resources); err != nil {
+	resourceData, err := parser.ParseDirectories(config.Resources)
+	if err != nil {
 		return err
 	}
-	resourceData := &p.Resources
-	for _, localData := range resourceData.Applications {
-		application := &spr.Application{}
-		if err := application.Init(client, localData); err != nil {
-			return err
-		}
-		rm.resources.Applications = append(rm.resources.Applications, application)
-		changed, err := application.IsChanged()
-		if err != nil {
-			return err
-		}
-		if changed {
-			rm.desyncedResources.Applications = append(rm.desyncedResources.Applications, application)
-		}
-	}
-	for _, localData := range resourceData.Pipelines {
-		pipeline := &spr.Pipeline{}
-		if err := pipeline.Init(client, localData); err != nil {
-			return err
-		}
-		rm.resources.Pipelines = append(rm.resources.Pipelines, pipeline)
-		changed, err := pipeline.IsChanged()
-		if err != nil {
-			return err
-		}
-		if changed {
-			rm.desyncedResources.Pipelines = append(rm.desyncedResources.Pipelines, pipeline)
-		}
-	}
-	for _, localData := range resourceData.PipelineTemplates {
-		pipelineTemplate := &spr.PipelineTemplate{}
-		if err := pipelineTemplate.Init(client, localData); err != nil {
-			return err
-		}
-		rm.resources.PipelineTemplates = append(rm.resources.PipelineTemplates, pipelineTemplate)
-		changed, err := pipelineTemplate.IsChanged()
-		if err != nil {
-			return err
-		}
-		if changed {
-			rm.desyncedResources.PipelineTemplates = append(rm.desyncedResources.PipelineTemplates, pipelineTemplate)
-		}
-	}
+	rm.createResourcesFromData(resourceData)
 	return nil
 }
 
@@ -149,7 +108,7 @@ func (rm ResourceManager) syncResource(resource spr.Resourcer) (bool, error) {
 	if !needToSave {
 		return false, nil
 	}
-	if err := resource.SaveLocalState(); err != nil {
+	if err := resource.SaveLocalState(rm.client); err != nil {
 		return false, err
 	}
 	return true, nil
@@ -221,4 +180,69 @@ func (rm *ResourceManager) GetAllPipelineTemplatesRemoteState() (state string) {
 		state += string(pipelineTemplate.GetRemoteState())
 	}
 	return
+}
+
+func (rm *ResourceManager) createResourcesFromData(resourceData *p.ParsedResourceData) error {
+	for _, localData := range resourceData.Applications {
+		application := &spr.Application{}
+		if err := application.Init(rm.client, localData); err != nil {
+			return err
+		}
+		rm.resources.Applications = append(rm.resources.Applications, application)
+	}
+	for _, localData := range resourceData.Pipelines {
+		pipeline := &spr.Pipeline{}
+		if err := pipeline.Init(rm.client, localData); err != nil {
+			return err
+		}
+		rm.resources.Pipelines = append(rm.resources.Pipelines, pipeline)
+	}
+	for _, localData := range resourceData.PipelineTemplates {
+		pipelineTemplate := &spr.PipelineTemplate{}
+		if err := pipelineTemplate.Init(rm.client, localData); err != nil {
+			return err
+		}
+		rm.resources.PipelineTemplates = append(rm.resources.PipelineTemplates, pipelineTemplate)
+	}
+	return nil
+}
+
+// SaveResources save resources
+func (rm ResourceManager) SaveResources(dirPath string) error {
+	applicationsDir := filepath.Join(dirPath, "applications")
+	pipelinesDir := filepath.Join(dirPath, "pipelines")
+	pipelineTemplatesDir := filepath.Join(dirPath, "pipelinetemplates")
+	util.CreateDirs(applicationsDir, pipelinesDir, pipelineTemplatesDir)
+	jsonFileExt := ".json"
+	for _, application := range rm.resources.Applications {
+		filePath := filepath.Join(applicationsDir, application.Name()+jsonFileExt)
+		rm.saveResource(filePath, application)
+	}
+	for _, pipeline := range rm.resources.Pipelines {
+		filePath := filepath.Join(pipelinesDir, pipeline.ID()+jsonFileExt)
+		rm.saveResource(filePath, pipeline)
+	}
+	for _, pipelineTemplate := range rm.resources.PipelineTemplates {
+		filePath := filepath.Join(pipelineTemplatesDir, pipelineTemplate.ID()+jsonFileExt)
+		rm.saveResource(filePath, pipelineTemplate)
+	}
+	return nil
+}
+
+func (rm ResourceManager) saveResource(filePath string, resource spr.Resourcer) error {
+	localData := resource.LocalState()
+	return rm.saveResourceData(filePath, localData)
+}
+
+func (rm ResourceManager) saveResourceData(filePath string, resourceData []byte) error {
+	file, _ := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR, os.ModePerm)
+	defer file.Close()
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "\t")
+	var obj map[string]interface{}
+	json.Unmarshal(resourceData, &obj)
+	if err := encoder.Encode(obj); err != nil {
+		return err
+	}
+	return nil
 }

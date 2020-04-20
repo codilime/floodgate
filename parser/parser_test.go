@@ -5,99 +5,6 @@ import (
 	"testing"
 )
 
-func TestParser_loadFile(t *testing.T) {
-	type args struct {
-		filePath string
-	}
-	tests := []struct {
-		name          string
-		librariesPath []string
-		args          args
-		want          map[string]interface{}
-		wantErr       bool
-	}{
-		{
-			name:          "load jsonnet file",
-			librariesPath: []string{"testdata/testsimplelib"},
-			args: args{
-				filePath: "testdata/testsimple/testsimple.jsonnet",
-			},
-			want: map[string]interface{}{
-				"name":     "testjsonnet",
-				"variable": false,
-			},
-			wantErr: false,
-		},
-		{
-			name:          "load json file",
-			librariesPath: []string{},
-			args: args{
-				filePath: "testdata/testsimple/testsimple.json",
-			},
-			want: map[string]interface{}{
-				"name":     "testjson",
-				"variable": false,
-			},
-			wantErr: false,
-		},
-		{
-			name:          "load yaml file",
-			librariesPath: []string{},
-			args: args{
-				filePath: "testdata/testsimple/testsimple.yaml",
-			},
-			want: map[string]interface{}{
-				"name":     "testyaml",
-				"variable": false,
-			},
-			wantErr: false,
-		},
-		{
-			name:          "load yml file",
-			librariesPath: []string{},
-			args: args{
-				filePath: "testdata/testsimple/testsimple.yml",
-			},
-			want: map[string]interface{}{
-				"name":     "testyml",
-				"variable": false,
-			},
-			wantErr: false,
-		},
-		{
-			name:          "fail to load file with invalid extension",
-			librariesPath: []string{},
-			args: args{
-				filePath: "testdata/testsimple/testsimple.invalid_ext",
-			},
-			want:    nil,
-			wantErr: true,
-		},
-		{
-			name:          "fail to load nonexistent file",
-			librariesPath: []string{},
-			args: args{
-				filePath: "testdata/testsimple/thefilethatshouldnotbe",
-			},
-			want:    nil,
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			p := CreateParser(tt.librariesPath)
-			got, err := p.loadFile(tt.args.filePath)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Parser.loadFile() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Parser.loadFile() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestParser_loadDirectory(t *testing.T) {
 	type args struct {
 		entrypoint string
@@ -111,16 +18,16 @@ func TestParser_loadDirectory(t *testing.T) {
 	}{
 		{
 			name:          "succesfully load directory",
-			librariesPath: []string{"testdata/testsimplelib"},
-			args:          args{entrypoint: "testdata/testsimple"},
-			want:          testSimpleResources,
+			librariesPath: []string{"testdata/testlibraries"},
+			args:          args{entrypoint: "testdata/applications"},
+			want:          []map[string]interface{}{testApplicationJSON, testApplicationJsonnet},
 			wantErr:       false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := CreateParser(tt.librariesPath)
-			got, err := p.loadDirectory(tt.args.entrypoint)
+			p, err := NewResourceParser(tt.librariesPath...)
+			got, err := p.loadFilesFromDirectory(tt.args.entrypoint)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Parser.loadDirectory() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -132,7 +39,7 @@ func TestParser_loadDirectory(t *testing.T) {
 	}
 }
 
-func TestParser_LoadObjectsFromDirectories(t *testing.T) {
+func TestParser_ParseDirectories(t *testing.T) {
 	type args struct {
 		directories []string
 	}
@@ -140,30 +47,40 @@ func TestParser_LoadObjectsFromDirectories(t *testing.T) {
 		name          string
 		librariesPath []string
 		args          args
+		want          *ParsedResourceData
 		wantErr       bool
 	}{
 		{
 			name:          "successfully load objects from single directory",
-			librariesPath: []string{},
+			librariesPath: []string{"testdata/testlibraries"},
 			args: args{
-				directories: []string{"testdata/testapplication"},
+				directories: []string{"testdata/applications"},
 			},
+			want:    &ParsedResourceData{Applications: []map[string]interface{}{testApplicationJSON, testApplicationJsonnet}},
 			wantErr: false,
 		},
 		{
 			name:          "successfully load objects from multiple directories",
-			librariesPath: []string{},
+			librariesPath: []string{"testdata/testlibraries"},
 			args: args{
-				directories: []string{"testdata/testapplication", "testdata/testpipeline"},
+				directories: []string{"testdata/applications", "testdata/pipelines"},
 			},
+			want:    &ParsedResourceData{Applications: []map[string]interface{}{testApplicationJSON, testApplicationJsonnet}, Pipelines: []map[string]interface{}{testPipelineJSON}},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := CreateParser(tt.librariesPath)
-			if err := p.LoadObjectsFromDirectories(tt.args.directories); (err != nil) != tt.wantErr {
-				t.Errorf("Parser.LoadObjectsFromDirectories() error = %v, wantErr %v", err, tt.wantErr)
+			p, err := NewResourceParser(tt.librariesPath...)
+			if err != nil {
+				t.Error(err)
+			}
+			got, err := p.ParseDirectories(tt.args.directories)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Parser.ParseDirectories() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Parser.loadDirectory() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -188,7 +105,7 @@ func TestParser_readObjects(t *testing.T) {
 		{
 			name: "read application",
 			args: args{
-				objects: []map[string]interface{}{testApplication},
+				objects: []map[string]interface{}{testApplicationJSON},
 			},
 			wantErr: false,
 		},
@@ -203,41 +120,22 @@ func TestParser_readObjects(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &Parser{}
-			if err := p.readObjects(tt.args.objects); (err != nil) != tt.wantErr {
+			if _, err := p.parseObjects(tt.args.objects); (err != nil) != tt.wantErr {
 				t.Errorf("Parser.readObjects() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
 }
 
-var testSimpleResources = []map[string]interface{}{
-	map[string]interface{}{
-		"name":     "testjson",
-		"variable": false,
-	},
-	map[string]interface{}{
-		"name":     "testjsonnet",
-		"variable": false,
-	},
-	map[string]interface{}{
-		"name":     "testyaml",
-		"variable": false,
-	},
-	map[string]interface{}{
-		"name":     "testyml",
-		"variable": false,
-	},
-}
-
-var testApplication = map[string]interface{}{
-	"name":           "testapplication",
-	"description":    "Test application",
-	"email":          "test@floodgate.com",
-	"user":           "test@floodgate.com",
+var testApplicationJSON = map[string]interface{}{
+	"name":           "testappjson",
+	"description":    "Test application from JSON file.",
+	"email":          "example@example.com",
+	"user":           "example@example.com",
 	"cloudProviders": "kubernetes",
 	"dataSources": map[string]interface{}{
-		"disabled": []string{},
-		"enabled":  []string{},
+		"disabled": []interface{}{},
+		"enabled":  []interface{}{},
 	},
 	"platformHealthOnly":             false,
 	"platformHealthOnlyShowOverride": false,
@@ -249,7 +147,40 @@ var testApplication = map[string]interface{}{
 			"associatePublicIpAddress": false,
 		},
 	},
-	"trafficGuards": []string{},
+	"trafficGuards": []interface{}{},
+}
+
+var testApplicationJsonnet = map[string]interface{}{
+	"cloudProviders": "kubernetes",
+	"dataSources": map[string]interface{}{
+		"disabled": []interface{}{},
+		"enabled":  []interface{}{},
+	},
+	"description":                    "Test application from Jsonnet file.",
+	"email":                          "example@example.com",
+	"name":                           "testappjsonnet",
+	"platformHealthOnly":             false,
+	"platformHealthOnlyShowOverride": false,
+	"providerSettings": map[string]interface{}{
+		"aws": map[string]interface{}{
+			"useAmiBlockDeviceMappings": false,
+		},
+		"gce": map[string]interface{}{
+			"associatePublicIpAddress": false,
+		},
+	},
+	"trafficGuards": []interface{}{},
+	"user":          "example@example.com",
+}
+
+var testPipelineJSON = map[string]interface{}{
+	"application":          "testpipelineapplication",
+	"keepWaitingPipelines": false,
+	"limitConcurrent":      true,
+	"name":                 "testpipelinejson",
+	"notifications":        []interface{}{},
+	"stages":               []interface{}{},
+	"triggers":             []interface{}{},
 }
 
 var testPipelineTemplate = map[string]interface{}{
