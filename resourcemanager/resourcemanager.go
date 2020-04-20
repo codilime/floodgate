@@ -2,6 +2,7 @@ package resourcemanager
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -242,6 +243,23 @@ func (rm ResourceManager) saveResourceData(filePath string, resourceData []byte)
 	var obj map[string]interface{}
 	json.Unmarshal(resourceData, &obj)
 	if err := encoder.Encode(obj); err != nil {
+		return err
+	}
+	return nil
+}
+
+// SaveResources saves a string to file
+func (rm ResourceManager) SaveStringToFile(filePath string, data string) error {
+	configPath := filepath.Join(filePath, "config.yaml")
+	if _, err := os.Stat(configPath); err == nil {
+		return errors.New("config.yaml file already exists in current directory, use another directory")
+	}
+	file, err := os.Create(configPath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	if _, err := file.WriteString(data); err != nil {
 		return err
 	}
 	return nil

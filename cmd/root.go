@@ -48,6 +48,7 @@ func NewRootCmd(out io.Writer) *cobra.Command {
 	cmd.AddCommand(NewHydrateCmd(out))
 	cmd.AddCommand(NewInspectCmd(out))
 	cmd.AddCommand(NewRenderCmd(out))
+	cmd.AddCommand(NewGenerateCmd(out))
 
 	return cmd
 }
