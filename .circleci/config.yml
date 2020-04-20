@@ -125,7 +125,7 @@ jobs:
           path: /go/src/github.com/codilime/floodgate/floodgate
           destination: floodgate-<< parameters.gate_api_branch >>
 
-  start_minnaker:
+  start_spinnaker:
     parameters:
       gate_api_branch:
         type: string
@@ -199,7 +199,7 @@ workflows:
               gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
           requires:
             - generate swagger api << matrix.gate_api_branch >>
-      - start_minnaker:
+      - start_spinnaker:
           name: test floodgate with working spinnaker << matrix.gate_api_branch >>
           matrix:
             parameters:
@@ -215,7 +215,7 @@ workflows:
           name: build
           requires:
             - generate swagger api
-      - start_minnaker:
+      - start_spinnaker:
           filters:
             branches:
               only:
