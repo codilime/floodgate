@@ -123,7 +123,6 @@ func (p *Parser) parseObjects(objects []map[string]interface{}) (*ParsedResource
 			continue
 		}
 		if _, ok := object["accounts"]; ok {
-
 			parsedResources.Applications = append(parsedResources.Applications, object)
 			continue
 		}
