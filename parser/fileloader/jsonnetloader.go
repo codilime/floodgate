@@ -3,6 +3,7 @@ package fileloader
 import (
 	"encoding/json"
 	"io/ioutil"
+  "fmt"
 
 	"github.com/google/go-jsonnet"
 )
@@ -21,17 +22,22 @@ type JsonnetLoader struct {
 }
 
 // LoadFile load file
-func (jl *JsonnetLoader) LoadFile(filePath string) (map[string]interface{}, error) {
+func (jl *JsonnetLoader) LoadFile(filePath string) ([]map[string]interface{}, error) {
 	inputFile, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
-	evaluatedSnipped, err := jl.EvaluateSnippet(filePath, string(inputFile))
+	evaluatedSnipped, err := jl.EvaluateSnippetStream(filePath, string(inputFile))
 	if err != nil {
 		return nil, err
 	}
-	var output map[string]interface{}
-	json.Unmarshal([]byte(evaluatedSnipped), &output)
+	var output []map[string]interface{}
+  for i := range evaluatedSnipped {
+    var partial map[string]interface{}
+    fmt.Printf("%v", evaluatedSnipped[i])
+    json.Unmarshal([]byte(evaluatedSnipped[i]), &partial)
+    output = append(output, partial)
+  }
 	return output, nil
 }
 

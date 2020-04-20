@@ -14,7 +14,7 @@ func NewJSONLoader() *JSONLoader {
 type JSONLoader struct{}
 
 // LoadFile load file
-func (jl *JSONLoader) LoadFile(filePath string) (map[string]interface{}, error) {
+func (jl *JSONLoader) LoadFile(filePath string) ([]map[string]interface{}, error) {
 	inputFile, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func (jl *JSONLoader) LoadFile(filePath string) (map[string]interface{}, error) 
 	if err := json.Unmarshal(inputFile, &output); err != nil {
 		return nil, err
 	}
-	return output, nil
+	return []map[string]interface{}{output}, nil
 }
 
 // SupportedFileExtensions get supported file extensions
