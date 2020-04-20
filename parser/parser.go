@@ -113,7 +113,6 @@ func (p *Parser) parseObjects(objects []map[string]interface{}) (*ParsedResource
 		return nil, fmt.Errorf("no objects found")
 	}
 	for _, object := range objects {
-    fmt.Printf("%v", object)
 		if _, ok := object["application"]; ok {
 			parsedResources.Pipelines = append(parsedResources.Pipelines, object)
 			continue
@@ -122,7 +121,7 @@ func (p *Parser) parseObjects(objects []map[string]interface{}) (*ParsedResource
 			parsedResources.PipelineTemplates = append(parsedResources.PipelineTemplates, object)
 			continue
 		}
-		if _, ok := object["accounts"]; ok {
+		if _, ok := object["email"]; ok {
 			parsedResources.Applications = append(parsedResources.Applications, object)
 			continue
 		}

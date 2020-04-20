@@ -3,7 +3,6 @@ package fileloader
 import (
 	"encoding/json"
 	"io/ioutil"
-  "fmt"
 
 	"github.com/google/go-jsonnet"
 )
@@ -38,7 +37,6 @@ func (jl *JsonnetLoader) LoadFile(filePath string) ([]map[string]interface{}, er
 	var output []map[string]interface{}
   for i := range evaluatedSnippet {
     var partial map[string]interface{}
-    fmt.Printf("%v", evaluatedSnippet[i])
     json.Unmarshal([]byte(evaluatedSnippet[i]), &partial)
     output = append(output, partial)
   }
