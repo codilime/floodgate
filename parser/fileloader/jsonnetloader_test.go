@@ -20,7 +20,7 @@ func TestJsonnetLoader_LoadFile(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    map[string]interface{}
+		want    []map[string]interface{}
 		wantErr bool
 	}{
 		{
@@ -78,7 +78,7 @@ func TestJsonnetLoader_SupportedFileExtensions(t *testing.T) {
 	}
 }
 
-var testJsonnetFile = map[string]interface{}{
+var testJsonnetFile = []map[string]interface{}{{
 	"name":     "testjsonnet",
 	"variable": false,
-}
+}}

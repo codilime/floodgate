@@ -21,17 +21,28 @@ type JsonnetLoader struct {
 }
 
 // LoadFile load file
-func (jl *JsonnetLoader) LoadFile(filePath string) (map[string]interface{}, error) {
+func (jl *JsonnetLoader) LoadFile(filePath string) ([]map[string]interface{}, error) {
 	inputFile, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
-	evaluatedSnipped, err := jl.EvaluateSnippet(filePath, string(inputFile))
+	// EvaluateSnippetStream fails if generated output does not fit into a slice...
+	snippetStream, err := jl.EvaluateSnippetStream(filePath, string(inputFile))
 	if err != nil {
-		return nil, err
+		// ...at which point we evaluate it as a single object and let further processing take care
+		evaluatedSingleSnippet, err := jl.EvaluateSnippet(filePath, string(inputFile))
+		if err != nil {
+			return nil, err
+		}
+		// wrap the single object in slice to keep interface intact
+		snippetStream = []string{evaluatedSingleSnippet}
 	}
-	var output map[string]interface{}
-	json.Unmarshal([]byte(evaluatedSnipped), &output)
+	var output []map[string]interface{}
+	for i := range snippetStream {
+		var partial map[string]interface{}
+		json.Unmarshal([]byte(snippetStream[i]), &partial)
+		output = append(output, partial)
+	}
 	return output, nil
 }
 

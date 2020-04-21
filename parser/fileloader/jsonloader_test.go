@@ -12,7 +12,7 @@ func TestJSONLoader_LoadFile(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    map[string]interface{}
+		want    []map[string]interface{}
 		wantErr bool
 	}{
 		{
@@ -59,7 +59,7 @@ func TestJSONLoader_SupportedFileExtensions(t *testing.T) {
 	}
 }
 
-var testJSONFIle = map[string]interface{}{
+var testJSONFIle = []map[string]interface{}{{
 	"name":     "testjson",
 	"variable": false,
-}
+}}
