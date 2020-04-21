@@ -248,7 +248,7 @@ func (rm ResourceManager) saveResourceData(filePath string, resourceData []byte)
 	return nil
 }
 
-// SaveResources saves a string to file
+// SaveStringToFile saves a string to file
 func (rm ResourceManager) SaveStringToFile(filePath string, data string) error {
 	configPath := filepath.Join(filePath, "config.yaml")
 	if _, err := os.Stat(configPath); err == nil {
