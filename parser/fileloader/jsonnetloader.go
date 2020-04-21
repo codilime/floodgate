@@ -26,12 +26,15 @@ func (jl *JsonnetLoader) LoadFile(filePath string) ([]map[string]interface{}, er
 	if err != nil {
 		return nil, err
 	}
+  // EvaluateSnippetStream fails if generated output does not fit into a slice...
 	snippetStream, err := jl.EvaluateSnippetStream(filePath, string(inputFile))
 	if err != nil {
+    // ...at which point we evaluate it as a single object and let further processing take care
 		evaluatedSingleSnippet, err := jl.EvaluateSnippet(filePath, string(inputFile))
 		if err != nil {
 			return nil, err
 		}
+    // wrap the single object in slice to keep interface intact
 		snippetStream = []string{evaluatedSingleSnippet}
 	}
 	var output []map[string]interface{}
