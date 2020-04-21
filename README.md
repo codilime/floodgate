@@ -114,6 +114,10 @@ Difference between a.json and b.json:
 + "true"
 ```
 
+## Using JSONNET
+
+Files that have a `.jsonnet` file extention will be evaluated as JSONNET files. Output of each file should be either a single object or an array of objects.
+
 ## License
 
 Floodgate is licensed under Apache 2.0 License, following other Spinnaker's components.
