@@ -59,7 +59,7 @@ $ java -jar /tmp/swagger-codegen-cli.jar generate -l go -i gate-swagger.json -o 
 
 **Note:** This will remove current contents of `gateapi` directory!
 
-## WIP: How to run
+## How to run?
 
 This project uses the Go module system.
 First, make sure you have some version of Spinnaker running.
@@ -68,28 +68,58 @@ Get the repository using `go get`:
 ```bash
 go get github.com/codilime/floodgate
 ```
-In its current development state Floodgate checks if a `config.yaml` is present in the root directory.
-Navigate to the directory:
-```bash
-cd $GOROOT/github.com/codilime/floodgate
-```
-Create a `config.yaml` file. An example config can be found in `example.yaml`.
-Additionally, you can find example resources in the `resources` directory.
+This will download, compile and install Floodgate to `$GOPATH/bin`. If this directory is present in your `$PATH`, the `floodgate` command will be available from any directory.
 
-Execute `go build` and run the binary:
+Create a `config.yaml` file. An example one can be found in `examples/config.yaml`.
+Floodgate checks if a config file is present in:
 ```bash
-go build && ./floodgate
+$HOME/.config/floodgate/config.yaml
 ```
-You can also use `go install` so that the `floodgate` command is available from any directory.
+You can also specify a path to the config file using the `--config` flag.
 
-To run tests use:
+Additionally, you can find example resources in the `examples/resources` directory.
+
+**Note:** To allow Floodgate to control pipeline templates apply those commands to your environment:
+```bash
+hal config features edit --pipeline-templates true
+hal deploy apply
+```
+
+**Note:** To view pipeline templates in the UI use:
+```bash
+hal config features edit --managed-pipeline-templates-v2-ui true
+hal deploy apply
+```
+
+To run tests, navigate to the root of the repository and run this command:
 ```bash
 go test ./...
 ```
 
 ## How to use?
 
-WIP (Following #19)
+`floodgate` has a simple to use CLI:
+```bash
+$ floodgate
+Usage:
+   [command]
+
+Available Commands:
+  compare     Compare local resources' definitions with Spinnaker and show discrepancies
+  help        Help about any command
+  hydrate     Hydrate pipeline templates with configurations and preview the result
+  inspect     Inspect resources' status on Spinnaker
+  render      Render Jsonnet files
+  synchronize Synchronize resources to Spinnaker
+
+Flags:
+      --config string   path to config file (default $HOME/.config/floodgate/config.yaml)
+  -h, --help            help for this command
+  -q, --quiet           squelch non-essential output
+  -v, --version         version for this command
+
+Use " [command] --help" for more information about a command.
+```
 
 JSON comparison is achieved using an external library. For full output specification please check https://github.com/josephburnett/jd#diff-language
 
