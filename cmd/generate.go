@@ -12,6 +12,7 @@ type generateOptions struct {
 	outDir string
 }
 
+// NewGenerateCmd create new generate command
 func NewGenerateCmd(out io.Writer) *cobra.Command {
 	options := generateOptions{}
 	cmd := &cobra.Command{
