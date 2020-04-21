@@ -26,20 +26,20 @@ func (jl *JsonnetLoader) LoadFile(filePath string) ([]map[string]interface{}, er
 	if err != nil {
 		return nil, err
 	}
-	evaluatedSnippet, err := jl.EvaluateSnippetStream(filePath, string(inputFile))
+	snippetStream, err := jl.EvaluateSnippetStream(filePath, string(inputFile))
 	if err != nil {
-    evaluatedSingleSnippet, err := jl.EvaluateSnippet(filePath, string(inputFile))
-    if err != nil {
-      return nil, err
-    }
-    evaluatedSnippet = []string{evaluatedSingleSnippet}
+		evaluatedSingleSnippet, err := jl.EvaluateSnippet(filePath, string(inputFile))
+		if err != nil {
+			return nil, err
+		}
+		snippetStream = []string{evaluatedSingleSnippet}
 	}
 	var output []map[string]interface{}
-  for i := range evaluatedSnippet {
-    var partial map[string]interface{}
-    json.Unmarshal([]byte(evaluatedSnippet[i]), &partial)
-    output = append(output, partial)
-  }
+	for i := range snippetStream {
+		var partial map[string]interface{}
+		json.Unmarshal([]byte(snippetStream[i]), &partial)
+		output = append(output, partial)
+	}
 	return output, nil
 }
 
