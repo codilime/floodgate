@@ -117,8 +117,9 @@ Available Commands:
 Flags:
       --config string   path to config file (default $HOME/.config/floodgate/config.yaml)
   -h, --help            help for this command
-  -q, --quiet           squelch non-essential output
-  -v, --version         version for this command
+  -q, --quiet           hide non-essential output
+  -v, --verbose         show extended output
+      --version         version for this command
 
 Use " [command] --help" for more information about a command.
 ```
