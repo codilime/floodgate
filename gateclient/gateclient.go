@@ -61,8 +61,6 @@ func (c GateapiClient) WaitForSuccessfulTask(checkTask map[string]interface{}, m
 		time.Sleep(time.Duration(retry*retry) * time.Second)
 		task, resp, err = c.TaskControllerApi.GetTaskUsingGET1(c.Context, taskID)
 	}
-	// TODO(mwierzbicki): Print this in verbose mode?
-	//log.Print(task)
 	if err != nil {
 		return err
 	}
