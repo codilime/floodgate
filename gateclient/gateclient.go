@@ -7,10 +7,9 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/codilime/floodgate/config"
 	gateapi "github.com/codilime/floodgate/gateapi"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 )
 
@@ -55,13 +54,15 @@ func (c GateapiClient) WaitForSuccessfulTask(checkTask map[string]interface{}, m
 	task, resp, err := c.TaskControllerApi.GetTaskUsingGET1(c.Context, taskID)
 
 	retry := 0
+
 	for (checkTask == nil || !isTaskCompleted(task)) && (retry < maxRetries) {
-		log.Print(retry)
 		retry++
+		log.Tracef("Polling task status...(%d)", retry)
 		time.Sleep(time.Duration(retry*retry) * time.Second)
 		task, resp, err = c.TaskControllerApi.GetTaskUsingGET1(c.Context, taskID)
 	}
-	log.Print(task)
+	// TODO(mwierzbicki): Print this in verbose mode?
+	//log.Print(task)
 	if err != nil {
 		return err
 	}

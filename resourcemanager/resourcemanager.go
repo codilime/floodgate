@@ -119,12 +119,13 @@ func (rm ResourceManager) syncApplications() error {
 	for _, application := range rm.resources.Applications {
 		synced, err := rm.syncResource(application)
 		if err != nil {
-			return fmt.Errorf("failed to sync application: %v", application)
+			log.Error(err)
+			return fmt.Errorf("failed to sync application: \"%s\"", application.Name())
 		}
 		if !synced {
-			log.Printf("No need to save application %v", application)
+			log.Printf("Application up to date: \"%s\"", application.Name())
 		} else {
-			log.Printf("Successfully synced application %v", application)
+			log.Printf("Successfully synced application: \"%s\"", application.Name())
 		}
 	}
 	return nil
@@ -135,10 +136,13 @@ func (rm ResourceManager) syncPipelines() error {
 	for _, pipeline := range rm.resources.Pipelines {
 		synced, err := rm.syncResource(pipeline)
 		if err != nil {
-			return fmt.Errorf("failed to sync pipeline: %v", pipeline)
+			log.Error(err)
+			return fmt.Errorf("failed to sync pipeline: \"%s\"", pipeline.Name())
 		}
 		if !synced {
-			log.Printf("No need to save pipeline %v", pipeline)
+			log.Printf("Pipeline up to date: \"%s\"", pipeline.Name())
+		} else {
+			log.Printf("Successfully synced pipeline: \"%s\"", pipeline.Name())
 		}
 	}
 	return nil
@@ -149,10 +153,13 @@ func (rm ResourceManager) syncPipelineTemplates() error {
 	for _, pipelineTemplate := range rm.resources.PipelineTemplates {
 		synced, err := rm.syncResource(pipelineTemplate)
 		if err != nil {
-			return fmt.Errorf("failed to sync pipeline template: %v", pipelineTemplate)
+			log.Error(err)
+			return fmt.Errorf("failed to sync pipeline template: \"%s\"", pipelineTemplate.Name())
 		}
 		if !synced {
-			log.Printf("No need to save pipeline template %v", pipelineTemplate)
+			log.Printf("Pipeline template up to date: \"%s\"", pipelineTemplate.Name())
+		} else {
+			log.Printf("Successfully synced pipeline template: \"%s\"", pipelineTemplate.Name())
 		}
 	}
 	return nil
