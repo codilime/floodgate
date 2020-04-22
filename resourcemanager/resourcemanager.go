@@ -115,44 +115,51 @@ func (rm ResourceManager) syncResource(resource spr.Resourcer) (bool, error) {
 }
 
 func (rm ResourceManager) syncApplications() error {
-	log.Print("Syncing applications")
+	log.Print("Syncing applications...")
 	for _, application := range rm.resources.Applications {
 		synced, err := rm.syncResource(application)
 		if err != nil {
-			return fmt.Errorf("failed to sync application: %v", application)
+			log.Error(err)
+			return fmt.Errorf("failed to sync application: \"%s\"", application.Name())
 		}
 		if !synced {
-			log.Printf("No need to save application %v", application)
+			log.Printf("Application \"%s\": up to date", application.Name())
 		} else {
-			log.Printf("Successfully synced application %v", application)
+			log.Printf("Application \"%s\": synchronized", application.Name())
 		}
 	}
 	return nil
 }
 
 func (rm ResourceManager) syncPipelines() error {
-	log.Print("Syncing pipelines")
+	log.Print("Syncing pipelines...")
 	for _, pipeline := range rm.resources.Pipelines {
 		synced, err := rm.syncResource(pipeline)
 		if err != nil {
-			return fmt.Errorf("failed to sync pipeline: %v", pipeline)
+			log.Error(err)
+			return fmt.Errorf("failed to sync pipeline: \"%s\"", pipeline.Name())
 		}
 		if !synced {
-			log.Printf("No need to save pipeline %v", pipeline)
+			log.Printf("Pipeline \"%s\": up to date", pipeline.Name())
+		} else {
+			log.Printf("Pipeline \"%s\": synchronized", pipeline.Name())
 		}
 	}
 	return nil
 }
 
 func (rm ResourceManager) syncPipelineTemplates() error {
-	log.Print("Syncing pipeline templates")
+	log.Print("Syncing pipeline templates...")
 	for _, pipelineTemplate := range rm.resources.PipelineTemplates {
 		synced, err := rm.syncResource(pipelineTemplate)
 		if err != nil {
-			return fmt.Errorf("failed to sync pipeline template: %v", pipelineTemplate)
+			log.Error(err)
+			return fmt.Errorf("failed to sync pipeline template: \"%s\"", pipelineTemplate.Name())
 		}
 		if !synced {
-			log.Printf("No need to save pipeline template %v", pipelineTemplate)
+			log.Printf("Pipeline template \"%s\": up to date", pipelineTemplate.Name())
+		} else {
+			log.Printf("Pipeline template \"%s\": synchronized", pipelineTemplate.Name())
 		}
 	}
 	return nil

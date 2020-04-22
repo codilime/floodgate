@@ -12,6 +12,7 @@ import (
 type RootOptions struct {
 	configFile string
 	quiet      bool
+	verbose    bool
 }
 
 // Execute execute command
@@ -30,10 +31,14 @@ func NewRootCmd(out io.Writer) *cobra.Command {
 		Version:       version.String(),
 	}
 	cmd.PersistentFlags().StringVar(&options.configFile, "config", "", "path to config file (default $HOME/.config/floodgate/config.yaml)")
-	cmd.PersistentFlags().BoolVarP(&options.quiet, "quiet", "q", false, "squelch non-essential output")
+	cmd.PersistentFlags().BoolVarP(&options.quiet, "quiet", "q", false, "hide non-essential output")
+	cmd.PersistentFlags().BoolVarP(&options.verbose, "verbose", "v", false, "show extended output")
 
 	cmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
-		level := "debug"
+		level := "info"
+		if options.verbose {
+			level = "trace"
+		}
 		if options.quiet {
 			level = "error"
 		}
