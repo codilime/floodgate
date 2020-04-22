@@ -57,7 +57,7 @@ func (c GateapiClient) WaitForSuccessfulTask(checkTask map[string]interface{}, m
 
 	for (checkTask == nil || !isTaskCompleted(task)) && (retry < maxRetries) {
 		retry++
-		log.Tracef("Polling task status...(%d)", retry)
+		log.Tracef("Polling task status... (%d/%d)", retry, maxRetries)
 		time.Sleep(time.Duration(retry*retry) * time.Second)
 		task, resp, err = c.TaskControllerApi.GetTaskUsingGET1(c.Context, taskID)
 	}
