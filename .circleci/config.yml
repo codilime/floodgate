@@ -214,7 +214,7 @@ workflows:
           filters:
             tags:
               only:
-                - /v[0-9].*/
+                - /v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?/
           name: generate swagger api << matrix.gate_api_branch >>
           matrix:
             parameters:
