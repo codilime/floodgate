@@ -96,8 +96,8 @@ func (p *Parser) loadFilesFromDirectory(entrypoint string) ([]map[string]interfa
 				log.Warn(f.Name(), "not loaded due to", err)
 				return nil
 			}
-      objects = append(objects, obj...)
-			log.Printf("%s loaded", f.Name())
+			objects = append(objects, obj...)
+			log.Debugf("Loaded file: %s", path)
 			return nil
 		})
 	if err != nil {
