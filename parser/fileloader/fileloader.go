@@ -8,6 +8,6 @@ package fileloader
 //
 // SupportedFileExtensions returns a slice of strings representing supported file format extensions
 type FileLoader interface {
-	LoadFile(filePath string) (map[string]interface{}, error)
+	LoadFile(filePath string) ([]map[string]interface{}, error)
 	SupportedFileExtensions() []string
 }

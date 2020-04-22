@@ -96,7 +96,7 @@ func (p *Parser) loadFilesFromDirectory(entrypoint string) ([]map[string]interfa
 				log.Warn(f.Name(), "not loaded due to", err)
 				return nil
 			}
-			objects = append(objects, obj)
+      objects = append(objects, obj...)
 			log.Printf("%s loaded", f.Name())
 			return nil
 		})
@@ -121,8 +121,7 @@ func (p *Parser) parseObjects(objects []map[string]interface{}) (*ParsedResource
 			parsedResources.PipelineTemplates = append(parsedResources.PipelineTemplates, object)
 			continue
 		}
-		if _, ok := object["providerSettings"]; ok {
-
+		if _, ok := object["email"]; ok {
 			parsedResources.Applications = append(parsedResources.Applications, object)
 			continue
 		}

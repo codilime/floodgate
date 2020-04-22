@@ -12,7 +12,7 @@ func TestYAMLLoader_LoadFile(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    map[string]interface{}
+		want    []map[string]interface{}
 		wantErr bool
 	}{
 		{
@@ -67,12 +67,12 @@ func TestYAMLLoader_SupportedFileExtensions(t *testing.T) {
 	}
 }
 
-var testYAMLFile = map[string]interface{}{
+var testYAMLFile = []map[string]interface{}{{
 	"name":     "testyaml",
 	"variable": false,
-}
+}}
 
-var testYMLFile = map[string]interface{}{
+var testYMLFile = []map[string]interface{}{{
 	"name":     "testyml",
 	"variable": false,
-}
+}}

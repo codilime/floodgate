@@ -15,7 +15,7 @@ func NewYAMLLoader() *YAMLLoader {
 type YAMLLoader struct{}
 
 // LoadFile load file
-func (yl *YAMLLoader) LoadFile(filePath string) (map[string]interface{}, error) {
+func (yl *YAMLLoader) LoadFile(filePath string) ([]map[string]interface{}, error) {
 	inputFile, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func (yl *YAMLLoader) LoadFile(filePath string) (map[string]interface{}, error) 
 	if err := yaml.Unmarshal(inputFile, &output); err != nil {
 		return nil, err
 	}
-	return output, nil
+	return []map[string]interface{}{output}, nil
 }
 
 // SupportedFileExtensions get supported file extensions
