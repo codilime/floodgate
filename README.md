@@ -1,8 +1,8 @@
+![Floodgate logo](images/Floodgate-logo.png)
+
 # Floodgate
 
 [![codilime/floodgate](https://circleci.com/gh/codilime/floodgate/tree/master.svg?style=svg)](https://app.circleci.com/pipelines/github/codilime/floodgate)
-
-![Floodgate logo](images/Floodgate-logo.png)
 
 ## Motivation
 
