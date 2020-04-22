@@ -107,7 +107,6 @@ func (a Application) SaveLocalState(spinnakerAPI *gateclient.GateapiClient) erro
 	if err != nil {
 		return err
 	}
-	// TODO(wurbanski): Check if the application was actually created using TaskController
 	if err := spinnakerAPI.WaitForSuccessfulTask(task, 5); err != nil {
 		return err
 	}
