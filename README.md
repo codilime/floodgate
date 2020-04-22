@@ -2,6 +2,8 @@
 
 [![codilime/floodgate](https://circleci.com/gh/codilime/floodgate/tree/master.svg?style=svg)](https://app.circleci.com/pipelines/github/codilime/floodgate)
 
+[![Floodgate logo](images/Floodgate-logo.png)]
+
 ## Motivation
 
 This project integrates multiple parts of "as-code" experience in Spinnaker, eg. API, Sponnet, Pipeline Templates for a complete GitOps workflow. 
