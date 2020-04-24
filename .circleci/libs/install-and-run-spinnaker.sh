@@ -1,11 +1,12 @@
 #!/bin/bash -xe
 
 EXEC_DIR=$(dirname "$0")
+HAL_VERSION=${HAL_VERSION:-1.34}
 
 # Install Halyard
 curl -O https://raw.githubusercontent.com/spinnaker/halyard/master/install/debian/InstallHalyard.sh
 USERNAME=`whoami`
-sudo bash InstallHalyard.sh --user $USERNAME -y
+sudo bash InstallHalyard.sh --version ${HAL_VERSION} --user $USERNAME -y 
 hal -v
 
 # Create Kind cluster
