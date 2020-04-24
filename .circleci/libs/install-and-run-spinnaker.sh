@@ -1,11 +1,12 @@
 #!/bin/bash -xe
 
 EXEC_DIR=$(dirname "$0")
+HAL_VERSION=${HAL_VERSION:-1.35.0}
 
 # Install Halyard
 curl -O https://raw.githubusercontent.com/spinnaker/halyard/master/install/debian/InstallHalyard.sh
 USERNAME=`whoami`
-sudo bash InstallHalyard.sh --user $USERNAME -y
+sudo bash InstallHalyard.sh --version ${HAL_VERSION} --user $USERNAME -y 
 hal -v
 
 # Create Kind cluster
@@ -21,7 +22,6 @@ GATE_PASS=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32 ; echo '')
 hal -q config provider kubernetes enable
 CONTEXT=$(kubectl config current-context)
 hal -q config provider kubernetes account add my-k8s-v2-account --provider-version v2 --context $CONTEXT
-hal -q config features edit --artifacts true
 hal -q config deploy edit --type distributed --account-name my-k8s-v2-account
 
 ## Install minio
