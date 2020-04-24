@@ -21,7 +21,7 @@ GATE_PASS=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32 ; echo '')
 hal -q config provider kubernetes enable
 CONTEXT=$(kubectl config current-context)
 hal -q config provider kubernetes account add my-k8s-v2-account --provider-version v2 --context $CONTEXT
-hal -q config features edit --artifacts true
+hal -q config features edit --artifacts-rewrite true
 hal -q config deploy edit --type distributed --account-name my-k8s-v2-account
 
 ## Install minio
