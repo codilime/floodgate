@@ -15,7 +15,7 @@ func (v version) String() string {
 
 var floodgateVersion = version{
 	major:   0,
-	minor:   0,
+	minor:   1,
 	path:    0,
 	release: "dev",
 }
