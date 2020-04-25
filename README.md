@@ -65,7 +65,9 @@ $ java -jar /tmp/swagger-codegen-cli.jar generate -l go -i gate-swagger.json -o 
 
 First, make sure you have some version of Spinnaker running.
 
-Download proper binary from [releases page](https://github.com/codilime/floodgate/releases). Note, that you should download proper binary for your Spinnaker version ( gate part in binary name ).
+Download proper binary from [releases page](https://github.com/codilime/floodgate/releases).
+
+**Note:** You should download proper binary for your Spinnaker version (gate part in binary name).
 
 Create a `config.yaml` file. An example one can be found in [examples/config.yaml](https://raw.githubusercontent.com/codilime/floodgate/master/examples/config.yaml).
 Floodgate checks if a config file is present in:
