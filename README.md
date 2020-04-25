@@ -16,8 +16,8 @@ This project integrates multiple parts of "as-code" experience in Spinnaker, eg.
   - [x] YAML
 - [x] Updates only the parts of Spinnaker configuration that have actually changed
 - [x] Reports diffs in managed objects 
-- [ ] Works with all currently supported versions of Spinnaker
-- [ ] Is well suited to run in a CI system (single binary!)
+- [x] Works with all currently supported versions of Spinnaker
+- [x] Is well suited to run in a CI system (single binary!)
 
 ## Upcoming features
 
@@ -63,16 +63,13 @@ $ java -jar /tmp/swagger-codegen-cli.jar generate -l go -i gate-swagger.json -o 
 
 ## How to run?
 
-This project uses the Go module system.
 First, make sure you have some version of Spinnaker running.
 
-Get the repository using `go get`:
-```bash
-go get github.com/codilime/floodgate
-```
-This will download, compile and install Floodgate to `$GOPATH/bin`. If this directory is present in your `$PATH`, the `floodgate` command will be available from any directory.
+Download proper binary from [releases page](https://github.com/codilime/floodgate/releases).
 
-Create a `config.yaml` file. An example one can be found in `examples/config.yaml`.
+**Note:** You should download proper binary for your Spinnaker version (gate part in binary name).
+
+Create a `config.yaml` file. An example one can be found in [examples/config.yaml](https://raw.githubusercontent.com/codilime/floodgate/master/examples/config.yaml).
 Floodgate checks if a config file is present in:
 ```bash
 $HOME/.config/floodgate/config.yaml
@@ -91,11 +88,6 @@ hal deploy apply
 ```bash
 hal config features edit --managed-pipeline-templates-v2-ui true
 hal deploy apply
-```
-
-To run tests, navigate to the root of the repository and run this command:
-```bash
-go test ./...
 ```
 
 ## How to use?
