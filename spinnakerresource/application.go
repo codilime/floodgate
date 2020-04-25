@@ -103,7 +103,10 @@ func (a Application) SaveLocalState(spinnakerAPI *gateclient.GateapiClient) erro
 		"application": a.name,
 		"description": "Creating application",
 	}
-	task, _, err := spinnakerAPI.TaskControllerApi.TaskUsingPOST1(spinnakerAPI.Context, createApplicationTask)
+	task, resp, err := spinnakerAPI.TaskControllerApi.TaskUsingPOST1(spinnakerAPI.Context, createApplicationTask)
+	if task == nil {
+		return fmt.Errorf("failed to save application, status code: %d", resp.StatusCode)
+	}
 	if err != nil {
 		return err
 	}

@@ -22,7 +22,7 @@ type ResourceManager struct {
 	client    *gc.GateapiClient
 }
 
-// Init initialize sync
+// Init initializes ResourceManager
 func (rm *ResourceManager) Init(config *c.Config, customOptions ...Option) error {
 	options := Options{}
 	for _, option := range customOptions {
@@ -36,6 +36,13 @@ func (rm *ResourceManager) Init(config *c.Config, customOptions ...Option) error
 		}
 	}
 	rm.client = gc.NewGateapiClient(config)
+	user, _, err := rm.client.AuthControllerApi.LoggedOutUsingGET(rm.client.Context)
+	if err != nil {
+		return err
+	}
+	if user == "" {
+		return fmt.Errorf("authenticating with Spinnaker failed. check if credentials are valid")
+	}
 	parser, err := p.NewParser(options.fileLoaders...)
 	if err != nil {
 		return err
