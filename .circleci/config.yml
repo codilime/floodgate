@@ -212,6 +212,9 @@ workflows:
       - generate_swagger:
           &filters-release
           filters:
+            branches:
+              ignore:
+                - /.*/
             tags:
               only:
                 - /v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?/
