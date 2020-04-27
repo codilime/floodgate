@@ -134,7 +134,7 @@ jobs:
         type: string
         default: ""
     machine:
-      image: circleci/ubuntu-1604:202004-01
+      image: ubuntu-1604:202004-01
     steps:
       - checkout
       - run:
