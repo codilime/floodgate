@@ -5,18 +5,18 @@ import "fmt"
 type version struct {
 	major   int
 	minor   int
-	path    int
+	patch    int
 	release string
 }
 
 func (v version) String() string {
-	return fmt.Sprintf("%d.%d.%d-%s", v.major, v.minor, v.path, v.release)
+	return fmt.Sprintf("%d.%d.%d-%s", v.major, v.minor, v.patch, v.release)
 }
 
 var floodgateVersion = version{
 	major:   0,
 	minor:   1,
-	path:    0,
+	patch:    0,
 	release: "rel",
 }
 
