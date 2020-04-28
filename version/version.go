@@ -17,7 +17,7 @@ var floodgateVersion = version{
 	major:   0,
 	minor:   1,
 	path:    0,
-	release: "dev",
+	release: "rel",
 }
 
 // String get Floodgate version string
