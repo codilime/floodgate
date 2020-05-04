@@ -5,7 +5,7 @@
 * create branch with proper name:
   * prefix should be `release-` phrase
   * middle part should be composed from `v` letters and major and minor version number: `v0.1`
-  * suffix should always be `-x`
+  * suffix should always be `.x`
   * example proper release branch name: `release-v0.1.x`
 * make sure that all CI tasks are executed on with success on new branch
 
