@@ -2,13 +2,14 @@
 
 ## Preparations before creating first release candidate for new version
 * make sure that all required tasks are completed
-* create branch with proper name:
+* make sure that all CI tasks are executed on with success on master branch
+* (optional) create branch with proper name:
   * prefix should be `release-` phrase
   * middle part should be composed from `v` letters and major and minor version number: `v0.1`
   * suffix should always be `.x`
   * example proper release branch name: `release-v0.1.x`
-* make sure that all CI tasks are executed on with success on new branch
-
+  * make sure that all CI tasks are executed on with success on new branch
+   
 ## Creating new release candidate
 * create new release in GitHub
   * release name should include full version number and following release candidate number
@@ -30,9 +31,11 @@
 * if bug exists on master branch and supported released versions:
   * first we should fix master branch
   * fix from master should be cherry-picked to all supported versions branches
+    * if there is no release branch, it should be created from version tag we want to fix
   * after CI pipelines are successfully finished, new patch version should be released
 * if bug exists only in certain version:
   * fix should be merge directly to version on which bug exists
+    * if there is no release branch, it should be created from version tag we want to fix
   * if bug exists on more than one released and supported versions
     * bug should be fixed on latest supported version and fix should be cherry-picked to rest of supported versions
   * after CI pipelines are successfully finished, new patch version should be released
