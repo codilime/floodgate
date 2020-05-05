@@ -31,7 +31,7 @@ jobs:
     parameters:
       gate_api_branch:
         type: string
-        default: release-1.19.x
+        default: release-1.20.x
     docker:
       - image: circleci/openjdk:11.0.3-jdk-stretch
     steps:
@@ -77,7 +77,7 @@ jobs:
     parameters:
       gate_api_branch:
         type: string
-        default: release-1.19.x
+        default: release-1.20.x
     docker:
       - image: circleci/golang:1.14.1
         environment:
@@ -129,7 +129,7 @@ jobs:
     parameters:
       gate_api_branch:
         type: string
-        default: release-1.19.x
+        default: release-1.20.x
       floodgate_extra_params:
         type: string
         default: ""
@@ -221,14 +221,14 @@ workflows:
           name: generate swagger api << matrix.gate_api_branch >>
           matrix:
             parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+              gate_api_branch: [ "release-1.20.x", "release-1.19.x", "release-1.18.x" ]
 
       - build:
           <<: *filters-release
           name: build against gate << matrix.gate_api_branch >>
           matrix:
             parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+              gate_api_branch: [ "release-1.20.x", "release-1.19.x", "release-1.18.x" ]
           requires:
             - generate swagger api << matrix.gate_api_branch >>
       - start_spinnaker:
@@ -236,7 +236,7 @@ workflows:
           name: test floodgate with working spinnaker << matrix.gate_api_branch >>
           matrix:
             parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+              gate_api_branch: [ "release-1.20.x", "release-1.19.x", "release-1.18.x" ]
           requires:
             - build against gate << matrix.gate_api_branch >>
 
