@@ -191,19 +191,19 @@ workflows:
           name: generate swagger api << matrix.gate_api_branch >>
           matrix:
             parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+              gate_api_branch: [ "release-1.20.x", "release-1.19.x", "release-1.18.x" ]
       - build:
           name: build against gate << matrix.gate_api_branch >>
           matrix:
             parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+              gate_api_branch: [ "release-1.20.x", "release-1.19.x", "release-1.18.x" ]
           requires:
             - generate swagger api << matrix.gate_api_branch >>
       - start_spinnaker:
           name: test floodgate with working spinnaker << matrix.gate_api_branch >>
           matrix:
             parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+              gate_api_branch: [ "release-1.20.x", "release-1.19.x", "release-1.18.x" ]
           requires:
             - build against gate << matrix.gate_api_branch >>
 
