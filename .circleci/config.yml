@@ -1,5 +1,20 @@
 version: 2.1
 
+aliases:
+  latest-gate-version: &default-gate-version
+    gate_api_branch:
+      type: string
+      default: release-1.20.x
+  supported-spinnaker-releases: &gate-versions
+    gate_api_branch: [ "release-1.20.x", "release-1.19.x", "release-1.18.x" ]
+  release-filters: &filters-release
+    filters:
+      tags:
+        only:
+         - /v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?/
+
+
+
 commands:
   install_toolset:
     description: "Install needed extra tools"
@@ -28,10 +43,7 @@ commands:
 
 jobs:
   generate_swagger:
-    parameters: &default-gate-version
-      gate_api_branch:
-        type: string
-        default: release-1.20.x
+    parameters: *default-gate-version
     docker:
       - image: circleci/openjdk:11.0.3-jdk-stretch
     steps:
@@ -185,8 +197,7 @@ workflows:
       - generate_swagger:
           name: generate swagger api << matrix.gate_api_branch >>
           matrix:
-            parameters: &gate-versions
-              gate_api_branch: [ "release-1.20.x", "release-1.19.x", "release-1.18.x" ]
+            parameters: *gate-versions
       - build:
           name: build against gate << matrix.gate_api_branch >>
           matrix:
@@ -203,11 +214,7 @@ workflows:
   release:
     jobs:
       - generate_swagger:
-          &filters-release
-          filters:
-            tags:
-              only:
-                - /v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?/
+          <<: *filters-release
           name: generate swagger api << matrix.gate_api_branch >>
           matrix:
             parameters: *gate-versions
