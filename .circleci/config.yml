@@ -104,10 +104,10 @@ jobs:
       - run:
           name: Compile code
           command: |
-            go build -ldflags "-X github.com/codilime/floodgate/version.GitCommit=$(git rev-parse HEAD) \
+            go build -ldflags "-X github.com/codilime/floodgate/version.GitCommit=$CIRCLE_SHA1 \
             -X github.com/codilime/floodgate/version.BuiltDate=$(date  +%Y-%m-%d_%H:%M:%S) \
-            -X github.com/codilime/floodgate/version.GoVersion=$(go version | sed 's/go version //g') \
-            -X github.com/codilime/floodgate/version.GateVersion=<< parameters.gate_api_branch >> \
+            -X github.com/codilime/floodgate/version.GoVersion=$GOLANG_VERSION \
+            -X github.com/codilime/floodgate/version.GateVersion='<< parameters.gate_api_branch >>' \
             "
       - run:
           name: Check linting
