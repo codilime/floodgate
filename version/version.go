@@ -27,7 +27,7 @@ func (v version) BuildInfo() string {
 	gateAPIInfo := "\nGate API version:\t" + GateVersion
 	goInfo := "\nGo version:\t" + GoVersion
 	gitCommitInfo := "\nGit commit:\t" + GitCommit
-	builtDateInfo := "\nBuilt:\t" + BuiltDate
+	builtDateInfo := "\nBuilt:\t" + BuiltDate + "\n"
 
 	return "Version:\t" + v.Short() + gateAPIInfo + goInfo + gitCommitInfo + builtDateInfo
 

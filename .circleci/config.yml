@@ -107,7 +107,7 @@ jobs:
             go build -ldflags "-X github.com/codilime/floodgate/version.GitCommit=$CIRCLE_SHA1 \
             -X github.com/codilime/floodgate/version.BuiltDate=$(date  +%Y-%m-%d_%H:%M:%S) \
             -X github.com/codilime/floodgate/version.GoVersion=$GOLANG_VERSION \
-            -X github.com/codilime/floodgate/version.GateVersion='<< parameters.gate_api_branch >>' \
+            -X github.com/codilime/floodgate/version.GateVersion=$(echo '<< parameters.gate_api_branch >>' | sed 's/release-//' \
             "
       - run:
           name: Check linting
