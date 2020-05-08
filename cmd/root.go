@@ -28,7 +28,7 @@ func NewRootCmd(out io.Writer) *cobra.Command {
 	cmd := &cobra.Command{
 		SilenceUsage:  true,
 		SilenceErrors: true,
-		Version:       version.String(),
+		Version:       version.Short(),
 	}
 	cmd.PersistentFlags().StringVar(&options.configFile, "config", "", "path to config file (default $HOME/.config/floodgate/config.yaml)")
 	cmd.PersistentFlags().BoolVarP(&options.quiet, "quiet", "q", false, "hide non-essential output")
@@ -53,6 +53,7 @@ func NewRootCmd(out io.Writer) *cobra.Command {
 	cmd.AddCommand(NewHydrateCmd(out))
 	cmd.AddCommand(NewInspectCmd(out))
 	cmd.AddCommand(NewRenderCmd(out))
+	cmd.AddCommand(NewVersionCmd(out))
 
 	return cmd
 }
