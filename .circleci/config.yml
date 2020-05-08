@@ -104,6 +104,7 @@ jobs:
       - run:
           name: Compile code
           command: |
+            env
             go build -ldflags "-X github.com/codilime/floodgate/version.GitCommit=$CIRCLE_SHA1 \
             -X github.com/codilime/floodgate/version.BuiltDate=$(date  +%Y-%m-%d_%H:%M:%S) \
             -X github.com/codilime/floodgate/version.GoVersion=$GOLANG_VERSION \
