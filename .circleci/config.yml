@@ -1,5 +1,21 @@
 version: 2.1
 
+aliases:
+  latest-gate-version: &default-gate-version
+    gate_api_branch:
+      type: string
+      default: release-1.20.x
+  supported-spinnaker-releases: &gate-versions
+    gate_api_branch: [ "release-1.20.x", "release-1.19.x", "release-1.18.x" ]
+  release-filters: &filters-release
+    filters:
+      branches:
+        ignore:
+          - /release-v[0-9]+\.[0-9]+\.x/
+      tags:
+        only:
+         - /v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?/
+
 commands:
   install_toolset:
     description: "Install needed extra tools"
@@ -28,10 +44,7 @@ commands:
 
 jobs:
   generate_swagger:
-    parameters:
-      gate_api_branch:
-        type: string
-        default: release-1.19.x
+    parameters: *default-gate-version
     docker:
       - image: circleci/openjdk:11.0.3-jdk-stretch
     steps:
@@ -74,10 +87,7 @@ jobs:
           destination: gate-swagger.json
 
   build:
-    parameters:
-      gate_api_branch:
-        type: string
-        default: release-1.19.x
+    parameters: *default-gate-version
     docker:
       - image: circleci/golang:1.14.1
         environment:
@@ -139,10 +149,8 @@ jobs:
           destination: floodgate-<< parameters.gate_api_branch >>
 
   start_spinnaker:
-    parameters:
-      gate_api_branch:
-        type: string
-        default: release-1.19.x
+    parameters: 
+      <<: *default-gate-version
       floodgate_extra_params:
         type: string
         default: ""
@@ -203,53 +211,40 @@ workflows:
       - generate_swagger:
           name: generate swagger api << matrix.gate_api_branch >>
           matrix:
-            parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+            parameters: *gate-versions
       - build:
           name: build against gate << matrix.gate_api_branch >>
           matrix:
-            parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+            parameters: *gate-versions
           requires:
             - generate swagger api << matrix.gate_api_branch >>
       - start_spinnaker:
           name: test floodgate with working spinnaker << matrix.gate_api_branch >>
           matrix:
-            parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+            parameters: *gate-versions
           requires:
             - build against gate << matrix.gate_api_branch >>
 
   release:
     jobs:
       - generate_swagger:
-          &filters-release
-          filters:
-            branches:
-              only:
-                - /release-v[0-9]+\.[0-9]+\.x/
-            tags:
-              only:
-                - /v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?/
+          <<: *filters-release
           name: generate swagger api << matrix.gate_api_branch >>
           matrix:
-            parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+            parameters: *gate-versions
 
       - build:
           <<: *filters-release
           name: build against gate << matrix.gate_api_branch >>
           matrix:
-            parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+            parameters: *gate-versions
           requires:
             - generate swagger api << matrix.gate_api_branch >>
       - start_spinnaker:
           <<: *filters-release
           name: test floodgate with working spinnaker << matrix.gate_api_branch >>
           matrix:
-            parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+            parameters: *gate-versions
           requires:
             - build against gate << matrix.gate_api_branch >>
 
