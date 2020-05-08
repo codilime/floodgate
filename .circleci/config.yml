@@ -116,7 +116,7 @@ jobs:
           command: |
             if [ -z "$CIRCLE_BRANCH" ]
             then
-                export RELEASE=$(echo $CIRLE_TAG | sed 's/^v[0-9]\+\.[0-9]\+\.[0-9]\+-\?//')
+                export RELEASE=$(echo $CIRCLE_TAG | sed 's/^v[0-9]\+\.[0-9]\+\.[0-9]\+-\?//')
             else
                 export RELEASE=$CIRCLE_BRANCH
             fi
