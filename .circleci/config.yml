@@ -1,5 +1,21 @@
 version: 2.1
 
+aliases:
+  latest-gate-version: &default-gate-version
+    gate_api_branch:
+      type: string
+      default: release-1.20.x
+  supported-spinnaker-releases: &gate-versions
+    gate_api_branch: [ "release-1.20.x", "release-1.19.x", "release-1.18.x" ]
+  release-filters: &filters-release
+    filters:
+      branches:
+        only:
+          - /release-v[0-9]+\.[0-9]+\.x/
+      tags:
+        only:
+         - /v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?/
+
 commands:
   install_toolset:
     description: "Install needed extra tools"
@@ -28,10 +44,7 @@ commands:
 
 jobs:
   generate_swagger:
-    parameters:
-      gate_api_branch:
-        type: string
-        default: release-1.19.x
+    parameters: *default-gate-version
     docker:
       - image: circleci/openjdk:11.0.3-jdk-stretch
     steps:
@@ -74,10 +87,7 @@ jobs:
           destination: gate-swagger.json
 
   build:
-    parameters:
-      gate_api_branch:
-        type: string
-        default: release-1.19.x
+    parameters: *default-gate-version
     docker:
       - image: circleci/golang:1.14.1
         environment:
@@ -103,7 +113,20 @@ jobs:
           command: go test -v ./...
       - run:
           name: Compile code
-          command: go build
+          command: |
+            if [ -z "$CIRCLE_BRANCH" ]
+            then
+                export RELEASE=$(echo $CIRCLE_TAG | sed 's/^v[0-9]\+\.[0-9]\+\.[0-9]\+-\?//')
+            else
+                export RELEASE=$CIRCLE_BRANCH
+            fi
+            env
+            go build -ldflags "-X github.com/codilime/floodgate/version.GitCommit=$CIRCLE_SHA1 \
+            -X github.com/codilime/floodgate/version.BuiltDate=$(date  +%Y-%m-%d_%H:%M:%S) \
+            -X github.com/codilime/floodgate/version.Release=$RELEASE \
+            -X github.com/codilime/floodgate/version.GoVersion=$GOLANG_VERSION \
+            -X github.com/codilime/floodgate/version.GateVersion=$(echo '<< parameters.gate_api_branch >>' | sed 's/release-//') \
+            "
       - run:
           name: Check linting
           command: |
@@ -117,6 +140,12 @@ jobs:
             sudo mkdir -p /floodgate/bin
             sudo chmod 777 /floodgate/bin
             cp /go/src/github.com/codilime/floodgate/floodgate /floodgate/bin/floodgate
+      - run:
+          name: Generate checksum
+          command: |
+            cd /go/src/github.com/codilime/floodgate/
+            cp floodgate floodgate-<< parameters.gate_api_branch >>
+            sha1sum floodgate-<< parameters.gate_api_branch >> > floodgate-<< parameters.gate_api_branch >>.sha1sum
       - persist_to_workspace:
           root: /floodgate/bin
           paths:
@@ -124,12 +153,13 @@ jobs:
       - store_artifacts:
           path: /go/src/github.com/codilime/floodgate/floodgate
           destination: floodgate-<< parameters.gate_api_branch >>
+      - store_artifacts:
+          path: /go/src/github.com/codilime/floodgate/floodgate-<< parameters.gate_api_branch >>.sha1sum
+          destination: floodgate-<< parameters.gate_api_branch >>.sha1sum
 
   start_spinnaker:
-    parameters:
-      gate_api_branch:
-        type: string
-        default: release-1.19.x
+    parameters: 
+      <<: *default-gate-version
       floodgate_extra_params:
         type: string
         default: ""
@@ -173,6 +203,7 @@ jobs:
           name: Test Floodgate against running Spinnaker instance
           command: |
             /floodgate/bin/floodgate --version
+            /floodgate/bin/floodgate version
             /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml compare && exit 1 || echo "Found changes"
             /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml sync
             /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml compare
@@ -190,53 +221,40 @@ workflows:
       - generate_swagger:
           name: generate swagger api << matrix.gate_api_branch >>
           matrix:
-            parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+            parameters: *gate-versions
       - build:
           name: build against gate << matrix.gate_api_branch >>
           matrix:
-            parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+            parameters: *gate-versions
           requires:
             - generate swagger api << matrix.gate_api_branch >>
       - start_spinnaker:
           name: test floodgate with working spinnaker << matrix.gate_api_branch >>
           matrix:
-            parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+            parameters: *gate-versions
           requires:
             - build against gate << matrix.gate_api_branch >>
 
   release:
     jobs:
       - generate_swagger:
-          &filters-release
-          filters:
-            branches:
-              ignore:
-                - /.*/
-            tags:
-              only:
-                - /v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?/
+          <<: *filters-release
           name: generate swagger api << matrix.gate_api_branch >>
           matrix:
-            parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+            parameters: *gate-versions
 
       - build:
           <<: *filters-release
           name: build against gate << matrix.gate_api_branch >>
           matrix:
-            parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+            parameters: *gate-versions
           requires:
             - generate swagger api << matrix.gate_api_branch >>
       - start_spinnaker:
           <<: *filters-release
           name: test floodgate with working spinnaker << matrix.gate_api_branch >>
           matrix:
-            parameters:
-              gate_api_branch: [ "release-1.19.x", "release-1.18.x", "release-1.17.x" ]
+            parameters: *gate-versions
           requires:
             - build against gate << matrix.gate_api_branch >>
 
