@@ -44,7 +44,7 @@ func (v version) Short() string {
 
 var floodgateVersion = version{
 	major: 0,
-	minor: 1,
+	minor: 2,
 	patch: 0,
 }
 
