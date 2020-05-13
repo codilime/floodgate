@@ -9,8 +9,9 @@
 
 package swagger
 
-type ResponseEntity struct {
-	Body *interface{} `json:"body,omitempty"`
-	StatusCode string `json:"statusCode,omitempty"`
-	StatusCodeValue int32 `json:"statusCodeValue,omitempty"`
+type Resource struct {
+	ApiVersion string `json:"apiVersion,omitempty"`
+	Kind string `json:"kind,omitempty"`
+	Metadata *interface{} `json:"metadata,omitempty"`
+	Spec *interface{} `json:"spec,omitempty"`
 }

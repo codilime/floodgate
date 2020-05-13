@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"github.com/antihax/optional"
 )
 
 // Linger please
@@ -27,10 +28,17 @@ type AuthControllerApiService service
 /* 
 AuthControllerApiService Get service accounts
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ * @param optional nil or *GetServiceAccountsUsingGETOpts - Optional Parameters:
+     * @param "Application" (optional.String) -  application
 
 @return []interface{}
 */
-func (a *AuthControllerApiService) GetServiceAccountsUsingGET(ctx context.Context) ([]interface{}, *http.Response, error) {
+
+type GetServiceAccountsUsingGETOpts struct { 
+	Application optional.String
+}
+
+func (a *AuthControllerApiService) GetServiceAccountsUsingGET(ctx context.Context, localVarOptionals *GetServiceAccountsUsingGETOpts) ([]interface{}, *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -46,6 +54,9 @@ func (a *AuthControllerApiService) GetServiceAccountsUsingGET(ctx context.Contex
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if localVarOptionals != nil && localVarOptionals.Application.IsSet() {
+		localVarQueryParams.Add("application", parameterToString(localVarOptionals.Application.Value(), ""))
+	}
 	// to determine the Content-Type header
 	localVarHttpContentTypes := []string{}
 
