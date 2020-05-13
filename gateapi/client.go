@@ -57,6 +57,8 @@ type APIClient struct {
 
 	BuildControllerApi *BuildControllerApiService
 
+	CiControllerApi *CiControllerApiService
+
 	ClusterControllerApi *ClusterControllerApiService
 
 	ConcourseControllerApi *ConcourseControllerApiService
@@ -76,6 +78,8 @@ type APIClient struct {
 	JobControllerApi *JobControllerApiService
 
 	LoadBalancerControllerApi *LoadBalancerControllerApiService
+
+	ManagedControllerApi *ManagedControllerApiService
 
 	NetworkControllerApi *NetworkControllerApiService
 
@@ -138,6 +142,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.AuthControllerApi = (*AuthControllerApiService)(&c.common)
 	c.BakeControllerApi = (*BakeControllerApiService)(&c.common)
 	c.BuildControllerApi = (*BuildControllerApiService)(&c.common)
+	c.CiControllerApi = (*CiControllerApiService)(&c.common)
 	c.ClusterControllerApi = (*ClusterControllerApiService)(&c.common)
 	c.ConcourseControllerApi = (*ConcourseControllerApiService)(&c.common)
 	c.CredentialsControllerApi = (*CredentialsControllerApiService)(&c.common)
@@ -148,6 +153,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.InstanceControllerApi = (*InstanceControllerApiService)(&c.common)
 	c.JobControllerApi = (*JobControllerApiService)(&c.common)
 	c.LoadBalancerControllerApi = (*LoadBalancerControllerApiService)(&c.common)
+	c.ManagedControllerApi = (*ManagedControllerApiService)(&c.common)
 	c.NetworkControllerApi = (*NetworkControllerApiService)(&c.common)
 	c.PipelineConfigControllerApi = (*PipelineConfigControllerApiService)(&c.common)
 	c.PipelineControllerApi = (*PipelineControllerApiService)(&c.common)
