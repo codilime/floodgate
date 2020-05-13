@@ -11,6 +11,7 @@ aliases:
     filters:
       branches:
         only:
+          - adding-osx
           - /release-v[0-9]+\.[0-9]+\.x/
       tags:
         only:
