@@ -3,6 +3,7 @@ package resourcemanager
 import (
 	"encoding/json"
 	"fmt"
+	swagger "github.com/codilime/floodgate/gateapi"
 	"os"
 	"path/filepath"
 
@@ -20,6 +21,17 @@ import (
 type ResourceManager struct {
 	resources spr.SpinnakerResources
 	client    *gc.GateapiClient
+}
+
+type ResourceError struct {
+	Timestamp int
+	Status    int
+	Error     string
+	Message   string
+}
+
+func (re *ResourceError) String() string {
+	return fmt.Sprintf("Status: %d, Error: %s, Message: %s", re.Status, re.Error, re.Message)
 }
 
 // Init initializes ResourceManager
@@ -126,7 +138,11 @@ func (rm ResourceManager) syncApplications() error {
 	for _, application := range rm.resources.Applications {
 		synced, err := rm.syncResource(application)
 		if err != nil {
-			log.Error(err)
+			err = rm.printResourceError(err)
+			if err != nil {
+				return err
+			}
+
 			return fmt.Errorf("failed to sync application: \"%s\"", application.Name())
 		}
 		if !synced {
@@ -143,7 +159,11 @@ func (rm ResourceManager) syncPipelines() error {
 	for _, pipeline := range rm.resources.Pipelines {
 		synced, err := rm.syncResource(pipeline)
 		if err != nil {
-			log.Error(err)
+			err = rm.printResourceError(err)
+			if err != nil {
+				return err
+			}
+
 			return fmt.Errorf("failed to sync pipeline: \"%s\"", pipeline.Name())
 		}
 		if !synced {
@@ -160,7 +180,11 @@ func (rm ResourceManager) syncPipelineTemplates() error {
 	for _, pipelineTemplate := range rm.resources.PipelineTemplates {
 		synced, err := rm.syncResource(pipelineTemplate)
 		if err != nil {
-			log.Error(err)
+			err = rm.printResourceError(err)
+			if err != nil {
+				return err
+			}
+
 			return fmt.Errorf("failed to sync pipeline template: \"%s\"", pipelineTemplate.Name())
 		}
 		if !synced {
@@ -258,5 +282,19 @@ func (rm ResourceManager) saveResourceData(filePath string, resourceData []byte)
 	if err := encoder.Encode(obj); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (rm ResourceManager) printResourceError(err error) error {
+	if swaggerError, ok := err.(swagger.GenericSwaggerError); ok {
+		var resourceError ResourceError
+		err = json.Unmarshal(swaggerError.Body(), &resourceError)
+		if err != nil {
+			return err
+		}
+
+		log.Errorf("%v", &resourceError)
+	}
+
 	return nil
 }
