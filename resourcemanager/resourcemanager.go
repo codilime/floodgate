@@ -128,7 +128,6 @@ func (rm ResourceManager) syncApplications() error {
 		synced, err := rm.syncResource(application)
 		if err != nil {
 			rm.printResourceError(err)
-
 			return fmt.Errorf("failed to sync application: \"%s\"", application.Name())
 		}
 		if !synced {
@@ -146,7 +145,6 @@ func (rm ResourceManager) syncPipelines() error {
 		synced, err := rm.syncResource(pipeline)
 		if err != nil {
 			rm.printResourceError(err)
-
 			return fmt.Errorf("failed to sync pipeline: \"%s\"", pipeline.Name())
 		}
 		if !synced {
