@@ -23,17 +23,6 @@ type ResourceManager struct {
 	client    *gc.GateapiClient
 }
 
-type ResourceError struct {
-	Timestamp int
-	Status    int
-	Error     string
-	Message   string
-}
-
-func (re *ResourceError) String() string {
-	return fmt.Sprintf("Status: %d, Error: %s, Message: %s", re.Status, re.Error, re.Message)
-}
-
 // Init initializes ResourceManager
 func (rm *ResourceManager) Init(config *c.Config, customOptions ...Option) error {
 	options := Options{}
@@ -138,10 +127,7 @@ func (rm ResourceManager) syncApplications() error {
 	for _, application := range rm.resources.Applications {
 		synced, err := rm.syncResource(application)
 		if err != nil {
-			err = rm.printResourceError(err)
-			if err != nil {
-				return err
-			}
+			rm.printResourceError(err)
 
 			return fmt.Errorf("failed to sync application: \"%s\"", application.Name())
 		}
@@ -159,10 +145,7 @@ func (rm ResourceManager) syncPipelines() error {
 	for _, pipeline := range rm.resources.Pipelines {
 		synced, err := rm.syncResource(pipeline)
 		if err != nil {
-			err = rm.printResourceError(err)
-			if err != nil {
-				return err
-			}
+			rm.printResourceError(err)
 
 			return fmt.Errorf("failed to sync pipeline: \"%s\"", pipeline.Name())
 		}
@@ -180,11 +163,7 @@ func (rm ResourceManager) syncPipelineTemplates() error {
 	for _, pipelineTemplate := range rm.resources.PipelineTemplates {
 		synced, err := rm.syncResource(pipelineTemplate)
 		if err != nil {
-			err = rm.printResourceError(err)
-			if err != nil {
-				return err
-			}
-
+			rm.printResourceError(err)
 			return fmt.Errorf("failed to sync pipeline template: \"%s\"", pipelineTemplate.Name())
 		}
 		if !synced {
@@ -285,16 +264,14 @@ func (rm ResourceManager) saveResourceData(filePath string, resourceData []byte)
 	return nil
 }
 
-func (rm ResourceManager) printResourceError(err error) error {
+func (rm ResourceManager) printResourceError(err error) {
 	if swaggerError, ok := err.(swagger.GenericSwaggerError); ok {
-		var resourceError ResourceError
-		err = json.Unmarshal(swaggerError.Body(), &resourceError)
+		var resErr map[string]interface{}
+		err = json.Unmarshal(swaggerError.Body(), &resErr)
 		if err != nil {
-			return err
+			log.Errorf("%v", err)
 		}
 
-		log.Errorf("%v", &resourceError)
+		log.Errorf("Status: %v, Error: %s, Message: %s", resErr["status"], resErr["error"], resErr["message"])
 	}
-
-	return nil
 }
