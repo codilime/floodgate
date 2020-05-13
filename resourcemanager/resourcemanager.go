@@ -273,5 +273,7 @@ func (rm ResourceManager) printResourceError(err error) {
 		}
 
 		log.Errorf("Status: %v, Error: %s, Message: %s", resErr["status"], resErr["error"], resErr["message"])
+	} else {
+		log.Errorf("%v", err)
 	}
 }
