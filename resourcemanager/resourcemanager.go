@@ -3,6 +3,7 @@ package resourcemanager
 import (
 	"encoding/json"
 	"fmt"
+	swagger "github.com/codilime/floodgate/gateapi"
 	"os"
 	"path/filepath"
 
@@ -126,7 +127,7 @@ func (rm ResourceManager) syncApplications() error {
 	for _, application := range rm.resources.Applications {
 		synced, err := rm.syncResource(application)
 		if err != nil {
-			log.Error(err)
+			rm.printResourceError(err)
 			return fmt.Errorf("failed to sync application: \"%s\"", application.Name())
 		}
 		if !synced {
@@ -143,7 +144,7 @@ func (rm ResourceManager) syncPipelines() error {
 	for _, pipeline := range rm.resources.Pipelines {
 		synced, err := rm.syncResource(pipeline)
 		if err != nil {
-			log.Error(err)
+			rm.printResourceError(err)
 			return fmt.Errorf("failed to sync pipeline: \"%s\"", pipeline.Name())
 		}
 		if !synced {
@@ -160,7 +161,7 @@ func (rm ResourceManager) syncPipelineTemplates() error {
 	for _, pipelineTemplate := range rm.resources.PipelineTemplates {
 		synced, err := rm.syncResource(pipelineTemplate)
 		if err != nil {
-			log.Error(err)
+			rm.printResourceError(err)
 			return fmt.Errorf("failed to sync pipeline template: \"%s\"", pipelineTemplate.Name())
 		}
 		if !synced {
@@ -259,4 +260,18 @@ func (rm ResourceManager) saveResourceData(filePath string, resourceData []byte)
 		return err
 	}
 	return nil
+}
+
+func (rm ResourceManager) printResourceError(err error) {
+	if swaggerError, ok := err.(swagger.GenericSwaggerError); ok {
+		var resErr map[string]interface{}
+		err = json.Unmarshal(swaggerError.Body(), &resErr)
+		if err != nil {
+			log.Errorf("%v", err)
+		}
+
+		log.Errorf("Status: %v, Error: %s, Message: %s", resErr["status"], resErr["error"], resErr["message"])
+	} else {
+		log.Errorf("%v", err)
+	}
 }

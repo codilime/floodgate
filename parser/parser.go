@@ -88,12 +88,12 @@ func (p *Parser) loadFilesFromDirectory(entrypoint string) ([]map[string]interfa
 			// We want to load only supported files, but don't want to stop loading after
 			// finding unsupported one
 			if !ok {
-				log.Warn("unsupported file extension", fileExt)
+				log.Warn(" unsupported file extension\n", fileExt)
 				return nil
 			}
 			obj, err := fileLoader.LoadFile(path)
 			if err != nil {
-				log.Warn(f.Name(), "not loaded due to", err)
+				log.Warn(f.Name(), " not loaded due to\n", err)
 				return nil
 			}
 			objects = append(objects, obj...)
