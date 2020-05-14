@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"golang.org/x/oauth2"
 	"io/ioutil"
 	"os"
 	"os/user"
@@ -19,16 +20,19 @@ type Config struct {
 	// TODO(wurbanski): use other auths than basic
 	Auth struct {
 		Basic struct {
+			Enabled  bool   `yaml:"enabled"`
 			User     string `yaml:"user"`
 			Password string `yaml:"password"`
 		} `yaml:"basic"`
 
 		OAuth2 struct {
-			TokenUrl     string   `yaml:"tokenUrl"`
-			AuthUrl      string   `yaml:"authUrl"`
-			ClientId     string   `yaml:"clientId"`
-			ClientSecret string   `yaml:"clientSecret"`
-			Scopes       []string `yaml:"scopes"`
+			Enabled      bool         `yaml:"enabled"`
+			TokenUrl     string       `yaml:"tokenUrl"`
+			AuthUrl      string       `yaml:"authUrl"`
+			ClientId     string       `yaml:"clientId"`
+			ClientSecret string       `yaml:"clientSecret"`
+			Scopes       []string     `yaml:"scopes"`
+			CachedToken  oauth2.Token `yaml:"cachedToken,omitempty"`
 		} `yaml:"oauth2"`
 	} `yaml:"auth"`
 	Libraries []string `yaml:"libraries"`
