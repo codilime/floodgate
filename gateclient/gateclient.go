@@ -37,8 +37,8 @@ func NewGateapiClient(floodgateConfig *config.Config) *GateapiClient {
 	client := gateapi.NewAPIClient(cfg)
 
 	auth := context.WithValue(context.Background(), gateapi.ContextBasicAuth, gateapi.BasicAuth{
-		UserName: floodgateConfig.Auth.User,
-		Password: floodgateConfig.Auth.Password,
+		UserName: floodgateConfig.Auth.Basic.User,
+		Password: floodgateConfig.Auth.Basic.Password,
 	})
 
 	return &GateapiClient{

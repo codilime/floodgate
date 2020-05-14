@@ -18,8 +18,18 @@ type Config struct {
 	Insecure bool   `yaml:"insecure"`
 	// TODO(wurbanski): use other auths than basic
 	Auth struct {
-		User     string `yaml:"user"`
-		Password string `yaml:"password"`
+		Basic struct {
+			User     string `yaml:"user"`
+			Password string `yaml:"password"`
+		} `yaml:"basic"`
+
+		OAuth2 struct {
+			TokenUrl     string   `yaml:"tokenUrl"`
+			AuthUrl      string   `yaml:"authUrl"`
+			ClientId     string   `yaml:"clientId"`
+			ClientSecret string   `yaml:"clientSecret"`
+			Scopes       []string `yaml:"scopes"`
+		} `yaml:"oauth2"`
 	} `yaml:"auth"`
 	Libraries []string `yaml:"libraries"`
 	Resources []string `yaml:"resources"`
