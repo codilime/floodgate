@@ -12,11 +12,13 @@ import (
 	"net/http"
 )
 
-var (
-	conf *oauth2.Config
-)
+type OAuth2Authentication struct {
+	Config       *oauth2.Config
+	CodeVerifier oauth2.AuthCodeOption
+	Token        *oauth2.Token
+	Done         chan bool
+}
 
-// Source: https://github.com/spinnaker/spin/blob/master/cmd/gateclient/client.go
 func oAuth2Authenticate(floodgateConfig *config.Config) (*oauth2.Token, error) {
 	oauth2Config := floodgateConfig.Auth.OAuth2
 
@@ -24,71 +26,77 @@ func oAuth2Authenticate(floodgateConfig *config.Config) (*oauth2.Token, error) {
 		return nil, fmt.Errorf("incorrect oauth2 configuration")
 	}
 
-	conf = &oauth2.Config{
-		ClientID:     oauth2Config.ClientId,
-		ClientSecret: oauth2Config.ClientSecret,
-		Scopes:       oauth2Config.Scopes,
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  oauth2Config.AuthUrl,
-			TokenURL: oauth2Config.TokenUrl,
+	auth := OAuth2Authentication{
+		Config: &oauth2.Config{
+			ClientID:     oauth2Config.ClientId,
+			ClientSecret: oauth2Config.ClientSecret,
+			Scopes:       oauth2Config.Scopes,
+			Endpoint: oauth2.Endpoint{
+				AuthURL:  oauth2Config.AuthUrl,
+				TokenURL: oauth2Config.TokenUrl,
+			},
+			RedirectURL: "http://localhost:8085/callback",
 		},
-		RedirectURL: "http://localhost:8085",
+		Done: make(chan bool),
 	}
 
-	var token *oauth2.Token
-
 	if oauth2Config.CachedToken.Valid() {
-		_, _ = oAuth2RefreshToken()
+		_, _ = auth.refreshToken()
 	} else {
-		t, err := oAuth2GetToken()
+		err := auth.getToken()
 		if err != nil {
 			return nil, err
 		}
-
-		token = t
 	}
 
-	return token, nil
+	return auth.Token, nil
 }
 
-func oAuth2RefreshToken() (*oauth2.Token, error) {
+func (a *OAuth2Authentication) refreshToken() (*oauth2.Token, error) {
 	return nil, nil
 }
 
-func oAuth2GetToken() (*oauth2.Token, error) {
+func (a *OAuth2Authentication) getToken() error {
 	//Setup HTTP server to get callback
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		code := r.FormValue("code")
-		fmt.Fprintln(w, code)
-	})
+	http.HandleFunc("/callback", a.httpCallback)
 	go http.ListenAndServe(":8085", nil)
 
-	verifier, verifierCode, err := generateCodeVerifier()
+	verifier, verifierCode, err := a.generateCodeVerifier()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	codeVerifier := oauth2.SetAuthURLParam("code_verifier", verifier)
+	a.CodeVerifier = oauth2.SetAuthURLParam("code_verifier", verifier)
 	codeChallenge := oauth2.SetAuthURLParam("code_challenge", verifierCode)
 	challengeMethod := oauth2.SetAuthURLParam("code_challenge_method", "S256")
 
-	url := conf.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.ApprovalForce, challengeMethod, codeChallenge)
+	url := a.Config.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.ApprovalForce, challengeMethod, codeChallenge)
 
 	log.Infof("Go to url and authenticate:\n%s\n", url)
-	log.Infof("Paste verification code: ")
 
-	var code string
-	fmt.Scanf("%s", &code)
+	<-a.Done
 
-	token, err := conf.Exchange(context.Background(), code, codeVerifier)
-	if err != nil {
-		return nil, err
-	}
+	log.Info("Successfully authenticated")
 
-	return token, nil
+	return nil
 }
 
-func generateCodeVerifier() (verifier string, code string, err error) {
+func (a *OAuth2Authentication) httpCallback(w http.ResponseWriter, r *http.Request) {
+	code := r.FormValue("code")
+
+	token, err := a.Config.Exchange(context.Background(), code, a.CodeVerifier)
+	if err != nil {
+		log.Fatalf("e: %v", err)
+		return
+	}
+
+	a.Token = token
+	a.Done <- true
+
+	fmt.Fprintf(w, "You can go back to CLI")
+}
+
+func (a *OAuth2Authentication) generateCodeVerifier() (verifier string, code string, err error) {
 	randomBytes := make([]byte, 64)
 	if _, err := rand.Read(randomBytes); err != nil {
 		return "", "", err
