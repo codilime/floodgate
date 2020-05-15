@@ -29,9 +29,9 @@ type Config struct {
 
 		OAuth2 struct {
 			Enabled      bool         `json:"enabled"`
-			TokenUrl     string       `json:"tokenUrl"`
-			AuthUrl      string       `json:"authUrl"`
-			ClientId     string       `json:"clientId"`
+			TokenURL     string       `json:"tokenUrl"`
+			AuthURL      string       `json:"authUrl"`
+			ClientID     string       `json:"clientId"`
 			ClientSecret string       `json:"clientSecret"`
 			Scopes       []string     `json:"scopes"`
 			CachedToken  oauth2.Token `json:"cachedToken,omitempty"`

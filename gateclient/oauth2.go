@@ -24,18 +24,18 @@ type OAuth2Authentication struct {
 func oAuth2Authenticate(floodgateConfig *config.Config) (*oauth2.Token, error) {
 	oauth2Config := floodgateConfig.Auth.OAuth2
 
-	if oauth2Config.TokenUrl == "" || oauth2Config.AuthUrl == "" || len(oauth2Config.Scopes) == 0 {
+	if oauth2Config.TokenURL == "" || oauth2Config.AuthURL == "" || len(oauth2Config.Scopes) == 0 {
 		return nil, fmt.Errorf("incorrect oauth2 configuration")
 	}
 
 	auth := OAuth2Authentication{
 		Config: &oauth2.Config{
-			ClientID:     oauth2Config.ClientId,
+			ClientID:     oauth2Config.ClientID,
 			ClientSecret: oauth2Config.ClientSecret,
 			Scopes:       oauth2Config.Scopes,
 			Endpoint: oauth2.Endpoint{
-				AuthURL:  oauth2Config.AuthUrl,
-				TokenURL: oauth2Config.TokenUrl,
+				AuthURL:  oauth2Config.AuthURL,
+				TokenURL: oauth2Config.TokenURL,
 			},
 			RedirectURL: "http://localhost:8085/callback",
 		},
