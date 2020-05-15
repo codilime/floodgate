@@ -17,28 +17,28 @@ var location string
 
 // Config is the default configuration for the app
 type Config struct {
-	Endpoint string `yaml:"endpoint"`
-	Insecure bool   `yaml:"insecure"`
+	Endpoint string `json:"endpoint"`
+	Insecure bool   `json:"insecure"`
 	// TODO(wurbanski): use other auths than basic
 	Auth struct {
 		Basic struct {
-			Enabled  bool   `yaml:"enabled"`
-			User     string `yaml:"user"`
-			Password string `yaml:"password"`
-		} `yaml:"basic"`
+			Enabled  bool   `json:"enabled"`
+			User     string `json:"user"`
+			Password string `json:"password"`
+		} `json:"basic"`
 
 		OAuth2 struct {
-			Enabled      bool         `yaml:"enabled"`
-			TokenUrl     string       `yaml:"tokenUrl"`
-			AuthUrl      string       `yaml:"authUrl"`
-			ClientId     string       `yaml:"clientId"`
-			ClientSecret string       `yaml:"clientSecret"`
-			Scopes       []string     `yaml:"scopes"`
-			CachedToken  oauth2.Token `yaml:"cachedToken,omitempty"`
-		} `yaml:"oauth2"`
-	} `yaml:"auth"`
-	Libraries []string `yaml:"libraries"`
-	Resources []string `yaml:"resources"`
+			Enabled      bool         `json:"enabled"`
+			TokenUrl     string       `json:"tokenUrl"`
+			AuthUrl      string       `json:"authUrl"`
+			ClientId     string       `json:"clientId"`
+			ClientSecret string       `json:"clientSecret"`
+			Scopes       []string     `json:"scopes"`
+			CachedToken  oauth2.Token `json:"cachedToken,omitempty"`
+		} `json:"oauth2"`
+	} `json:"auth"`
+	Libraries []string `json:"libraries"`
+	Resources []string `json:"resources"`
 }
 
 // LoadConfig function is used to load configuration from file
@@ -83,7 +83,7 @@ func LoadConfig(locations ...string) (*Config, error) {
 
 // SaveConfig function is used to save configuration file
 func SaveConfig(config *Config) error {
-	configFile, err := yaml.Marshal(config)
+	configFile, err := yaml.Marshal(&config)
 	if err != nil {
 		log.Fatal(err)
 		return err
