@@ -12,6 +12,7 @@ import (
 	"net/http"
 )
 
+// OAuth2Authentication struct is used to authenticate using oauth2
 type OAuth2Authentication struct {
 	Config       *oauth2.Config
 	CodeVerifier oauth2.AuthCodeOption
