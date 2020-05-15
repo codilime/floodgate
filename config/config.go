@@ -13,6 +13,8 @@ import (
 	"github.com/ghodss/yaml"
 )
 
+var location string
+
 // Config is the default configuration for the app
 type Config struct {
 	Endpoint string `yaml:"endpoint"`
@@ -41,7 +43,6 @@ type Config struct {
 
 // LoadConfig function is used to load configuration from file
 func LoadConfig(locations ...string) (*Config, error) {
-	var location string
 	if len(locations) == 0 {
 		return nil, fmt.Errorf("no config file provided")
 	}
@@ -75,6 +76,24 @@ func LoadConfig(locations ...string) (*Config, error) {
 		log.Fatal(err)
 		return nil, err
 	}
+
 	return conf, nil
 
+}
+
+// SaveConfig function is used to save configuration file
+func SaveConfig(config *Config) error {
+	configFile, err := yaml.Marshal(config)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+
+	err = ioutil.WriteFile(location, configFile, 0644)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+
+	return nil
 }
