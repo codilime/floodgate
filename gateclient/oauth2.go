@@ -16,6 +16,7 @@ type OAuth2Authentication struct {
 	Config       *oauth2.Config
 	CodeVerifier oauth2.AuthCodeOption
 	Token        *oauth2.Token
+	CachedToken  oauth2.Token
 	Done         chan bool
 }
 
@@ -40,8 +41,12 @@ func oAuth2Authenticate(floodgateConfig *config.Config) (*oauth2.Token, error) {
 		Done: make(chan bool),
 	}
 
-	if oauth2Config.CachedToken.Valid() {
-		_, _ = auth.refreshToken()
+	if oauth2Config.CachedToken.AccessToken != "" {
+		auth.CachedToken = oauth2Config.CachedToken
+		err := auth.refreshToken()
+		if err != nil {
+			return nil, err
+		}
 	} else {
 		err := auth.getToken()
 		if err != nil {
@@ -49,15 +54,28 @@ func oAuth2Authenticate(floodgateConfig *config.Config) (*oauth2.Token, error) {
 		}
 	}
 
+	floodgateConfig.Auth.OAuth2.CachedToken = *auth.Token
+	err := config.SaveConfig(floodgateConfig)
+	if err != nil {
+		return nil, err
+	}
+
 	return auth.Token, nil
 }
 
-func (a *OAuth2Authentication) refreshToken() (*oauth2.Token, error) {
-	return nil, nil
+func (a *OAuth2Authentication) refreshToken() error {
+	tokenSource := a.Config.TokenSource(context.Background(), &a.CachedToken)
+	t, err := tokenSource.Token()
+	if err != nil {
+		return err
+	}
+
+	a.Token = t
+
+	return nil
 }
 
 func (a *OAuth2Authentication) getToken() error {
-	//Setup HTTP server to get callback
 	http.HandleFunc("/callback", a.httpCallback)
 	go http.ListenAndServe(":8085", nil)
 
