@@ -87,7 +87,14 @@ jobs:
           destination: gate-swagger.json
 
   build:
-    parameters: *default-gate-version
+    parameters: 
+      <<: *default-gate-version
+      build_os:
+        type: string
+        default: linux
+      build_arch:
+        type: string
+        default: amd64
     docker:
       - image: circleci/golang:1.14.1
         environment:
@@ -120,8 +127,8 @@ jobs:
             else
                 export RELEASE=$CIRCLE_BRANCH
             fi
-            env
-            go build -ldflags "-X github.com/codilime/floodgate/version.GitCommit=$CIRCLE_SHA1 \
+            env GOOS=<< parameters.build_os >> GOARCH=<< parameters.build_arch >> go build -ldflags \
+            "-X github.com/codilime/floodgate/version.GitCommit=$CIRCLE_SHA1 \
             -X github.com/codilime/floodgate/version.BuiltDate=$(date  +%Y-%m-%d_%H:%M:%S) \
             -X github.com/codilime/floodgate/version.Release=$RELEASE \
             -X github.com/codilime/floodgate/version.GoVersion=$GOLANG_VERSION \
@@ -144,18 +151,18 @@ jobs:
           name: Generate checksum
           command: |
             cd /go/src/github.com/codilime/floodgate/
-            cp floodgate floodgate-<< parameters.gate_api_branch >>
-            sha1sum floodgate-<< parameters.gate_api_branch >> > floodgate-<< parameters.gate_api_branch >>.sha1sum
+            cp floodgate floodgate-<< parameters.gate_api_branch >>.<< parameters.build_os >>.<< parameters.build_arch >>
+            sha1sum floodgate-<< parameters.gate_api_branch >>.<< parameters.build_os >>.<< parameters.build_arch >> > floodgate-<< parameters.gate_api_branch >>.<< parameters.build_os >>.<< parameters.build_arch >>.sha1sum
       - persist_to_workspace:
           root: /floodgate/bin
           paths:
             - floodgate
       - store_artifacts:
           path: /go/src/github.com/codilime/floodgate/floodgate
-          destination: floodgate-<< parameters.gate_api_branch >>
+          destination: floodgate-<< parameters.gate_api_branch >>.<< parameters.build_os >>.<< parameters.build_arch >>
       - store_artifacts:
-          path: /go/src/github.com/codilime/floodgate/floodgate-<< parameters.gate_api_branch >>.sha1sum
-          destination: floodgate-<< parameters.gate_api_branch >>.sha1sum
+          path: /go/src/github.com/codilime/floodgate/floodgate-<< parameters.gate_api_branch >>.<< parameters.build_os >>.<< parameters.build_arch >>.sha1sum
+          destination: floodgate-<< parameters.gate_api_branch >>.<< parameters.build_os >>.<< parameters.build_arch >>.sha1sum
 
   start_spinnaker:
     parameters: 
@@ -223,7 +230,17 @@ workflows:
           matrix:
             parameters: *gate-versions
       - build:
-          name: build against gate << matrix.gate_api_branch >>
+          name: build for linux against gate << matrix.gate_api_branch >>
+          build_os: linux
+          build_arch: amd64
+          matrix:
+            parameters: *gate-versions
+          requires:
+            - generate swagger api << matrix.gate_api_branch >>
+      - build:
+          name: build for osx against gate << matrix.gate_api_branch >>
+          build_os: darwin
+          build_arch: amd64
           matrix:
             parameters: *gate-versions
           requires:
@@ -233,7 +250,7 @@ workflows:
           matrix:
             parameters: *gate-versions
           requires:
-            - build against gate << matrix.gate_api_branch >>
+            - build for linux against gate << matrix.gate_api_branch >>
 
   release:
     jobs:
@@ -245,7 +262,18 @@ workflows:
 
       - build:
           <<: *filters-release
-          name: build against gate << matrix.gate_api_branch >>
+          name: build for linux against gate << matrix.gate_api_branch >>
+          build_os: linux
+          build_arch: amd64
+          matrix:
+            parameters: *gate-versions
+          requires:
+            - generate swagger api << matrix.gate_api_branch >>
+      - build:
+          <<: *filters-release
+          name: build for osx against gate << matrix.gate_api_branch >>
+          build_os: darwin
+          build_arch: amd64
           matrix:
             parameters: *gate-versions
           requires:
@@ -256,7 +284,7 @@ workflows:
           matrix:
             parameters: *gate-versions
           requires:
-            - build against gate << matrix.gate_api_branch >>
+            - build for linux against gate << matrix.gate_api_branch >>
 
   commit:
     jobs:
