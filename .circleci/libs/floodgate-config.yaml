@@ -1,7 +1,9 @@
 endpoint: http://spinnaker/api/v1
 auth:
-  user: admin
-  password: GATE_PASS
+  basic:
+    enabled: true
+    user: admin
+    password: GATE_PASS
 libraries:
   - /floodgate/libs/sponnet
 resources:
