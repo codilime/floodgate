@@ -1,8 +1,18 @@
 endpoint: https://127.0.0.1/api/v1
 insecure: true
 auth:
-  user: admin
-  password: VRCm9L80yO3FHTKeVthtxknfGq1b10WqInKoBFqozphGcrGi
+  basic:
+    enabled: true
+    user: admin
+    password: VRCm9L80yO3FHTKeVthtxknfGq1b10WqInKoBFqozphGcrGi
+  oauth2:
+    enabled: false
+    authUrl: https://github.com/login/oauth/authorize
+    tokenUrl: https://github.com/login/oauth/access_token
+    clientId: xxxxxxxxxxxxxx
+    clientSecret: xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    scopes:
+      - profile
 libraries:
   - sponnet
 resources:

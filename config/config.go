@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"golang.org/x/oauth2"
 	"io/ioutil"
 	"os"
 	"os/user"
@@ -12,22 +13,36 @@ import (
 	"github.com/ghodss/yaml"
 )
 
+var location string
+
 // Config is the default configuration for the app
 type Config struct {
-	Endpoint string `yaml:"endpoint"`
-	Insecure bool   `yaml:"insecure"`
+	Endpoint string `json:"endpoint"`
+	Insecure bool   `json:"insecure"`
 	// TODO(wurbanski): use other auths than basic
 	Auth struct {
-		User     string `yaml:"user"`
-		Password string `yaml:"password"`
-	} `yaml:"auth"`
-	Libraries []string `yaml:"libraries"`
-	Resources []string `yaml:"resources"`
+		Basic struct {
+			Enabled  bool   `json:"enabled"`
+			User     string `json:"user"`
+			Password string `json:"password"`
+		} `json:"basic"`
+
+		OAuth2 struct {
+			Enabled      bool         `json:"enabled"`
+			TokenURL     string       `json:"tokenUrl"`
+			AuthURL      string       `json:"authUrl"`
+			ClientID     string       `json:"clientId"`
+			ClientSecret string       `json:"clientSecret"`
+			Scopes       []string     `json:"scopes"`
+			CachedToken  oauth2.Token `json:"cachedToken,omitempty"`
+		} `json:"oauth2"`
+	} `json:"auth"`
+	Libraries []string `json:"libraries"`
+	Resources []string `json:"resources"`
 }
 
 // LoadConfig function is used to load configuration from file
 func LoadConfig(locations ...string) (*Config, error) {
-	var location string
 	if len(locations) == 0 {
 		return nil, fmt.Errorf("no config file provided")
 	}
@@ -61,6 +76,24 @@ func LoadConfig(locations ...string) (*Config, error) {
 		log.Fatal(err)
 		return nil, err
 	}
+
 	return conf, nil
 
+}
+
+// SaveConfig function is used to save configuration file
+func SaveConfig(config *Config) error {
+	configFile, err := yaml.Marshal(&config)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+
+	err = ioutil.WriteFile(location, configFile, 0644)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+
+	return nil
 }

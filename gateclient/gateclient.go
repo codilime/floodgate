@@ -36,10 +36,23 @@ func NewGateapiClient(floodgateConfig *config.Config) *GateapiClient {
 	cfg.HTTPClient = gateHTTPClient
 	client := gateapi.NewAPIClient(cfg)
 
-	auth := context.WithValue(context.Background(), gateapi.ContextBasicAuth, gateapi.BasicAuth{
-		UserName: floodgateConfig.Auth.User,
-		Password: floodgateConfig.Auth.Password,
-	})
+	var auth context.Context
+
+	if floodgateConfig.Auth.Basic.Enabled {
+		auth = context.WithValue(context.Background(), gateapi.ContextBasicAuth, gateapi.BasicAuth{
+			UserName: floodgateConfig.Auth.Basic.User,
+			Password: floodgateConfig.Auth.Basic.Password,
+		})
+	}
+
+	if floodgateConfig.Auth.OAuth2.Enabled {
+		token, err := oAuth2Authenticate(floodgateConfig)
+		if err != nil {
+			log.Fatalf("can't authenticate with oauth2: %v", err)
+		}
+
+		auth = context.WithValue(context.Background(), gateapi.ContextAccessToken, token.AccessToken)
+	}
 
 	return &GateapiClient{
 		APIClient: client,
