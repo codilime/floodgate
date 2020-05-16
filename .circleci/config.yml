@@ -295,10 +295,6 @@ workflows:
           requires:
             - generate swagger api
       - start_spinnaker:
-          filters:
-            branches:
-              only:
-                - master
           name: test floodgate with working spinnaker
           floodgate_extra_params: "-q"
           requires:
