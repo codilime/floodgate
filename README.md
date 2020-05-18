@@ -90,6 +90,11 @@ hal config features edit --managed-pipeline-templates-v2-ui true
 hal deploy apply
 ```
 
+**Note:** To configure OAuth2 authentication, you need to set callback url in your app to:
+```
+http://localhost:8085/callback
+```
+
 ## How to use?
 
 `floodgate` has a simple to use CLI:
