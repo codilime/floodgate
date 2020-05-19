@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"net/http/cookiejar"
 	"strings"
 	"time"
 
@@ -24,11 +25,13 @@ type GateapiClient struct {
 
 // NewGateapiClient creates instance of Gate API wrapper based on Floodgate's Config
 func NewGateapiClient(floodgateConfig *config.Config) *GateapiClient {
+	cookieJar, _ := cookiejar.New(nil)
 	var gateHTTPClient = &http.Client{
 		Timeout: 5 * time.Second,
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: floodgateConfig.Insecure},
 		},
+		Jar: cookieJar,
 	}
 
 	cfg := gateapi.NewConfiguration()
