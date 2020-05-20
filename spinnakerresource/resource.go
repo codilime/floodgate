@@ -82,24 +82,22 @@ func (r Resource) GetRemoteState() []byte {
 }
 
 func (r *Resource) unmarshalStates() (localJSON, remoteJSON map[string]interface{}, err error) {
-	err = json.Unmarshal(r.localState, &localJSON)
-	if err != nil {
+	if err = json.Unmarshal(r.localState, &localJSON); err != nil {
 		return
 	}
 
-	err = json.Unmarshal(r.remoteState, &remoteJSON)
-	if err != nil {
+	if err = json.Unmarshal(r.remoteState, &remoteJSON); err != nil {
 		return
 	}
 
-	localJSON, state, err := r.deleteAutogenFields(localJSON)
-	if err != nil {
+	var state []byte
+
+	if localJSON, state, err = r.deleteAutogenFields(localJSON); err != nil {
 		return
 	}
 	r.localState = state
 
-	remoteJSON, state, err = r.deleteAutogenFields(remoteJSON)
-	if err != nil {
+	if remoteJSON, state, err = r.deleteAutogenFields(remoteJSON); err != nil {
 		return
 	}
 	r.remoteState = state
