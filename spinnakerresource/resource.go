@@ -81,7 +81,7 @@ func (r Resource) GetRemoteState() []byte {
 	return r.remoteState
 }
 
-func (r Resource) unmarshalStates() (localJSON, remoteJSON map[string]interface{}, err error) {
+func (r *Resource) unmarshalStates() (localJSON, remoteJSON map[string]interface{}, err error) {
 	err = json.Unmarshal(r.localState, &localJSON)
 	if err != nil {
 		return
