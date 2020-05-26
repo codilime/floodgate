@@ -13,6 +13,10 @@ auth:
     clientSecret: xxxxxxxxxxxxxxxxxxxxxxxxxxxx
     scopes:
       - profile
+  x509:
+    certPath: /etc/ssl/certs/floodgate.crt
+    enabled: true
+    keyPath: /etc/ssl/private/floodgate.key
 libraries:
   - sponnet
 resources:
