@@ -48,6 +48,7 @@ type Config struct {
 	Resources []string `json:"resources"`
 }
 
+// IsAuthValid is used to check if is only one auth method selected
 func (config *Config) IsAuthValid() bool {
 	if config.Auth.Basic.Enabled && config.Auth.OAuth2.Enabled {
 		return false
