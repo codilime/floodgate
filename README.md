@@ -3,7 +3,7 @@
 # Floodgate
 
 [![codilime/floodgate](https://circleci.com/gh/codilime/floodgate/tree/master.svg?style=svg)](https://app.circleci.com/pipelines/github/codilime/floodgate)
-[![SeriesCI](https://seriesci.com/codilime/floodgate/tree/add-code-coverage/coverage.svg)](https://seriesci.com/codilime/floodgate/tree/add-code-coverage/coverage)
+[![SeriesCI](https://seriesci.com/codilime/floodgate/series/add-code-coverage/coverage.svg)](https://seriesci.com/codilime/floodgate/series/add-code-coverage/coverage)
 
 ## Motivation
 

@@ -152,7 +152,7 @@ jobs:
               --header "Authorization: Token ${SERIESCI_TOKEN}" \
               --header "Content-Type: application/json" \
               --data "{\"value\":\"${CURRENTCODECOVERAGE} %\",\"sha\":\"${CIRCLE_SHA1}\"}" \
-              https://seriesci.com/api/codilime/floodgate/:series/one
+              https://seriesci.com/api/codilime/floodgate/coverage/one
             if [ ${CURRENTCODECOVERAGE%.*} -lt ${REQUIREDCODECOVERAGE} ]
             then
                 echo "Not enough code coverage!"
