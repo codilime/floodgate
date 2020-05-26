@@ -147,8 +147,13 @@ jobs:
             REQUIREDCODECOVERAGE: 90
           command: |
             go tool cover -func cover.out | tee codecoverage.txt
-            CURRENTCODECOVERAGE=$(grep 'total:' codecoverage.txt | awk '{ print $3}' | sed 's/%//g')
-            if [ $CURRENTCODECOVERAGE -lt $REQUIREDCODECOVERAGE ]
+            CURRENTCODECOVERAGE=$(grep 'total:' codecoverage.txt | awk '{print substr($3, 1, length($3)-1)}')
+            curl \
+              --header "Authorization: Token ${SERIESCI_TOKEN}" \
+              --header "Content-Type: application/json" \
+              --data "{\"value\":\"${CURRENTCODECOVERAGE} %\",\"sha\":\"${CIRCLE_SHA1}\"}" \
+              https://seriesci.com/api/codilime/floodgate/:series/one
+            if [ ${CURRENTCODECOVERAGE%.*} -lt ${REQUIREDCODECOVERAGE} ]
             then
                 echo "Not enough code coverage!"
                 echo "Current code coverage: ${CURRENTCODECOVERAGE}%"
