@@ -36,6 +36,12 @@ type Config struct {
 			Scopes       []string     `json:"scopes"`
 			CachedToken  oauth2.Token `json:"cachedToken,omitempty"`
 		} `json:"oauth2"`
+
+		X509 struct {
+			Enabled  bool   `json:"enabled"`
+			CertPath string `json:"certPath"`
+			KeyPath  string `json:"keyPath"`
+		} `json:"x509"`
 	} `json:"auth"`
 	Libraries []string `json:"libraries"`
 	Resources []string `json:"resources"`
