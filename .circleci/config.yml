@@ -117,7 +117,7 @@ jobs:
           command: go vet -v ./...
       - run: 
           name: Execute go tests
-          command: go test -v ./...
+          command: go test -v ./... -coverprofile cover.out
       - run:
           name: Compile code
           command: |
@@ -141,6 +141,22 @@ jobs:
             do
               golint -set_exit_status $GOSRCFILE
             done
+      - run:
+          name: Calculate code coverage
+          environment:
+            REQUIREDCODECOVERAGE: 90
+          command: |
+            go tool cover -func cover.out | tee codecoverage.txt
+            CURRENTCODECOVERAGE=$(grep 'total:' codecoverage.txt | awk '{ print $3}' | sed 's/%//g')
+            if [ $CURRENTCODECOVERAGE -lt $REQUIREDCODECOVERAGE ]
+            then
+                echo "Not enough code coverage!"
+                echo "Current code coverage: ${CURRENTCODECOVERAGE}%"
+                echo "Required code coverage: ${REQUIREDCODECOVERAGE}%"
+                exit 1
+            else
+                echo "Code coverage is at least ${REQUIREDCODECOVERAGE}% : OK"
+            fi
       - run:
           name: Copy binaries for later use
           command: |
