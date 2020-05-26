@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"golang.org/x/oauth2"
 	"io/ioutil"
@@ -47,6 +48,22 @@ type Config struct {
 	Resources []string `json:"resources"`
 }
 
+func (config *Config) IsAuthValid() bool {
+	if config.Auth.Basic.Enabled && config.Auth.OAuth2.Enabled {
+		return false
+	}
+
+	if config.Auth.Basic.Enabled && config.Auth.X509.Enabled {
+		return false
+	}
+
+	if config.Auth.OAuth2.Enabled && config.Auth.X509.Enabled {
+		return false
+	}
+
+	return true
+}
+
 // LoadConfig function is used to load configuration from file
 func LoadConfig(locations ...string) (*Config, error) {
 	if len(locations) == 0 {
@@ -81,6 +98,10 @@ func LoadConfig(locations ...string) (*Config, error) {
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
+	}
+
+	if !conf.IsAuthValid() {
+		return nil, errors.New("more than one auth method is selected")
 	}
 
 	return conf, nil

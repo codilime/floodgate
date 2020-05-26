@@ -34,13 +34,7 @@ func NewGateapiClient(floodgateConfig *config.Config) *GateapiClient {
 		Jar: cookieJar,
 	}
 
-	cfg := gateapi.NewConfiguration()
-	cfg.BasePath = floodgateConfig.Endpoint
-	cfg.HTTPClient = gateHTTPClient
-	client := gateapi.NewAPIClient(cfg)
-
 	var auth context.Context
-
 	if floodgateConfig.Auth.Basic.Enabled {
 		auth = context.WithValue(context.Background(), gateapi.ContextBasicAuth, gateapi.BasicAuth{
 			UserName: floodgateConfig.Auth.Basic.User,
@@ -56,6 +50,20 @@ func NewGateapiClient(floodgateConfig *config.Config) *GateapiClient {
 
 		auth = context.WithValue(context.Background(), gateapi.ContextAccessToken, token.AccessToken)
 	}
+
+	if floodgateConfig.Auth.X509.Enabled {
+		client, err := x509Authenticate(gateHTTPClient, floodgateConfig)
+		if err != nil {
+			log.Fatalf("can't authenticate with x509: %v", err)
+		}
+
+		gateHTTPClient = client
+	}
+
+	cfg := gateapi.NewConfiguration()
+	cfg.BasePath = floodgateConfig.Endpoint
+	cfg.HTTPClient = gateHTTPClient
+	client := gateapi.NewAPIClient(cfg)
 
 	return &GateapiClient{
 		APIClient: client,
