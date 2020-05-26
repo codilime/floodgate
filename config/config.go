@@ -62,6 +62,10 @@ func (config *Config) IsAuthValid() bool {
 		return false
 	}
 
+	if !config.Auth.Basic.Enabled && !config.Auth.OAuth2.Enabled && !config.Auth.X509.Enabled {
+		return false
+	}
+
 	return true
 }
 
@@ -102,7 +106,7 @@ func LoadConfig(locations ...string) (*Config, error) {
 	}
 
 	if !conf.IsAuthValid() {
-		return nil, errors.New("more than one auth method is selected")
+		return nil, errors.New("incorrect auth configuration")
 	}
 
 	return conf, nil
