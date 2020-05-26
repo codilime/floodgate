@@ -3,6 +3,7 @@ package gateclient
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"github.com/codilime/floodgate/config"
 	"io/ioutil"
@@ -28,7 +29,10 @@ func x509Authenticate(httpClient *http.Client, floodgateConfig *config.Config) (
 	}
 
 	certPool := x509.NewCertPool()
-	certPool.AppendCertsFromPEM(clientCA)
+	ok := certPool.AppendCertsFromPEM(clientCA)
+	if !ok {
+		return nil, errors.New("certificate is not valid")
+	}
 
 	clientTransport := httpClient.Transport.(*http.Transport)
 	clientTransport.TLSClientConfig.MinVersion = tls.VersionTLS12
