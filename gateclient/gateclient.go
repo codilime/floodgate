@@ -43,7 +43,7 @@ func NewGateapiClient(floodgateConfig *config.Config) *GateapiClient {
 	}
 
 	if floodgateConfig.Auth.OAuth2.Enabled {
-		token, err := oAuth2Authenticate(floodgateConfig)
+		token, err := OAuth2Authenticate(floodgateConfig)
 		if err != nil {
 			log.Fatalf("can't authenticate with oauth2: %v", err)
 		}
