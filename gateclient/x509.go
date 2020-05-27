@@ -5,11 +5,12 @@ import (
 	"crypto/x509"
 	"errors"
 	"github.com/codilime/floodgate/config"
+	"github.com/mitchellh/go-homedir"
 	"io/ioutil"
 	"net/http"
 )
 
-// x509Authenticate is used to authenticate using x509
+// X509Authenticate is used to authenticate using x509
 func X509Authenticate(httpClient *http.Client, floodgateConfig *config.Config) (*http.Client, error) {
 	x509Config := floodgateConfig.Auth.X509
 
@@ -19,12 +20,22 @@ func X509Authenticate(httpClient *http.Client, floodgateConfig *config.Config) (
 	certPool := x509.NewCertPool()
 
 	if x509Config.CertPath != "" || x509Config.KeyPath != "" {
-		cert, err = tls.LoadX509KeyPair(x509Config.CertPath, x509Config.KeyPath)
+		certFullPath, err := homedir.Expand(x509Config.CertPath)
 		if err != nil {
 			return nil, err
 		}
 
-		clientCA, err = ioutil.ReadFile(x509Config.CertPath)
+		keyFullPath, err := homedir.Expand(x509Config.KeyPath)
+		if err != nil {
+			return nil, err
+		}
+
+		cert, err = tls.LoadX509KeyPair(certFullPath, keyFullPath)
+		if err != nil {
+			return nil, err
+		}
+
+		clientCA, err = ioutil.ReadFile(certFullPath)
 		if err != nil {
 			return nil, err
 		}

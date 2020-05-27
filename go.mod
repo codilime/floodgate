@@ -7,6 +7,7 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-jsonnet v0.15.0
 	github.com/josephburnett/jd v0.0.0-20191228205456-aa1a7c66b42f
+	github.com/mitchellh/go-homedir v1.1.0
 	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/cobra v0.0.6
 	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
