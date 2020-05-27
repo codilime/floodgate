@@ -32,6 +32,8 @@ type X509 struct {
 	Enabled  bool   `json:"enabled"`
 	CertPath string `json:"certPath"`
 	KeyPath  string `json:"keyPath"`
+	Cert     string `json:"cert"`
+	Key      string `json:"key"`
 }
 
 // IsValid is used to check if is only one auth method selected

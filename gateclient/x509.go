@@ -4,31 +4,41 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
-	"fmt"
 	"github.com/codilime/floodgate/config"
 	"io/ioutil"
 	"net/http"
 )
 
 // x509Authenticate is used to authenticate using x509
-func x509Authenticate(httpClient *http.Client, floodgateConfig *config.Config) (*http.Client, error) {
+func X509Authenticate(httpClient *http.Client, floodgateConfig *config.Config) (*http.Client, error) {
 	x509Config := floodgateConfig.Auth.X509
 
-	if x509Config.CertPath == "" || x509Config.KeyPath == "" {
-		return nil, fmt.Errorf("incorrect x509 configuration")
-	}
-
-	cert, err := tls.LoadX509KeyPair(x509Config.CertPath, x509Config.KeyPath)
-	if err != nil {
-		return nil, err
-	}
-
-	clientCA, err := ioutil.ReadFile(x509Config.CertPath)
-	if err != nil {
-		return nil, err
-	}
-
+	var cert tls.Certificate
+	var clientCA []byte
+	var err error
 	certPool := x509.NewCertPool()
+
+	if x509Config.CertPath != "" || x509Config.KeyPath != "" {
+		cert, err = tls.LoadX509KeyPair(x509Config.CertPath, x509Config.KeyPath)
+		if err != nil {
+			return nil, err
+		}
+
+		clientCA, err = ioutil.ReadFile(x509Config.CertPath)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if x509Config.Cert != "" || x509Config.Key != "" {
+		clientCA = []byte(x509Config.Cert)
+
+		cert, err = tls.X509KeyPair(clientCA, []byte(x509Config.Key))
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	ok := certPool.AppendCertsFromPEM(clientCA)
 	if !ok {
 		return nil, errors.New("certificate is not valid")

@@ -52,7 +52,7 @@ func NewGateapiClient(floodgateConfig *config.Config) *GateapiClient {
 	}
 
 	if floodgateConfig.Auth.X509.Enabled {
-		client, err := x509Authenticate(gateHTTPClient, floodgateConfig)
+		client, err := X509Authenticate(gateHTTPClient, floodgateConfig)
 		if err != nil {
 			log.Fatalf("can't authenticate with x509: %v", err)
 		}
