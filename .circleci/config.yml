@@ -137,7 +137,7 @@ jobs:
       - run:
           name: Calculate code coverage
           environment:
-            REQUIREDCODECOVERAGE: 78
+            REQUIREDCODECOVERAGE: 60
           command: |
             go tool cover -func cover.out | tee codecoverage.txt
             CURRENTCODECOVERAGE=$(grep 'total:' codecoverage.txt | awk '{print substr($3, 1, length($3)-1)}')

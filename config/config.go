@@ -1,8 +1,9 @@
 package config
 
 import (
+	"errors"
 	"fmt"
-	"golang.org/x/oauth2"
+	"github.com/codilime/floodgate/config/auth"
 	"io/ioutil"
 	"os"
 	"os/user"
@@ -17,28 +18,11 @@ var location string
 
 // Config is the default configuration for the app
 type Config struct {
-	Endpoint string `json:"endpoint"`
-	Insecure bool   `json:"insecure"`
-	// TODO(wurbanski): use other auths than basic
-	Auth struct {
-		Basic struct {
-			Enabled  bool   `json:"enabled"`
-			User     string `json:"user"`
-			Password string `json:"password"`
-		} `json:"basic"`
-
-		OAuth2 struct {
-			Enabled      bool         `json:"enabled"`
-			TokenURL     string       `json:"tokenUrl"`
-			AuthURL      string       `json:"authUrl"`
-			ClientID     string       `json:"clientId"`
-			ClientSecret string       `json:"clientSecret"`
-			Scopes       []string     `json:"scopes"`
-			CachedToken  oauth2.Token `json:"cachedToken,omitempty"`
-		} `json:"oauth2"`
-	} `json:"auth"`
-	Libraries []string `json:"libraries"`
-	Resources []string `json:"resources"`
+	Endpoint  string      `json:"endpoint"`
+	Insecure  bool        `json:"insecure"`
+	Auth      auth.Config `json:"auth"`
+	Libraries []string    `json:"libraries"`
+	Resources []string    `json:"resources"`
 }
 
 // LoadConfig function is used to load configuration from file
@@ -77,8 +61,11 @@ func LoadConfig(locations ...string) (*Config, error) {
 		return nil, err
 	}
 
-	return conf, nil
+	if !conf.Auth.IsValid() {
+		return nil, errors.New("incorrect auth configuration")
+	}
 
+	return conf, nil
 }
 
 // SaveConfig function is used to save configuration file

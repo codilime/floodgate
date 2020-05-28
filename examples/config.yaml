@@ -13,6 +13,10 @@ auth:
     clientSecret: xxxxxxxxxxxxxxxxxxxxxxxxxxxx
     scopes:
       - profile
+  x509:
+    certPath: ~/.config/floodgate/floodgate.crt
+    enabled: false
+    keyPath: ~/.config/floodgate/floodgate.key
 libraries:
   - sponnet
 resources:
