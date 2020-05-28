@@ -21,6 +21,7 @@ type OAuth2Authentication struct {
 	Done         chan bool
 }
 
+// OAuth2Authenticate is used to authenticate using oauth2
 func OAuth2Authenticate(floodgateConfig *config.Config) (*oauth2.Token, error) {
 	oauth2Config := floodgateConfig.Auth.OAuth2
 
