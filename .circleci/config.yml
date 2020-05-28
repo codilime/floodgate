@@ -133,14 +133,7 @@ jobs:
             -X github.com/codilime/floodgate/version.Release=$RELEASE \
             -X github.com/codilime/floodgate/version.GoVersion=$GOLANG_VERSION \
             -X github.com/codilime/floodgate/version.GateVersion=$(echo '<< parameters.gate_api_branch >>' | sed 's/release-//') \
-            "
-      - run:
-          name: Check linting
-          command: |
-            for GOSRCFILE in $( find . -type f -name '*.go' -not -path './gateapi/*')
-            do
-              golint -set_exit_status $GOSRCFILE
-            done
+            "      
       - run:
           name: Calculate code coverage
           environment:
@@ -162,6 +155,13 @@ jobs:
             else
                 echo "Code coverage is at least ${REQUIREDCODECOVERAGE}% : OK"
             fi
+      - run:
+          name: Check linting
+          command: |
+            for GOSRCFILE in $( find . -type f -name '*.go' -not -path './gateapi/*')
+            do
+              golint -set_exit_status $GOSRCFILE
+            done
       - run:
           name: Copy binaries for later use
           command: |
