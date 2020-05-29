@@ -92,7 +92,7 @@ func (a *OAuth2Authentication) getToken() error {
 	http.HandleFunc("/callback", a.httpCallback)
 	go http.ListenAndServe(":8085", nil)
 
-	url, err := a.generateAuthCodeUrl()
+	url, err := a.generateAuthCodeURL()
 	if err != nil {
 		return err
 	}
@@ -116,7 +116,7 @@ func (a *OAuth2Authentication) generateToken(code string) error {
 	return nil
 }
 
-func (a *OAuth2Authentication) generateAuthCodeUrl() (string, error) {
+func (a *OAuth2Authentication) generateAuthCodeURL() (string, error) {
 	verifier, verifierCode, err := a.generateCodeVerifier()
 	if err != nil {
 		return "", err
