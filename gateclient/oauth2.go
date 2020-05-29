@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/codilime/floodgate/config"
+	configAuth "github.com/codilime/floodgate/config/auth"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 	"net/http"
@@ -25,6 +26,35 @@ type OAuth2Authentication struct {
 func OAuth2Authenticate(floodgateConfig *config.Config) (*oauth2.Token, error) {
 	oauth2Config := floodgateConfig.Auth.OAuth2
 
+	auth := &OAuth2Authentication{}
+	auth, err := auth.setup(&oauth2Config)
+	if err != nil {
+		return nil, err
+	}
+
+	if oauth2Config.CachedToken.AccessToken != "" {
+		auth.CachedToken = oauth2Config.CachedToken
+		err := auth.refreshToken()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		err := auth.getToken()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	floodgateConfig.Auth.OAuth2.CachedToken = *auth.Token
+	err = config.SaveConfig(floodgateConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return auth.Token, nil
+}
+
+func (a *OAuth2Authentication) setup(oauth2Config *configAuth.OAuth2) (*OAuth2Authentication, error) {
 	if oauth2Config.TokenURL == "" || oauth2Config.AuthURL == "" || len(oauth2Config.Scopes) == 0 {
 		return nil, fmt.Errorf("incorrect oauth2 configuration")
 	}
@@ -43,26 +73,7 @@ func OAuth2Authenticate(floodgateConfig *config.Config) (*oauth2.Token, error) {
 		Done: make(chan bool),
 	}
 
-	if oauth2Config.CachedToken.AccessToken != "" {
-		auth.CachedToken = oauth2Config.CachedToken
-		err := auth.refreshToken()
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		err := auth.getToken()
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	floodgateConfig.Auth.OAuth2.CachedToken = *auth.Token
-	err := config.SaveConfig(floodgateConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	return auth.Token, nil
+	return &auth, nil
 }
 
 func (a *OAuth2Authentication) refreshToken() error {
@@ -81,16 +92,10 @@ func (a *OAuth2Authentication) getToken() error {
 	http.HandleFunc("/callback", a.httpCallback)
 	go http.ListenAndServe(":8085", nil)
 
-	verifier, verifierCode, err := a.generateCodeVerifier()
+	url, err := a.generateAuthCodeUrl()
 	if err != nil {
 		return err
 	}
-
-	a.CodeVerifier = oauth2.SetAuthURLParam("code_verifier", verifier)
-	codeChallenge := oauth2.SetAuthURLParam("code_challenge", verifierCode)
-	challengeMethod := oauth2.SetAuthURLParam("code_challenge_method", "S256")
-
-	url := a.Config.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.ApprovalForce, challengeMethod, codeChallenge)
 
 	log.Infof("Go to url and authenticate:\n%s\n", url)
 
@@ -101,16 +106,39 @@ func (a *OAuth2Authentication) getToken() error {
 	return nil
 }
 
-func (a *OAuth2Authentication) httpCallback(w http.ResponseWriter, r *http.Request) {
-	code := r.FormValue("code")
-
+func (a *OAuth2Authentication) generateToken(code string) error {
 	token, err := a.Config.Exchange(context.Background(), code, a.CodeVerifier)
 	if err != nil {
-		log.Fatalf("e: %v", err)
-		return
+		return err
 	}
 
 	a.Token = token
+	return nil
+}
+
+func (a *OAuth2Authentication) generateAuthCodeUrl() (string, error) {
+	verifier, verifierCode, err := a.generateCodeVerifier()
+	if err != nil {
+		return "", err
+	}
+
+	a.CodeVerifier = oauth2.SetAuthURLParam("code_verifier", verifier)
+	codeChallenge := oauth2.SetAuthURLParam("code_challenge", verifierCode)
+	challengeMethod := oauth2.SetAuthURLParam("code_challenge_method", "S256")
+
+	url := a.Config.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.ApprovalForce, challengeMethod, codeChallenge)
+
+	return url, nil
+}
+
+func (a *OAuth2Authentication) httpCallback(w http.ResponseWriter, r *http.Request) {
+	code := r.FormValue("code")
+
+	err := a.generateToken(code)
+	if err != nil {
+		log.Fatalf("Callback error: %v", err)
+	}
+
 	a.Done <- true
 
 	fmt.Fprintf(w, "You can go back to CLI")
