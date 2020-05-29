@@ -64,7 +64,7 @@ func TestOAuth2Authenticate_GenerateAuthCodeUrl(t *testing.T) {
 	oauth := &OAuth2Authentication{}
 	oauth, _ = oauth.setup(&conf)
 
-	url, err := oauth.generateAuthCodeUrl()
+	url, err := oauth.generateAuthCodeURL()
 	if err != nil {
 		t.Errorf("OAuth2Authenticate.generateAuthCodeUrl() error = %v, wantErr false", err)
 	}
@@ -89,7 +89,7 @@ func TestOAuth2Authenticate_GenerateToken(t *testing.T) {
 
 	oauth := &OAuth2Authentication{}
 	oauth, _ = oauth.setup(&conf)
-	_, _ = oauth.generateAuthCodeUrl()
+	_, _ = oauth.generateAuthCodeURL()
 
 	err := oauth.generateToken("test")
 	if err != nil {
