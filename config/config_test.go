@@ -134,6 +134,21 @@ func TestLoadConfig(t *testing.T) {
 	}
 }
 
+func TestSaveConfig(t *testing.T) {
+	dir, valid, _, _, err := createTempConfigs()
+	if err != nil {
+		t.Errorf("Config.LoadConfig() Error while creating temp configs %v", err)
+	}
+	defer os.RemoveAll(dir)
+
+	cfg, _ := LoadConfig(valid)
+
+	err = SaveConfig(cfg)
+	if err != nil {
+		t.Errorf("Config.SaveConfig() error = %v, wantErr %v", err, false)
+	}
+}
+
 var validConfig = []byte("endpoint: https://127.0.0.1/api/v1\ninsecure: true\nauth:\n  basic:\n    enabled: true\n    user: admin\n    password: VRCm9L80yO3FHTKeVthtxknfGq1b10WqInKoBFqozphGcrGi\nlibraries:\n  - sponnet\nresources:\n  - resources/applications\n  - resources/pipelines\n  - resources/pipelinetemplates")
 var malformedConfig = []byte("endpoint: https://127.0.0.1/api/v1\ninsecure: true\nauth:\n  basic:\n    enabled: true\n    user\n    password: VRCm9L80yO3FHTKeVthtxknfGq1b10WqInKoBFqozphGcrGi\nlibraries:\n  - sponnet\nresources:\n  - resources/applications\n  - resources/pipelines\n  - resources/pipelinetemplates")
 var nonValidAuthConfig = []byte("endpoint: https://127.0.0.1/api/v1\ninsecure: true\nauth:\n  basic:\n    enabled: true\n    user: admin\n    password: VRCm9L80yO3FHTKeVthtxknfGq1b10WqInKoBFqozphGcrGi\n  x509:\n    certPath: ~/.config/floodgate/floodgate.crt\n    enabled: true\n    keyPath: ~/.config/floodgate/floodgate.key\nlibraries:\n  - sponnet\nresources:\n  - resources/applications\n  - resources/pipelines\n  - resources/pipelinetemplates")
