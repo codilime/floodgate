@@ -41,12 +41,12 @@ func runInspect(cmd *cobra.Command, options inspectOptions) error {
 	if err := resourceManager.Init(config); err != nil {
 		return err
 	}
-	fmt.Println("Current Spinnaker resource status:")
-	fmt.Println("\nApplications:")
-	fmt.Println(resourceManager.GetAllApplicationsRemoteState())
-	fmt.Println("\nPipelines:")
-	fmt.Println(resourceManager.GetAllPipelinesRemoteState())
-	fmt.Println("\nPipeline templates:")
-	fmt.Println(resourceManager.GetAllPipelineTemplatesRemoteState())
+	fmt.Fprintln(cmd.OutOrStdout(), "Current Spinnaker resource status:")
+	fmt.Fprintln(cmd.OutOrStdout(), "\nApplications:")
+	fmt.Fprintln(cmd.OutOrStdout(), resourceManager.GetAllApplicationsRemoteState())
+	fmt.Fprintln(cmd.OutOrStdout(), "\nPipelines:")
+	fmt.Fprintln(cmd.OutOrStdout(), resourceManager.GetAllPipelinesRemoteState())
+	fmt.Fprintln(cmd.OutOrStdout(), "\nPipeline templates:")
+	fmt.Fprintln(cmd.OutOrStdout(), resourceManager.GetAllPipelineTemplatesRemoteState())
 	return nil
 }

@@ -191,7 +191,7 @@ func (rm *ResourceManager) GetAllPipelinesRemoteState() (state string) {
 
 // GetAllPipelineTemplatesRemoteState returns a concatenated string of pipeline templates JSONs.
 func (rm *ResourceManager) GetAllPipelineTemplatesRemoteState() (state string) {
-	for _, pipelineTemplate := range rm.resources.Applications {
+	for _, pipelineTemplate := range rm.resources.PipelineTemplates {
 		state += string(pipelineTemplate.GetRemoteState())
 	}
 	return
