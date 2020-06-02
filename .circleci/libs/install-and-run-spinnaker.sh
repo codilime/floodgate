@@ -22,6 +22,10 @@ GATE_PASS=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32 ; echo '')
 hal -q config provider kubernetes enable
 CONTEXT=$(kubectl config current-context)
 hal -q config provider kubernetes account add my-k8s-v2-account --provider-version v2 --context $CONTEXT
+## Configure account for inner kind communication
+cp ~/.kube/config ~/.kube/kind
+sed -i "s/server:\ .*/server:\ https:\/\/10.96.0.1:443/g" kind
+hal -q config provider kubernetes account add inner-kind --provider-version v2 --context kind-kind --kubeconfig-file ~/.kube/kind
 hal -q config deploy edit --type distributed --account-name my-k8s-v2-account
 
 ## Install minio
