@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"path"
 	"strings"
 	"testing"
@@ -21,11 +20,11 @@ func TestRender(t *testing.T) {
 
 	ts := httptest.NewServer(mux)
 
-	dir, config, err := CreateTempFiles(ts.URL)
+	dir, config, err := CreateTempFiles(ts.URL, true)
 	if err != nil {
 		t.Errorf("cmd.Render() Error while creating temp config %v", err)
 	}
-	defer os.RemoveAll(dir)
+	defer RemoveTempDir(dir)
 
 	b := bytes.NewBufferString("")
 	cmd := NewRootCmd(b)

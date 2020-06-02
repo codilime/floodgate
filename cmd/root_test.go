@@ -3,11 +3,13 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path"
 	"runtime"
+	"strings"
 )
 
-func CreateTempFiles(endpoint string) (string, string, error) {
+func CreateTempFiles(endpoint string, createSponnet bool) (string, string, error) {
 	dir, err := ioutil.TempDir("", "testing")
 	if err != nil {
 		return "", "", err
@@ -31,12 +33,14 @@ func CreateTempFiles(endpoint string) (string, string, error) {
 		return "", "", err
 	}
 
-	pipelineJsonnet, err := ioutil.TempFile(pipelinesDir, "*.jsonnetpipeline.jsonnet")
-	if err != nil {
-		return "", "", err
-	}
-	ioutil.WriteFile(pipelineJsonnet.Name(), []byte("local pipelines = import 'pipeline.libsonnet';\n\npipelines.pipeline()\n.withName('Example pipeline from Jsonnet')\n.withId('jsonnetpipeline')\n.withApplication('jsonnetapp')"), 0644)
+	if createSponnet {
+		pipelineJsonnet, err := ioutil.TempFile(pipelinesDir, "*.jsonnetpipeline.jsonnet")
+		if err != nil {
+			return "", "", err
+		}
+		ioutil.WriteFile(pipelineJsonnet.Name(), []byte("local pipelines = import 'pipeline.libsonnet';\n\npipelines.pipeline()\n.withName('Example pipeline from Jsonnet')\n.withId('jsonnetpipeline')\n.withApplication('jsonnetapp')"), 0644)
 
+	}
 	pipeline, err := ioutil.TempFile(pipelinesDir, "*.jsonpipeline.json")
 	if err != nil {
 		return "", "", err
@@ -68,4 +72,10 @@ func CreateTempFiles(endpoint string) (string, string, error) {
 	ioutil.WriteFile(config.Name(), []byte(configStr), 0644)
 
 	return dir, config.Name(), nil
+}
+
+func RemoveTempDir(dir string) {
+	if dir != "" && strings.HasPrefix(dir, "/tmp/testing") {
+		os.RemoveAll(dir)
+	}
 }

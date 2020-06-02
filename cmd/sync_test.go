@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 )
@@ -20,11 +19,11 @@ func TestSyncDryRun(t *testing.T) {
 
 	ts := httptest.NewServer(mux)
 
-	dir, config, err := CreateTempFiles(ts.URL)
+	dir, config, err := CreateTempFiles(ts.URL, false)
 	if err != nil {
 		t.Errorf("cmd.SyncDryRun() Error while creating temp config %v", err)
 	}
-	defer os.RemoveAll(dir)
+	defer RemoveTempDir(dir)
 
 	b := bytes.NewBufferString("")
 	cmd := NewRootCmd(b)
