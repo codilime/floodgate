@@ -250,6 +250,13 @@ jobs:
 
 workflows:
   periodic:
+    triggers:
+      - schedule:
+          cron: "15 2 * * *"
+          filters:
+            branches:
+              only:
+                - master
     jobs:
       - generate_swagger:
           name: generate swagger api << matrix.gate_api_branch >>
