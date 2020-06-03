@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 
@@ -47,9 +48,7 @@ func runCompare(cmd *cobra.Command, options compareOptions) error {
 	}
 
 	printCompareDiff(cmd.OutOrStdout(), changes)
-	fmt.Fprintln(cmd.OutOrStdout(), "end diff")
-
-	return nil
+	return errors.New("end diff")
 }
 
 func printCompareDiff(out io.Writer, changes []rm.ResourceChange) {

@@ -32,7 +32,7 @@ func TestCompare(t *testing.T) {
 	cmd.SetArgs([]string{"--config=" + config, "compare"})
 
 	err = cmd.Execute()
-	if err != nil {
+	if err != nil && err.Error() != "end diff" {
 		t.Fatalf("cmd.Compare() Execute err: %v", err)
 	}
 
@@ -47,4 +47,4 @@ func TestCompare(t *testing.T) {
 	}
 }
 
-var compareWant = "jsonapp (application)\n@ []\n- null\n+ {\"cloudProviders\":\"kubernetes\",\"dataSources\":{\"disabled\":[],\"enabled\":[]},\"description\":\"Example application created from JSON file.\",\"email\":\"example@example.com\",\"name\":\"jsonapp\",\"platformHealthOnly\":false,\"platformHealthOnlyShowOverride\":false,\"providerSettings\":{\"aws\":{\"useAmiBlockDeviceMappings\":false},\"gce\":{\"associatePublicIpAddress\":false}},\"trafficGuards\":[],\"user\":\"floodgate@example.com\"}\n\njsonnetpipeline (Example pipeline from Jsonnet) (pipeline)\n@ []\n- null\n+ {\"application\":\"jsonnetapp\",\"id\":\"jsonnetpipeline\",\"keepWaitingPipelines\":false,\"limitConcurrent\":true,\"name\":\"Example pipeline from Jsonnet\",\"notifications\":[],\"stages\":[],\"triggers\":[]}\n\njsonnetpt (Example pipeline template from Jsonnet) (pipelinetemplate)\n@ []\n- null\n+ {\"id\":\"jsonnetpt\",\"metadata\":{\"description\":\"Example pipeline template created from Jsonnet file.\",\"name\":\"Example pipeline template from Jsonnet\",\"owner\":\"floodgate@example.com\",\"scopes\":[\"global\"]},\"protect\":false,\"schema\":\"v2\",\"variables\":[]}\n\nend diff"
+var compareWant = "jsonapp (application)\n@ []\n- null\n+ {\"cloudProviders\":\"kubernetes\",\"dataSources\":{\"disabled\":[],\"enabled\":[]},\"description\":\"Example application created from JSON file.\",\"email\":\"example@example.com\",\"name\":\"jsonapp\",\"platformHealthOnly\":false,\"platformHealthOnlyShowOverride\":false,\"providerSettings\":{\"aws\":{\"useAmiBlockDeviceMappings\":false},\"gce\":{\"associatePublicIpAddress\":false}},\"trafficGuards\":[],\"user\":\"floodgate@example.com\"}\n\njsonnetpipeline (Example pipeline from Jsonnet) (pipeline)\n@ []\n- null\n+ {\"application\":\"jsonnetapp\",\"id\":\"jsonnetpipeline\",\"keepWaitingPipelines\":false,\"limitConcurrent\":true,\"name\":\"Example pipeline from Jsonnet\",\"notifications\":[],\"stages\":[],\"triggers\":[]}\n\njsonnetpt (Example pipeline template from Jsonnet) (pipelinetemplate)\n@ []\n- null\n+ {\"id\":\"jsonnetpt\",\"metadata\":{\"description\":\"Example pipeline template created from Jsonnet file.\",\"name\":\"Example pipeline template from Jsonnet\",\"owner\":\"floodgate@example.com\",\"scopes\":[\"global\"]},\"protect\":false,\"schema\":\"v2\",\"variables\":[]}"
