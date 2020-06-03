@@ -27,6 +27,6 @@ func NewVersionCmd(out io.Writer) *cobra.Command {
 }
 
 func runVersion(cmd *cobra.Command, options renderOptions) error {
-	fmt.Printf(version.BuildInfo())
+	fmt.Fprintf(cmd.OutOrStdout(), version.BuildInfo())
 	return nil
 }

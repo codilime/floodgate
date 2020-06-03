@@ -46,7 +46,7 @@ func runSync(cmd *cobra.Command, options syncOptions) error {
 	}
 	if options.dryRun {
 		changes := resourceManager.GetChanges()
-		printChangedResources(changes)
+		printChangedResources(cmd.OutOrStdout(), changes)
 	} else {
 		if err := resourceManager.SyncResources(); err != nil {
 			return err
@@ -55,8 +55,8 @@ func runSync(cmd *cobra.Command, options syncOptions) error {
 	return nil
 }
 
-func printChangedResources(changes []rm.ResourceChange) {
-	fmt.Println("Following resources are changed:")
+func printChangedResources(out io.Writer, changes []rm.ResourceChange) {
+	fmt.Fprintln(out, "Following resources are changed:")
 	for _, change := range changes {
 		var line string
 		if change.ID != "" {
@@ -64,9 +64,9 @@ func printChangedResources(changes []rm.ResourceChange) {
 		} else {
 			line = fmt.Sprintf("Resource: %s", change.Name)
 		}
-		fmt.Println(line)
-		fmt.Println("Type:", change.Type)
-		fmt.Println("Changes:")
-		fmt.Println(change.Changes)
+		fmt.Fprintln(out, line)
+		fmt.Fprintln(out, "Type:", change.Type)
+		fmt.Fprintln(out, "Changes:")
+		fmt.Fprintln(out, change.Changes)
 	}
 }

@@ -52,12 +52,10 @@ func LoadConfig(locations ...string) (*Config, error) {
 
 	configFile, err := ioutil.ReadFile(location)
 	if err != nil {
-		log.Fatal(err)
 		return nil, err
 	}
 	err = yaml.Unmarshal(configFile, &conf)
 	if err != nil {
-		log.Fatal(err)
 		return nil, err
 	}
 

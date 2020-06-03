@@ -46,11 +46,12 @@ func runCompare(cmd *cobra.Command, options compareOptions) error {
 	if len(changes) == 0 {
 		return nil
 	}
-	printCompareDiff(changes)
+
+	printCompareDiff(cmd.OutOrStdout(), changes)
 	return errors.New("end diff")
 }
 
-func printCompareDiff(changes []rm.ResourceChange) {
+func printCompareDiff(out io.Writer, changes []rm.ResourceChange) {
 	for _, change := range changes {
 		var line string
 		if change.ID != "" {
@@ -58,7 +59,7 @@ func printCompareDiff(changes []rm.ResourceChange) {
 		} else {
 			line = fmt.Sprintf("%s (%s)", change.Name, change.Type)
 		}
-		fmt.Println(line)
-		fmt.Println(change.Changes)
+		fmt.Fprintln(out, line)
+		fmt.Fprintln(out, change.Changes)
 	}
 }
