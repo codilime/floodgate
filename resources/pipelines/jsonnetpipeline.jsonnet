@@ -27,8 +27,7 @@ local deployment = {
             "image": "nginx:latest",
             "ports": [
               {
-                "containerPort": 80,
-		"": ""
+                "containerPort": 80
 	      }
             ]
           }
