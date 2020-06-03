@@ -203,6 +203,9 @@ jobs:
       floodgate_extra_params:
         type: string
         default: ""
+      pipelines_to_trigger:
+        type: string
+        default: ""
     machine:
       image: ubuntu-1604:202004-01
     steps:
@@ -252,6 +255,12 @@ jobs:
             /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml sync
             echo "Compare changes - synced resources"
             /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml compare
+      - run:
+          name: Trigger pipelines
+          command: |
+            for pipeline in << parameters.pipelines_to_trigger >>
+              do curl -X POST -H "content-type: application/json" -d "{ }" http://spinnaker/api/v1/webhooks/webhook/$pipeline
+            done
 
 workflows:
   periodic:
@@ -337,5 +346,6 @@ workflows:
       - start_spinnaker:
           name: test floodgate with working spinnaker
           floodgate_extra_params: "-q"
+          pipelines_to_trigger: "deploy_nginx"
           requires:
             - build
