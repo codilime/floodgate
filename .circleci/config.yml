@@ -95,6 +95,10 @@ jobs:
       build_arch:
         type: string
         default: amd64
+      send_coverity:
+        type: enum
+        default: send
+        enum: ["send", "dont-send"]
     docker:
       - image: circleci/golang:1.14.1
         environment:
@@ -143,11 +147,17 @@ jobs:
           command: |
             go tool cover -func cover.out | tee codecoverage.txt
             CURRENTCODECOVERAGE=$(grep 'total:' codecoverage.txt | awk '{print substr($3, 1, length($3)-1)}')
-            curl \
-              --header "Authorization: Token ${SERIESCI_TOKEN}" \
-              --header "Content-Type: application/json" \
-              --data "{\"value\":\"${CURRENTCODECOVERAGE} %\",\"sha\":\"${CIRCLE_SHA1}\"}" \
-              https://seriesci.com/api/codilime/floodgate/coverage/one
+            echo "Send coverity report to SeriesCI"
+            if [[ "<< parameters.send_coverity >>" == "send" ]]
+            then
+              curl \
+                --header "Authorization: Token ${SERIESCI_TOKEN}" \
+                --header "Content-Type: application/json" \
+                --data "{\"value\":\"${CURRENTCODECOVERAGE} %\",\"sha\":\"${CIRCLE_SHA1}\"}" \
+                https://seriesci.com/api/codilime/floodgate/coverage/one
+            else
+              echo "Skipping"
+            fi
             if [ ${CURRENTCODECOVERAGE%.*} -lt ${REQUIREDCODECOVERAGE} ]
             then
                 echo "Not enough code coverage!"
@@ -232,10 +242,15 @@ jobs:
       - run:
           name: Test Floodgate against running Spinnaker instance
           command: |
+            echo "Print version using version flag"
             /floodgate/bin/floodgate --version
+            echo "Print version using version command"
             /floodgate/bin/floodgate version
+            echo "Comare changes - clean Spinnaker"
             /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml compare && exit 1 || echo "Found changes"
+            echo "Apply local resources"
             /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml sync
+            echo "Compare changes - synced resources"
             /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml compare
 
 workflows:
@@ -256,6 +271,7 @@ workflows:
           name: build for linux against gate << matrix.gate_api_branch >>
           build_os: linux
           build_arch: amd64
+          send_coverity: dont-send
           matrix:
             parameters: *gate-versions
           requires:
@@ -264,6 +280,7 @@ workflows:
           name: build for osx against gate << matrix.gate_api_branch >>
           build_os: darwin
           build_arch: amd64
+          send_coverity: dont-send
           matrix:
             parameters: *gate-versions
           requires:
