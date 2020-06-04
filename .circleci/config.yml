@@ -258,8 +258,33 @@ jobs:
       - run:
           name: Trigger pipelines
           command: |
-            for pipeline in << parameters.pipelines_to_trigger >>
-              do curl -X POST -H "content-type: application/json" -d "{ }" http://spinnaker/api/v1/webhooks/webhook/$pipeline
+            for PIPELINE in deploy_nginx ; do
+              EVENT_ID=`curl -s -X POST -H "content-type: application/json" -d "{ }" http://spinnaker/api/v1/webhooks/webhook/$PIPELINE | jq -r .eventId`
+              PASS=`cat ~/.hal/default/profiles/gate-local.yml | grep password`
+              PASS=${PASS#*:\ }
+              USER=`cat ~/.hal/default/profiles/gate-local.yml | grep name`
+              USER=${USER#*:\ }
+              ALL_APPS=`curl -s -X GET --user "$USER:$PASS" "http://spinnaker/api/v1/applications" | jq -r .[].name`
+              MAX_ATTEMPTS=10
+              for APP in ALL_APPS ; do
+                PIPELINE_NAME=`curl -s -X GET --user "$USER:$PASS" "http://spinnaker/api/v1/applications/$APP/executions/search?triggerTypes=webhook&eventId=$EVENT_ID" | jq -r .[].name`
+                ATTEMPTS=0
+                  until [ $ATTEMPTS -eq $MAX_ATTEMPTS ] ; do
+                  STATUS=`curl -s -X GET --user "$USER:$PASS" "http://spinnaker/api/v1/applications/$APP/executions/search?triggerTypes=webhook&eventId=$EVENT_ID" | jq -r .[].status`
+                  if [ -n $STATUS ] && [[ $STATUS != "SUCCEEDED" ]] ; then
+                    echo "$PIPELINE_NAME exited with status $STATUS"
+                    exit 1
+                  elif [ -n $STATUS ] && [[ $STATUS == "SUCCEEDED" ]] ; then
+                    echo "$PIPELINE_NAME succeded"
+                    break
+                  else
+                    echo "Waiting for pipeline to finish"
+                    sleep 3
+                  fi
+                  ((ATTEMPTS++))
+                done
+                [ $ATTEMPTS -lt $MAX_ATTEMPTS ]
+              done
             done
 
 workflows:
