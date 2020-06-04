@@ -3,6 +3,10 @@
 EXEC_DIR=$(dirname "$0")
 HAL_VERSION=${HAL_VERSION:-1.35.0}
 
+# Install packages
+sudo apt update
+sudo apt install -y jq
+
 # Install Halyard
 curl -O https://raw.githubusercontent.com/spinnaker/halyard/master/install/debian/InstallHalyard.sh
 USERNAME=`whoami`
