@@ -1,6 +1,6 @@
 local pipelines = import 'pipeline.libsonnet';
 
-local deployment = import 'deploy.json';
+local deployment = import 'deployNginx.json';
 
 local app = "jsonnetapp";
 local webhookTrigger(name, source) = pipelines.triggers
