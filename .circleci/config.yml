@@ -262,6 +262,7 @@ jobs:
               echo "Triggering pipeline with source $PIPELINE"
               EVENT_ID=`curl -s -X POST -H "content-type: application/json" -d "{ }" http://spinnaker/api/v1/webhooks/webhook/$PIPELINE | jq -r .eventId`
               echo "eventId: $EVENT_ID"
+              sleep 5 # Let pipeline start
               PASS=`cat ~/.hal/default/profiles/gate-local.yml | grep password`
               PASS=${PASS#*:\ }
               USER=`cat ~/.hal/default/profiles/gate-local.yml | grep name`
