@@ -53,6 +53,12 @@ func (p Pipeline) ID() string {
 	return p.id
 }
 
+// LoadRemoteStateByName load resource's remote state from Spinnaker by provided name
+func (p *Pipeline) LoadRemoteStateByName(spinnakerAPI *gc.GateapiClient, name string) error {
+	p.name = name
+	return p.LoadRemoteState(spinnakerAPI)
+}
+
 // LoadRemoteState load resource's remote state from Spinnaker
 func (p *Pipeline) LoadRemoteState(spinnakerAPI *gc.GateapiClient) error {
 	successPayload, resp, err := spinnakerAPI.ApplicationControllerApi.GetPipelineConfigUsingGET(spinnakerAPI.Context, p.application, p.name)

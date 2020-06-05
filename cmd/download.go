@@ -2,6 +2,7 @@ package cmd
 
 import (
 	c "github.com/codilime/floodgate/config"
+	pm "github.com/codilime/floodgate/projectmanager"
 	"github.com/spf13/cobra"
 	"io"
 )
@@ -17,7 +18,7 @@ func NewDownloadCmd(out io.Writer) *cobra.Command {
 	options := downloadOptions{}
 	cmd := &cobra.Command{
 		Use:   "download",
-		Short: "Download spinnaker resources",
+		Short: "Download all resources related to provided project name",
 		Long:  "Download all resources related to provided project name",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runDownload(cmd, options)
@@ -37,8 +38,14 @@ func runDownload(cmd *cobra.Command, options downloadOptions) error {
 	if err != nil {
 		return err
 	}
-	//config, err :=
-	_, err = c.LoadConfig(configPath)
+
+	config, err := c.LoadConfig(configPath)
+	if err != nil {
+		return err
+	}
+
+	projectManager := pm.ProjectManager{}
+	err = projectManager.Init(config, options.projectName)
 	if err != nil {
 		return err
 	}

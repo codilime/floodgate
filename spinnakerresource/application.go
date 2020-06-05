@@ -44,6 +44,12 @@ func (a Application) Name() string {
 	return a.name
 }
 
+// LoadRemoteStateByName load resource's remote state from Spinnaker by provided name
+func (a *Application) LoadRemoteStateByName(spinnakerAPI *gc.GateapiClient, name string) error {
+	a.name = name
+	return a.LoadRemoteState(spinnakerAPI)
+}
+
 // LoadRemoteState load resource's remote state from Spinnaker
 func (a *Application) LoadRemoteState(spinnakerAPI *gc.GateapiClient) error {
 	var optionals gateapi.GetApplicationUsingGETOpts
