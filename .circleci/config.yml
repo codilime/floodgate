@@ -292,8 +292,9 @@ jobs:
                   fi
                   ((++ATTEMPTS))
                 done
-                if [ $ATTEMPTS -lt $MAX_ATTEMPTS ] ; then
+                if [ $ATTEMPTS -ge $MAX_ATTEMPTS ] ; then
                   echo "Check timed out"
+                  exit 1
                 fi
               done
             done
