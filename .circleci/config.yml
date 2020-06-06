@@ -258,47 +258,7 @@ jobs:
       - run:
           name: Trigger pipelines
           command: |
-            for PIPELINE in << parameters.pipelines_to_trigger >> ; do
-              echo "Triggering pipeline with source $PIPELINE"
-              EVENT_ID=`curl -s -X POST -H "content-type: application/json" -d "{ }" http://spinnaker/api/v1/webhooks/webhook/$PIPELINE | jq -r .eventId`
-              echo "eventId: $EVENT_ID"
-              sleep 5 # Let pipeline start
-              PASS=`cat ~/.hal/default/profiles/gate-local.yml | grep password`
-              PASS=${PASS#*:\ }
-              USER=`cat ~/.hal/default/profiles/gate-local.yml | grep name`
-              USER=${USER#*:\ }
-              ALL_APPS=`curl -s -X GET --user "$USER:$PASS" "http://spinnaker/api/v1/applications" | jq -r .[].name`
-              MAX_ATTEMPTS=20
-              for APP in $ALL_APPS ; do
-                PIPELINE_NAME=`curl -s -X GET --user "$USER:$PASS" "http://spinnaker/api/v1/applications/$APP/executions/search?triggerTypes=webhook&eventId=$EVENT_ID" | jq -r .[].name`
-                ATTEMPTS=0
-                while [[ $PIPELINE_NAME != "" ]] &&  [ $ATTEMPTS -lt $MAX_ATTEMPTS ] ; do
-                  echo "Checking pipeline $PIPELINE_NAME status"
-                  STATUS=`curl -s -X GET --user "$USER:$PASS" "http://spinnaker/api/v1/applications/$APP/executions/search?triggerTypes=webhook&eventId=$EVENT_ID" | jq -r .[].status`
-                  if [ -n $STATUS ] && [[ $STATUS == "NOT_STARTED" ]] ; then
-                    echo "Waiting for pipeline $PIPELINE_NAME to start"
-                    sleep 3
-                  elif [ -n $STATUS ] && [[ $STATUS == "RUNNING" ]] ; then
-                    echo "Waiting for pipeline $PIPELINE_NAME to finish"
-                    sleep 3
-                  elif [ -n $STATUS ] && [[ $STATUS != "SUCCEEDED" ]]  ; then
-                    echo "Pipeline $PIPELINE_NAME exited with status $STATUS"
-                    exit 1
-                  elif [ -n $STATUS ] && [[ $STATUS == "SUCCEEDED" ]] ; then
-                    echo "$Pipeline PIPELINE_NAME succeded"
-                    break
-                  else
-                    echo "Status of pipeline is: $STATUS"
-                    exit 1
-                  fi
-                  ((++ATTEMPTS))
-                done
-                if [ $ATTEMPTS -ge $MAX_ATTEMPTS ] ; then
-                  echo "Check timed out"
-                  exit 1
-                fi
-              done
-            done
+            .circleci/libs/trigger-pipelines.sh << parameters.pipelines_to_trigger >>
 
 workflows:
   periodic:
