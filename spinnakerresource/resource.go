@@ -133,8 +133,6 @@ type Resourcer interface {
 	RemoteState() []byte
 	// LoadRemoteState load resource's remote state from Spinnaker
 	LoadRemoteState(spinnakerAPI *gateclient.GateapiClient) error
-	// LoadRemoteStateByName load resource's remote state from Spinnaker by provided name
-	LoadRemoteStateByName(spinnakerAPI *gateclient.GateapiClient, name string) error
 	// SaveLocalState save resource's local state to Spinnaker
 	SaveLocalState(spinnakerAPI *gateclient.GateapiClient) error
 }

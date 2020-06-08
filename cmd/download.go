@@ -45,8 +45,12 @@ func runDownload(cmd *cobra.Command, options downloadOptions) error {
 	}
 
 	projectManager := pm.ProjectManager{}
-	err = projectManager.Init(config, options.projectName)
-	if err != nil {
+
+	if err := projectManager.Init(config, options.projectName); err != nil {
+		return err
+	}
+
+	if err := projectManager.SaveResources(options.outDir); err != nil {
 		return err
 	}
 

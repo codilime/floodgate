@@ -54,8 +54,12 @@ func (p Pipeline) ID() string {
 }
 
 // LoadRemoteStateByName load resource's remote state from Spinnaker by provided name
-func (p *Pipeline) LoadRemoteStateByName(spinnakerAPI *gc.GateapiClient, name string) error {
+func (p *Pipeline) LoadRemoteStateByName(spinnakerAPI *gc.GateapiClient, id, application, name string) error {
 	p.name = name
+	p.application = application
+	p.id = id
+	p.Resource = &Resource{}
+
 	return p.LoadRemoteState(spinnakerAPI)
 }
 

@@ -51,12 +51,6 @@ func (pt PipelineTemplate) Name() string {
 	return pt.name
 }
 
-// LoadRemoteStateByName load resource's remote state from Spinnaker by provided name
-func (pt *PipelineTemplate) LoadRemoteStateByName(spinnakerAPI *gc.GateapiClient, name string) error {
-	pt.name = name
-	return pt.LoadRemoteState(spinnakerAPI)
-}
-
 // LoadRemoteState load resource's remote state from Spinnaker
 func (pt *PipelineTemplate) LoadRemoteState(spinnakerAPI *gc.GateapiClient) error {
 	successPayload, resp, err := spinnakerAPI.V2PipelineTemplatesControllerApi.GetUsingGET2(spinnakerAPI.Context, pt.id, nil)
