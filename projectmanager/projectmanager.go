@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 )
 
+// ProjectManager stores resources and data for specified project and has methods for access, saving.
 type ProjectManager struct {
 	resources         spr.SpinnakerResources
 	client            *gc.GateapiClient
@@ -19,6 +20,7 @@ type ProjectManager struct {
 	pipelineConfigIds []string
 }
 
+// Init initializes ProjectManager
 func (pm *ProjectManager) Init(config *c.Config, projectName string) error {
 	pm.projectName = projectName
 	pm.client = gc.NewGateapiClient(config)
