@@ -59,19 +59,23 @@ func (pm *ProjectManager) getApplications() error {
 		}
 	}
 
-	for _, appName := range projectConfig["applications"].([]interface{}) {
-		app := spr.Application{}
-		err := app.LoadRemoteStateByName(pm.client, appName.(string))
-		if err != nil {
-			return err
-		}
+	if apps, exists := projectConfig["applications"]; exists {
+		for _, appName := range apps.([]interface{}) {
+			app := spr.Application{}
+			err := app.LoadRemoteStateByName(pm.client, appName.(string))
+			if err != nil {
+				return err
+			}
 
-		pm.resources.Applications = append(pm.resources.Applications, &app)
+			pm.resources.Applications = append(pm.resources.Applications, &app)
+		}
 	}
 
-	for _, pipelineConfig := range projectConfig["pipelineConfigs"].([]interface{}) {
-		pc := pipelineConfig.(map[string]interface{})
-		pm.pipelineConfigIds = append(pm.pipelineConfigIds, pc["pipelineConfigId"].(string))
+	if pc, exists := projectConfig["pipelineConfigs"]; exists {
+		for _, pipelineConfig := range pc.([]interface{}) {
+			pc := pipelineConfig.(map[string]interface{})
+			pm.pipelineConfigIds = append(pm.pipelineConfigIds, pc["pipelineConfigId"].(string))
+		}
 	}
 
 	return nil
