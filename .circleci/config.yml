@@ -7,6 +7,8 @@ aliases:
       default: release-1.20.x
   supported-spinnaker-releases: &gate-versions
     gate_api_branch: [ "release-1.20.x", "release-1.19.x", "release-1.18.x" ]
+  supported-client-os: &build-os-type
+    build_os: [ "linux", "darwin" ]
   release-filters: &filters-release
     filters:
       branches:
@@ -268,21 +270,13 @@ workflows:
           matrix:
             parameters: *gate-versions
       - build:
-          name: build for linux against gate << matrix.gate_api_branch >>
-          build_os: linux
+          name: build for << matrix.build_os >> against gate << matrix.gate_api_branch >>
           build_arch: amd64
           send_coverity: dont-send
           matrix:
-            parameters: *gate-versions
-          requires:
-            - generate swagger api << matrix.gate_api_branch >>
-      - build:
-          name: build for osx against gate << matrix.gate_api_branch >>
-          build_os: darwin
-          build_arch: amd64
-          send_coverity: dont-send
-          matrix:
-            parameters: *gate-versions
+            parameters:
+              <<: *gate-versions
+              <<: *build-os-type
           requires:
             - generate swagger api << matrix.gate_api_branch >>
       - start_spinnaker:
@@ -302,20 +296,13 @@ workflows:
 
       - build:
           <<: *filters-release
-          name: build for linux against gate << matrix.gate_api_branch >>
-          build_os: linux
+          name: build for << matrix.build_os >> against gate << matrix.gate_api_branch >>
           build_arch: amd64
+          send_coverity: dont-send
           matrix:
-            parameters: *gate-versions
-          requires:
-            - generate swagger api << matrix.gate_api_branch >>
-      - build:
-          <<: *filters-release
-          name: build for osx against gate << matrix.gate_api_branch >>
-          build_os: darwin
-          build_arch: amd64
-          matrix:
-            parameters: *gate-versions
+            parameters:
+              <<: *gate-versions
+              <<: *build-os-type
           requires:
             - generate swagger api << matrix.gate_api_branch >>
       - start_spinnaker:
