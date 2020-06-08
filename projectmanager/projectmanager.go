@@ -93,8 +93,8 @@ func (pm *ProjectManager) getApplications() error {
 
 	for _, pipelineConfig := range pipelines {
 		if pc, ok := pipelineConfig.(map[string]interface{}); ok {
-			if configId, ok := pc["pipelineConfigId"].(string); ok {
-				pm.pipelineConfigIds = append(pm.pipelineConfigIds, configId)
+			if configID, ok := pc["pipelineConfigId"].(string); ok {
+				pm.pipelineConfigIds = append(pm.pipelineConfigIds, configID)
 			}
 		}
 	}
@@ -118,9 +118,9 @@ func (pm *ProjectManager) getPipelines() error {
 			}
 
 			for _, id := range pm.pipelineConfigIds {
-				pipelineConfigId, okId := pipelineConfig["id"].(string)
+				pipelineConfigID, okID := pipelineConfig["id"].(string)
 				pipelineConfigName, okName := pipelineConfig["name"].(string)
-				if okId && okName && pipelineConfigId == id {
+				if okID && okName && pipelineConfigID == id {
 					p := &spr.Pipeline{}
 					err := p.LoadRemoteStateByName(pm.client, id, app.Name(), pipelineConfigName)
 					if err != nil {
