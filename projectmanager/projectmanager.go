@@ -2,6 +2,7 @@ package projectmanager
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	c "github.com/codilime/floodgate/config"
 	gc "github.com/codilime/floodgate/gateclient"
@@ -52,6 +53,9 @@ func (pm *ProjectManager) getApplications() error {
 	}
 
 	var projectConfig map[string]interface{}
+	var apps []interface{}
+	var pipelines []interface{}
+
 	if _, exists := payload["config"]; exists {
 		config, ok := payload["config"].(map[string]interface{})
 		if ok {
@@ -59,10 +63,26 @@ func (pm *ProjectManager) getApplications() error {
 		}
 	}
 
-	if apps, exists := projectConfig["applications"]; exists {
-		for _, appName := range apps.([]interface{}) {
+	if _, exists := projectConfig["applications"]; exists {
+		applications, ok := projectConfig["applications"].([]interface{})
+		if ok {
+			apps = applications
+		}
+
+	}
+
+	if _, exists := projectConfig["pipelineConfigs"]; exists {
+		pc, ok := projectConfig["pipelineConfigs"].([]interface{})
+		if ok {
+			pipelines = pc
+		}
+	}
+
+	for _, appName := range apps {
+		appName, ok := appName.(string)
+		if ok {
 			app := spr.Application{}
-			err := app.LoadRemoteStateByName(pm.client, appName.(string))
+			err := app.LoadRemoteStateByName(pm.client, appName)
 			if err != nil {
 				return err
 			}
@@ -71,10 +91,11 @@ func (pm *ProjectManager) getApplications() error {
 		}
 	}
 
-	if pc, exists := projectConfig["pipelineConfigs"]; exists {
-		for _, pipelineConfig := range pc.([]interface{}) {
-			pc := pipelineConfig.(map[string]interface{})
-			pm.pipelineConfigIds = append(pm.pipelineConfigIds, pc["pipelineConfigId"].(string))
+	for _, pipelineConfig := range pipelines {
+		if pc, ok := pipelineConfig.(map[string]interface{}); ok {
+			if configId, ok := pc["pipelineConfigId"].(string); ok {
+				pm.pipelineConfigIds = append(pm.pipelineConfigIds, configId)
+			}
 		}
 	}
 
@@ -91,11 +112,17 @@ func (pm *ProjectManager) getPipelines() error {
 		}
 
 		for _, pipeline := range payload {
-			pipelineConfig := pipeline.(map[string]interface{})
+			pipelineConfig, ok := pipeline.(map[string]interface{})
+			if !ok {
+				return errors.New("malformed data from spinnaker")
+			}
+
 			for _, id := range pm.pipelineConfigIds {
-				if pipelineConfig["id"].(string) == id {
+				pipelineConfigId, okId := pipelineConfig["id"].(string)
+				pipelineConfigName, okName := pipelineConfig["name"].(string)
+				if okId && okName && pipelineConfigId == id {
 					p := &spr.Pipeline{}
-					err := p.LoadRemoteStateByName(pm.client, id, app.Name(), pipelineConfig["name"].(string))
+					err := p.LoadRemoteStateByName(pm.client, id, app.Name(), pipelineConfigName)
 					if err != nil {
 						return err
 					}
@@ -104,6 +131,7 @@ func (pm *ProjectManager) getPipelines() error {
 			}
 		}
 	}
+
 	return nil
 }
 
