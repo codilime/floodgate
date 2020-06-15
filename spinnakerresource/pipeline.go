@@ -124,8 +124,7 @@ func (p Pipeline) validate(localData map[string]interface{}) error {
 	// template is optional key, but it requires defined schema
 	err := util.AssertMapKeyIsStringMap(localData, "template", true)
 	if err == nil {
-		template := localData["template"].(map[string]interface{})
-		if err := util.AssertMapKeyIsString(template, "schema", true); err != nil {
+		if err := util.AssertMapKeyIsString(localData, "schema", true); err != nil {
 			return err
 		}
 	}
