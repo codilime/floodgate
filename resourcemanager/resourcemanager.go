@@ -56,6 +56,10 @@ func (rm *ResourceManager) Init(config *c.Config, customOptions ...Option) error
 	return nil
 }
 
+func (rm ResourceManager) GetResources() spr.SpinnakerResources {
+	return rm.resources
+}
+
 // GetChanges get resources' changes
 func (rm ResourceManager) GetChanges() (changes []ResourceChange) {
 	for _, application := range rm.resources.Applications {
