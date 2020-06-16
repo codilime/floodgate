@@ -7,7 +7,7 @@
 
 ## Motivation
 
-This project integrates multiple parts of "as-code" experience in Spinnaker, eg. API, Sponnet, Pipeline Templates for a complete GitOps workflow. 
+This project integrates multiple parts of "as-code" experience in Spinnaker, e.g. API, Sponnet, Pipeline Templates for a complete GitOps workflow. 
 
 ## Features
 
