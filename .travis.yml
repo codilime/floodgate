@@ -1,0 +1,19 @@
+dist: xenial
+language: go
+go:
+  - 1.14.1
+
+services:
+  - docker
+
+before_script:
+  - docker pull openjdk:11.0.3-stretch
+  - docker run -w /workspace -v .:/workspace --entrypoint /workspace/.travisci/generate_swagger.sh --rm openjdk:11.0.3-stretch 
+    
+script:
+  - docker pull golang:1.14.1-stretch
+  - docker run -w /workspace -v .:/workspace --entrypoint /workspace/.travisci/build.sh --rm golang:1.14.1-stretch
+
+after_success:
+  - .travisci/start_spinnaker.sh
+
