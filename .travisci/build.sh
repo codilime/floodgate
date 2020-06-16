@@ -58,8 +58,8 @@ do
 done
 
 echo "Copy binaries for later use"
-sudo mkdir -p /floodgate/bin
-sudo chmod 777 /floodgate/bin
+mkdir -p /floodgate/bin
+chmod 777 /floodgate/bin
 cp /go/src/github.com/codilime/floodgate/floodgate /floodgate/bin/floodgate
 
 echo "Generate checksum"
