@@ -1,11 +1,23 @@
-#!/bin/bash
+#!/bin/bash -ex
 
-GATE_VERSION=$1
+GATE_VERSION=release-1.20.x
 BUILD_OS=linux
 BUILD_ARCH=amd64
 
-echo "Remove gateapi dir"
-rm -r gateapi
+
+while getopts "o:a:g" opt; do
+  case ${opt} in
+    o) #Build OS
+      BUILD_OS=${OPTARG}
+      ;;
+    a) #Build arch
+      BUILD_ARCH=${OPTARG}
+      ;;
+    g) #Gate version
+      GATE_VERSION=${OPTARG}
+      ;;
+  esac
+done
 
 echo "Get dependencies"
 go mod download
@@ -60,6 +72,7 @@ done
 echo "Copy binaries for later use"
 mkdir -p /floodgate/bin
 chmod 777 /floodgate/bin
+ls
 cp /go/src/github.com/codilime/floodgate/floodgate /floodgate/bin/floodgate
 
 echo "Generate checksum"
