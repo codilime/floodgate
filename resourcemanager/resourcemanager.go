@@ -56,7 +56,7 @@ func (rm *ResourceManager) Init(config *c.Config, customOptions ...Option) error
 	return nil
 }
 
-// GetChanges get resources' changes
+// GetChanges get resource's changes
 func (rm ResourceManager) GetChanges() (changes []ResourceChange) {
 	for _, application := range rm.resources.Applications {
 		var change string

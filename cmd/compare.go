@@ -19,8 +19,8 @@ func NewCompareCmd(out io.Writer) *cobra.Command {
 	options := compareOptions{}
 	cmd := &cobra.Command{
 		Use:   "compare",
-		Short: "Compare local resources' definitions with Spinnaker and show discrepancies",
-		Long:  "Compare local resources' definitions with Spinnaker and show discrepancies",
+		Short: "Compare local resource's definitions with Spinnaker and show discrepancies",
+		Long:  "Compare local resource's definitions with Spinnaker and show discrepancies",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runCompare(cmd, options)
 		},

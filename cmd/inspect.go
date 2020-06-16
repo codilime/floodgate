@@ -18,8 +18,8 @@ func NewInspectCmd(out io.Writer) *cobra.Command {
 	options := inspectOptions{}
 	cmd := &cobra.Command{
 		Use:   "inspect",
-		Short: "Inspect resources' status on Spinnaker",
-		Long:  "Inspect resources' status on Spinnaker",
+		Short: "Inspect resource's status on Spinnaker",
+		Long:  "Inspect resource's status on Spinnaker",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runInspect(cmd, options)
 		},

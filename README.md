@@ -105,10 +105,10 @@ Usage:
    [command]
 
 Available Commands:
-  compare     Compare local resources' definitions with Spinnaker and show discrepancies
+  compare     Compare local resource's definitions with Spinnaker and show discrepancies
   help        Help about any command
   hydrate     Hydrate pipeline templates with configurations and preview the result
-  inspect     Inspect resources' status on Spinnaker
+  inspect     Inspect resource's status on Spinnaker
   render      Render Jsonnet files
   synchronize Synchronize resources to Spinnaker
 
