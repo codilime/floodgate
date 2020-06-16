@@ -16,7 +16,7 @@ sha1sum -c swagger-codegen-cli.jar.sha1
 mv swagger-codegen-cli.jar /floodgate/bin/
 
 echo "Get gate code"
-git clone https://github.com/spinnaker/gate.git -b ${GATE_API_BRANCH} >> /floodgate/gate
+git clone https://github.com/spinnaker/gate.git -b ${GATE_API_BRANCH} /floodgate/gate
 
 echo "Generate swagger.json"
 cd /floodgate/gate

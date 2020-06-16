@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 GATE_API_BRANCH=$1
 FLOODGATE_EXTRA_PARAMS=""
