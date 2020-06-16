@@ -8,11 +8,12 @@ services:
 
 before_script:
   - docker pull openjdk:11.0.3-stretch
-  - docker run -w /workspace -v `pwd`:/workspace --entrypoint /workspace/.travisci/generate_swagger.sh --rm openjdk:11.0.3-stretch 
+  - docker run -u root -w /workspace -v `pwd`:/workspace --entrypoint /workspace/.travisci/generate_swagger.sh --rm openjdk:11.0.3-stretch 
     
 script:
   - docker pull golang:1.14.1-stretch
-  - docker run -w /workspace -v `pwd`:/workspace --entrypoint /workspace/.travisci/build.sh --rm golang:1.14.1-stretch
+  - docker run -u root -w /workspace -v `pwd`:/workspace --entrypoint /workspace/.travisci/build.sh --rm golang:1.14.1-stretch
+  - sudo chown $SUDO_USER:$SUDO_USER -R .
 
 after_success:
   - .travisci/start_spinnaker.sh

@@ -3,8 +3,8 @@
 GATE_API_BRANCH=$1
 
 echo "Prepare extra directories"
-sudo mkdir /floodgate
-sudo chmod 777 /floodgate
+mkdir /floodgate
+chmod 777 /floodgate
 mkdir /floodgate/bin
 
 echo "Setup swagger-codegen"
