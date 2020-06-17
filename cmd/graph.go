@@ -11,13 +11,13 @@ import (
 	"net/url"
 )
 
-// renderOptions store render command options
+// graphOptions store render command options
 type graphOptions struct {
 }
 
-// NewVersionCmd create new render command
+// NewGraphCmd create new graph command
 func NewGraphCmd(out io.Writer) *cobra.Command {
-	options := renderOptions{}
+	options := graphOptions{}
 	cmd := &cobra.Command{
 		Use:   "graph",
 		Short: "Print dependency graph",
@@ -42,7 +42,7 @@ func (rv ResourceVertex) String() string {
 	return rv.Label
 }
 
-func runGraph(cmd *cobra.Command, options renderOptions) error {
+func runGraph(cmd *cobra.Command, options graphOptions) error {
 	flags := cmd.InheritedFlags()
 	configPath, err := flags.GetString("config")
 	if err != nil {

@@ -7,7 +7,7 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/goccy/go-graphviz v0.0.5
 	github.com/google/go-jsonnet v0.15.0
-	github.com/heimdalr/dag v0.9.12
+	github.com/hashicorp/terraform v0.12.26
 	github.com/josephburnett/jd v0.0.0-20191228205456-aa1a7c66b42f
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/sirupsen/logrus v1.2.0
