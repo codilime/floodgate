@@ -5,11 +5,13 @@ import (
 	spr "github.com/codilime/floodgate/spinnakerresource"
 	"github.com/goccy/go-graphviz"
 	"github.com/hashicorp/terraform/dag"
+	"net/url"
 )
 
 type ResourceGraph struct {
 	Resources spr.SpinnakerResources
 
+	ResourcesGraph  dag.AcyclicGraph
 	DependencyGraph dag.AcyclicGraph
 }
 
@@ -69,8 +71,32 @@ func (rg *ResourceGraph) CreateDepGraph() {
 	}
 }
 
-func (rg *ResourceGraph) ExportDepGraphToFile(filename string) error {
-	dot := rg.DependencyGraph.Dot(nil)
+func (rg *ResourceGraph) CreateResGraph() {
+	start := rg.ResourcesGraph.Add("Start")
+
+	for _, application := range rg.Resources.Applications {
+		appVert := rg.ResourcesGraph.Add(application.Name())
+		rg.ResourcesGraph.Connect(dag.BasicEdge(start, appVert))
+
+		for _, pipeline := range rg.Resources.Pipelines {
+			pipelineVert := rg.ResourcesGraph.Add(pipeline.Name())
+
+			if pipeline.Application() == application.Name() {
+				rg.ResourcesGraph.Connect(dag.BasicEdge(pipelineVert, appVert))
+			}
+
+			templateRef, _ := url.Parse(pipeline.TemplateReference())
+			for _, pipelineTemplate := range rg.Resources.PipelineTemplates {
+				if templateRef.Host == pipelineTemplate.ID() {
+					ptVert := rg.ResourcesGraph.Add(pipelineTemplate.Name())
+					rg.ResourcesGraph.Connect(dag.BasicEdge(ptVert, pipelineVert))
+				}
+			}
+		}
+	}
+}
+
+func (rg *ResourceGraph) ExportGraphToFile(dot []byte, filename string) error {
 	g := graphviz.New()
 	graph, _ := graphviz.ParseBytes(dot)
 

@@ -1,14 +1,11 @@
 package cmd
 
 import (
-	"bytes"
 	c "github.com/codilime/floodgate/config"
 	rm "github.com/codilime/floodgate/resourcemanager"
-	"github.com/goccy/go-graphviz"
 	"github.com/spf13/cobra"
 	"io"
 	"log"
-	"net/url"
 )
 
 // graphOptions store render command options
@@ -20,8 +17,8 @@ func NewGraphCmd(out io.Writer) *cobra.Command {
 	options := graphOptions{}
 	cmd := &cobra.Command{
 		Use:   "graph",
-		Short: "Print dependency graph",
-		Long:  "Print dependency graph",
+		Short: "Create resources' graph",
+		Long:  "Create resources' graph",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runGraph(cmd, options)
 		},
@@ -59,61 +56,13 @@ func runGraph(cmd *cobra.Command, options graphOptions) error {
 	}
 
 	resources := resourceManager.GetResources()
+	resourceGraph := &rm.ResourceGraph{Resources: resources}
+	resourceGraph.CreateResGraph()
 
-	//d := dag.NewDAG()
-	g := graphviz.New()
-	graph, err := g.Graph()
+	dot := resourceGraph.DependencyGraph.Dot(nil)
+
+	err = resourceGraph.ExportGraphToFile(dot, "resources-graph.png")
 	if err != nil {
-		log.Fatal(err)
-	}
-	//dot, sfdp, neato
-	graph.SetLayout("sfdp")
-
-	defer func() {
-		if err := graph.Close(); err != nil {
-			log.Fatal(err)
-		}
-		g.Close()
-	}()
-
-	for _, application := range resources.Applications {
-		appNodeG, _ := graph.CreateNode(application.Name())
-
-		for _, pipeline := range resources.Pipelines {
-			pipelineNodeN, err := graph.CreateNode(pipeline.Name())
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			if pipeline.Application() == application.Name() {
-				_, err := graph.CreateEdge("dependency", pipelineNodeN, appNodeG)
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
-
-			templateReference, _ := url.Parse(pipeline.TemplateReference())
-			for _, pipelineTemplate := range resources.PipelineTemplates {
-				if templateReference.Host == pipelineTemplate.ID() {
-					pipelineTemplateNode, err := graph.CreateNode(pipelineTemplate.Name())
-					if err != nil {
-						log.Fatal(err)
-					}
-
-					_, err = graph.CreateEdge("dependency", pipelineTemplateNode, pipelineNodeN)
-					if err != nil {
-						log.Fatal(err)
-					}
-				}
-			}
-		}
-	}
-	var buf bytes.Buffer
-	if err := g.Render(graph, "dot", &buf); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := g.RenderFilename(graph, graphviz.PNG, "graph.png"); err != nil {
 		log.Fatal(err)
 	}
 

@@ -47,7 +47,9 @@ func runApply(cmd *cobra.Command, options applyOptions) error {
 	resourceGraph := &rm.ResourceGraph{Resources: resources}
 	resourceGraph.CreateDepGraph()
 
-	err = resourceGraph.ExportDepGraphToFile("graph.png")
+	dot := resourceGraph.DependencyGraph.Dot(nil)
+
+	err = resourceGraph.ExportGraphToFile(dot, "dependency-graph.png")
 	if err != nil {
 		log.Fatal(err)
 	}
