@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 GATE_VERSION=release-1.20.x
 BUILD_OS=linux
