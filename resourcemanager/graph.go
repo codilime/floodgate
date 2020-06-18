@@ -19,10 +19,10 @@ type ResourceGraph struct {
 func (rg *ResourceGraph) CreateDepGraph() {
 	worker1 := rg.DependencyGraph.Add("Worker 1")
 
-	var ptVertex = make(map[string]dag.Vertex)
-	for _, pt := range rg.Resources.PipelineTemplates {
-		ptVertex[pt.ID()] = rg.DependencyGraph.Add(pt.Name())
-	}
+	//var ptVertex = make(map[string]dag.Vertex)
+	//for _, pt := range rg.Resources.PipelineTemplates {
+	//	ptVertex[pt.ID()] = rg.DependencyGraph.Add(pt.Name())
+	//}
 
 	for _, application := range rg.Resources.Applications {
 		appVert := rg.DependencyGraph.Add(application.Name())
