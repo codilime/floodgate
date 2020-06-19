@@ -10,6 +10,7 @@ import (
 
 // applyOptions store render command options
 type applyOptions struct {
+	graph bool
 }
 
 // NewApplyCmd create new apply command
@@ -23,6 +24,7 @@ func NewApplyCmd(out io.Writer) *cobra.Command {
 			return runApply(cmd, options)
 		},
 	}
+	cmd.Flags().BoolVarP(&options.graph, "graph", "g", false, "export dependency graph to png")
 	return cmd
 }
 
@@ -43,15 +45,20 @@ func runApply(cmd *cobra.Command, options applyOptions) error {
 	}
 
 	resources := resourceManager.GetResources()
-
 	resourceGraph := &rm.ResourceGraph{Resources: resources}
-	resourceGraph.CreateDepGraph()
+	resourceGraph.Create()
 
-	dot := resourceGraph.DependencyGraph.Dot(nil)
+	if options.graph {
+		dot := resourceGraph.Graph.Dot(nil)
 
-	err = resourceGraph.ExportGraphToFile(dot, "dependency-graph.png")
-	if err != nil {
-		log.Fatal(err)
+		err = resourceGraph.ExportGraphToFile(dot, "graph.png")
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		if err := resourceGraph.Walk(); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	return nil

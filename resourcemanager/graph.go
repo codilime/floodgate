@@ -2,55 +2,40 @@ package resourcemanager
 
 import (
 	"bytes"
-	"fmt"
 	spr "github.com/codilime/floodgate/spinnakerresource"
 	"github.com/goccy/go-graphviz"
 	"github.com/hashicorp/terraform/dag"
+	"github.com/hashicorp/terraform/tfdiags"
 	"net/url"
+	"sync"
+	"time"
 )
 
 type ResourceGraph struct {
 	Resources spr.SpinnakerResources
 
-	ResourcesGraph  dag.AcyclicGraph
-	DependencyGraph dag.AcyclicGraph
+	Graph dag.AcyclicGraph
 }
 
-func (rg *ResourceGraph) CreateDepGraph() {
-	worker1 := rg.DependencyGraph.Add("Worker 1")
-
-	//var ptVertex = make(map[string]dag.Vertex)
-	//for _, pt := range rg.Resources.PipelineTemplates {
-	//	ptVertex[pt.ID()] = rg.DependencyGraph.Add(pt.Name())
-	//}
+func (rg *ResourceGraph) Create() {
+	start := rg.Graph.Add("Start")
 
 	for _, application := range rg.Resources.Applications {
-		appVert := rg.DependencyGraph.Add(application.Name())
-		rg.DependencyGraph.Connect(dag.BasicEdge(worker1, appVert))
+		appVert := rg.Graph.Add(application.Name())
+		rg.Graph.Connect(dag.BasicEdge(appVert, start))
 
-		rg.handleApplicationDep(application, appVert)
-	}
+		for _, pipeline := range rg.Resources.Pipelines {
+			pipelineVert := rg.Graph.Add(pipeline.Name())
 
-	rg.DependencyGraph.DepthFirstWalk([]dag.Vertex{worker1}, func(vertex dag.Vertex, i int) error {
-		fmt.Println(vertex)
-		return nil
-	})
-}
+			if pipeline.Application() == application.Name() {
+				rg.Graph.Connect(dag.BasicEdge(pipelineVert, appVert))
 
-func (rg *ResourceGraph) handleApplicationDep(application *spr.Application, appVert dag.Vertex) {
-	for _, pipeline := range rg.Resources.Pipelines {
-		pipelineVert := rg.DependencyGraph.Add(pipeline.Name())
-
-		if pipeline.Application() == application.Name() {
-			if pipeline.TemplateReference() == "" {
-				rg.DependencyGraph.Connect(dag.BasicEdge(appVert, pipelineVert))
-			} else {
-				templateReference, _ := url.Parse(pipeline.TemplateReference())
+				templateRef, _ := url.Parse(pipeline.TemplateReference())
 				for _, pipelineTemplate := range rg.Resources.PipelineTemplates {
-					if templateReference.Host == pipelineTemplate.ID() {
-						ptVert := rg.DependencyGraph.Add(pipelineTemplate.Name())
-						rg.DependencyGraph.Connect(dag.BasicEdge(appVert, ptVert))
-						rg.DependencyGraph.Connect(dag.BasicEdge(ptVert, pipelineVert))
+					if templateRef.Host == pipelineTemplate.ID() {
+						ptVert := rg.Graph.Add(pipelineTemplate.Name())
+						rg.Graph.Connect(dag.BasicEdge(ptVert, start))
+						rg.Graph.Connect(dag.BasicEdge(pipelineVert, ptVert))
 					}
 				}
 			}
@@ -58,29 +43,21 @@ func (rg *ResourceGraph) handleApplicationDep(application *spr.Application, appV
 	}
 }
 
-func (rg *ResourceGraph) CreateResGraph() {
-	start := rg.ResourcesGraph.Add("Start")
+func (rg *ResourceGraph) Walk() error {
+	var lock sync.Mutex
+	w := &dag.Walker{
+		Callback: func(vertex dag.Vertex) tfdiags.Diagnostics {
+			lock.Lock()
+			time.Sleep(1 * time.Second)
+			lock.Unlock()
 
-	for _, application := range rg.Resources.Applications {
-		appVert := rg.ResourcesGraph.Add(application.Name())
-		rg.ResourcesGraph.Connect(dag.BasicEdge(start, appVert))
-
-		for _, pipeline := range rg.Resources.Pipelines {
-			pipelineVert := rg.ResourcesGraph.Add(pipeline.Name())
-
-			if pipeline.Application() == application.Name() {
-				rg.ResourcesGraph.Connect(dag.BasicEdge(pipelineVert, appVert))
-			}
-
-			templateRef, _ := url.Parse(pipeline.TemplateReference())
-			for _, pipelineTemplate := range rg.Resources.PipelineTemplates {
-				if templateRef.Host == pipelineTemplate.ID() {
-					ptVert := rg.ResourcesGraph.Add(pipelineTemplate.Name())
-					rg.ResourcesGraph.Connect(dag.BasicEdge(ptVert, pipelineVert))
-				}
-			}
-		}
+			return nil
+		},
+		Reverse: true,
 	}
+	w.Update(&rg.Graph)
+
+	return w.Wait().Err()
 }
 
 func (rg *ResourceGraph) ExportGraphToFile(dot []byte, filename string) error {
