@@ -13,7 +13,7 @@ before_script:
     
 script:
   - docker pull golang:1.14.1-stretch
-  - for o in $BUILD_OS; do for a in $BUILD_ARCH; do docker run -u root -w /go/src/github.com/codilime/floodgate -v `pwd`:/go/src/github.com/codilime/floodgate --entrypoint /go/src/github.com/codilime/floodgate/.cilibs/build.sh --rm golang:1.14.1-stretch -g $GATE_API_BRANCH -o $o -a $a -c $SEND_COVERITY ; done; done
+  - for o in $BUILD_OS; do for a in $BUILD_ARCH; do docker run -e SERIESCI_TOKEN=$SERIESCI_TOKEN -e TRAVIS_COMMIT=$TRAVIS_COMMIT -u root -w /go/src/github.com/codilime/floodgate -v `pwd`:/go/src/github.com/codilime/floodgate --entrypoint /go/src/github.com/codilime/floodgate/.cilibs/build.sh --rm golang:1.14.1-stretch -g $GATE_API_BRANCH -o $o -a $a -c $SEND_COVERITY ; done; done
   - sudo chown $SUDO_USER:$SUDO_USER -R .
   - .cilibs/start_spinnaker.sh -a `echo $BUILD_ARCH | cut -d" " -f1` -o `echo $BUILD_OS | cut -d" " -f1`  -g $GATE_API_BRANCH -e $FLOODGATE_EXTRA_PARAMS
 
