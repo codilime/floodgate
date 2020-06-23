@@ -1,6 +1,8 @@
 #!/bin/bash -e
 
 SEND_COVERITY=$1
+COMMIT_ID="${CIRCLE_SHA1:-$TRAVIS_COMMIT}"
+
 
 echo "Calculate code coverage"
 REQUIREDCODECOVERAGE=60
@@ -13,7 +15,7 @@ then
   curl \
   --header "Authorization: Token ${SERIESCI_TOKEN}" \
   --header "Content-Type: application/json" \
-  --data "{\"value\":\"${CURRENTCODECOVERAGE} %\",\"sha\":\"${CIRCLE_SHA1}\"}" \
+  --data "{\"value\":\"${CURRENTCODECOVERAGE} %\",\"sha\":\"${COMMIT_ID}\"}" \
   https://seriesci.com/api/codilime/floodgate/coverage/one
 else
   echo "Skipping"
