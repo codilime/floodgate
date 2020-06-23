@@ -56,7 +56,7 @@ func runApply(cmd *cobra.Command, options applyOptions) error {
 			log.Fatal(err)
 		}
 	} else {
-		if err := resourceGraph.Walk(); err != nil {
+		if err := resourceGraph.Apply(resourceManager.GetClient()); err != nil {
 			log.Fatal(err)
 		}
 	}
