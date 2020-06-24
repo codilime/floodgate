@@ -10,7 +10,8 @@ import (
 
 // applyOptions store render command options
 type applyOptions struct {
-	graph bool
+	graph                    bool
+	maxConcurrentConnections int
 }
 
 // NewApplyCmd create new apply command
@@ -25,6 +26,7 @@ func NewApplyCmd(out io.Writer) *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolVarP(&options.graph, "graph", "g", false, "export dependency graph to png")
+	cmd.Flags().IntVarP(&options.maxConcurrentConnections, "maxConcurrentConnections", "c", 5, "max concurrent connections to spinnaker")
 	return cmd
 }
 
@@ -56,7 +58,7 @@ func runApply(cmd *cobra.Command, options applyOptions) error {
 			log.Fatal(err)
 		}
 	} else {
-		if err := resourceGraph.Apply(resourceManager.GetClient()); err != nil {
+		if err := resourceGraph.Apply(resourceManager.GetClient(), options.maxConcurrentConnections); err != nil {
 			log.Fatal(err)
 		}
 	}

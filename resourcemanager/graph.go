@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform/tfdiags"
 	log "github.com/sirupsen/logrus"
 	"net/url"
-	"sync"
 )
 
 // ResourceGraph stores resources and graph to be able to save it in spinnaker
@@ -47,11 +46,12 @@ func (rg *ResourceGraph) Create() {
 }
 
 // Apply walks through graph and saves local state in spinnaker
-func (rg *ResourceGraph) Apply(spinnakerAPI *gc.GateapiClient) error {
-	var lock sync.Mutex
+func (rg *ResourceGraph) Apply(spinnakerAPI *gc.GateapiClient, maxConcurrentConn int) error {
+	var sem = make(chan int, maxConcurrentConn)
+
 	w := &dag.Walker{
 		Callback: func(v dag.Vertex) tfdiags.Diagnostics {
-			lock.Lock()
+			sem <- 1
 
 			switch vertex := v.(type) {
 			case *spr.Application:
@@ -79,7 +79,7 @@ func (rg *ResourceGraph) Apply(spinnakerAPI *gc.GateapiClient) error {
 				log.Infof("Unsupported type %T!\n", v)
 			}
 
-			lock.Unlock()
+			<-sem
 			return nil
 		},
 		Reverse: true,
