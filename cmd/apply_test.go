@@ -12,7 +12,16 @@ import (
 func TestApply(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/auth/loggedOut", test.MockGateServerAuthLoggedOutHandler)
+	mux.HandleFunc("/tasks/test", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte("{\"status\": \"SUCCEEDED\"}"))
+	})
+	mux.HandleFunc("/tasks", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte("{\"ref\": \"test/test/test\"}"))
+	})
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		t.Log(r.URL.String())
 		w.Write([]byte("{}"))
 	})
 
@@ -28,22 +37,15 @@ func TestApply(t *testing.T) {
 	cmd := NewRootCmd(b)
 	cmd.SetOut(b)
 
-	cmd.SetArgs([]string{"--config=" + config, "apply", "-g"})
+	cmd.SetArgs([]string{"--config=" + config, "apply"})
 
 	err = cmd.Execute()
 	if err != nil {
 		t.Fatalf("cmd.Apply() Execute err: %v", err)
 	}
 
-	out, err := ioutil.ReadAll(b)
+	_, err = ioutil.ReadAll(b)
 	if err != nil {
 		t.Fatalf("cmd.Apply() Read output err: %v", err)
 	}
-
-	t.Log(out)
-	//
-	//outStr := strings.TrimSpace(string(out))
-	//if outStr != syncDryRunWant {
-	//	t.Errorf("cmd.SyncDryRun() got:\n %s\n want:\n %s\n", outStr, syncDryRunWant)
-	//}
 }
