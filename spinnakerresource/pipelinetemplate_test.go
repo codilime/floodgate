@@ -261,6 +261,38 @@ func TestPipelineTemplate_SaveRemoteState(t *testing.T) {
 	}
 }
 
+func TestPipelineTemplate_Name(t *testing.T) {
+	ts := test.MockGateServerReturn200("")
+	api := test.MockGateapiClient(ts.URL)
+
+	pt := &PipelineTemplate{}
+	err := pt.Init(api, testPipelineTemplate)
+	if err != nil {
+		t.Errorf("Resource.Name() error = %v", err)
+	}
+
+	want := "Test pipeline template"
+	if pt.Name() != want {
+		t.Errorf("Resource.Name() got %s, want %s", pt.Name(), want)
+	}
+}
+
+func TestPipelineTemplate_ID(t *testing.T) {
+	ts := test.MockGateServerReturn200("")
+	api := test.MockGateapiClient(ts.URL)
+
+	pt := &PipelineTemplate{}
+	err := pt.Init(api, testPipelineTemplate)
+	if err != nil {
+		t.Errorf("Resource.ID() error = %v", err)
+	}
+
+	want := "test-pipeline-template"
+	if pt.ID() != want {
+		t.Errorf("Resource.ID() got %s, want %s", pt.ID(), want)
+	}
+}
+
 var testPipelineTemplate = map[string]interface{}{
 	"id": "test-pipeline-template",
 	"metadata": map[string]interface{}{

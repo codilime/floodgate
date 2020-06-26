@@ -259,6 +259,54 @@ func TestPipeline_SaveLocalState(t *testing.T) {
 	}
 }
 
+func TestPipeline_Name(t *testing.T) {
+	ts := test.MockGateServerReturn200("")
+	api := test.MockGateapiClient(ts.URL)
+
+	p := &Pipeline{}
+	err := p.Init(api, testPipeline)
+	if err != nil {
+		t.Errorf("Resource.Name() error = %v", err)
+	}
+
+	want := "Test pipeline."
+	if p.Name() != want {
+		t.Errorf("Resource.Name() got %s, want %s", p.Name(), want)
+	}
+}
+
+func TestPipeline_ID(t *testing.T) {
+	ts := test.MockGateServerReturn200("")
+	api := test.MockGateapiClient(ts.URL)
+
+	p := &Pipeline{}
+	err := p.Init(api, testPipeline)
+	if err != nil {
+		t.Errorf("Resource.ID() error = %v", err)
+	}
+
+	want := "testpipeline"
+	if p.ID() != want {
+		t.Errorf("Resource.ID() got %s, want %s", p.ID(), want)
+	}
+}
+
+func TestPipeline_Application(t *testing.T) {
+	ts := test.MockGateServerReturn200("")
+	api := test.MockGateapiClient(ts.URL)
+
+	p := &Pipeline{}
+	err := p.Init(api, testPipeline)
+	if err != nil {
+		t.Errorf("Resource.Application() error = %v", err)
+	}
+
+	want := "Test pipeline application."
+	if p.Application() != want {
+		t.Errorf("Resource.Application() got %s, want %s", p.Application(), want)
+	}
+}
+
 var testPipeline = map[string]interface{}{
 	"name":        "Test pipeline.",
 	"application": "Test pipeline application.",
