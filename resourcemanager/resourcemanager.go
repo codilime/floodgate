@@ -56,6 +56,16 @@ func (rm *ResourceManager) Init(config *c.Config, customOptions ...Option) error
 	return nil
 }
 
+// GetClient get gate client
+func (rm ResourceManager) GetClient() *gc.GateapiClient {
+	return rm.client
+}
+
+// GetResources get stored resources'
+func (rm ResourceManager) GetResources() spr.SpinnakerResources {
+	return rm.resources
+}
+
 // GetChanges get resources' changes
 func (rm ResourceManager) GetChanges() (changes []ResourceChange) {
 	for _, application := range rm.resources.Applications {

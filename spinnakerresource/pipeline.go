@@ -12,9 +12,10 @@ import (
 // Pipeline object
 type Pipeline struct {
 	*Resource
-	name        string
-	application string
-	id          string
+	name              string
+	application       string
+	id                string
+	templateReference string
 }
 
 // Init initialize pipeline
@@ -25,6 +26,8 @@ func (p *Pipeline) Init(api *gc.GateapiClient, localData map[string]interface{})
 	name := localData["name"].(string)
 	application := localData["application"].(string)
 	id := localData["id"].(string)
+	reference := p.getTemplateReference(localData)
+
 	localState, err := json.Marshal(localData)
 	if err != nil {
 		return err
@@ -35,6 +38,7 @@ func (p *Pipeline) Init(api *gc.GateapiClient, localData map[string]interface{})
 	p.name = name
 	p.application = application
 	p.id = id
+	p.templateReference = reference
 	if api != nil {
 		if err := p.LoadRemoteState(api); err != nil {
 			return err
@@ -51,6 +55,16 @@ func (p Pipeline) Name() string {
 // ID get pipeline id
 func (p Pipeline) ID() string {
 	return p.id
+}
+
+// Application get application name
+func (p Pipeline) Application() string {
+	return p.application
+}
+
+// TemplateReference get template reference
+func (p Pipeline) TemplateReference() string {
+	return p.templateReference
 }
 
 // LoadRemoteStateByName load resource's remote state from Spinnaker by provided name
@@ -109,6 +123,15 @@ func (p Pipeline) SaveLocalState(spinnakerAPI *gc.GateapiClient) error {
 	}
 
 	return nil
+}
+
+func (p Pipeline) getTemplateReference(localData map[string]interface{}) string {
+	err := util.AssertMapKeyIsStringMap(localData, "template", true)
+	if err == nil {
+		template := localData["template"].(map[string]interface{})
+		return template["reference"].(string)
+	}
+	return ""
 }
 
 func (p Pipeline) validate(localData map[string]interface{}) error {

@@ -157,6 +157,22 @@ func TestApplication_SaveRemoteState(t *testing.T) {
 	}
 }
 
+func TestApplication_Name(t *testing.T) {
+	ts := test.MockGateServerReturn200("")
+	api := test.MockGateapiClient(ts.URL)
+
+	a := &Application{}
+	err := a.Init(api, testAppLocalData)
+	if err != nil {
+		t.Errorf("Resource.Name() error = %v", err)
+	}
+
+	want := "testapplication"
+	if a.Name() != want {
+		t.Errorf("Resource.Name() got %s, want %s", a.Name(), want)
+	}
+}
+
 var testAppLocalData = map[string]interface{}{
 	"name":           "testapplication",
 	"description":    "Test application",
