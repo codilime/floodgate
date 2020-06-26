@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-// applyOptions store render command options
+// applyOptions store apply command options
 type applyOptions struct {
 	graph                    bool
 	outputPath               string

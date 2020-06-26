@@ -87,13 +87,13 @@ func TestResourceGraph_ExportGraphToFile(t *testing.T) {
 
 	resourceGraph, err := initResourceGraph(api)
 	if err != nil {
-		t.Errorf("ResourceGraph.ExpotGraphToFile() got error %v", err)
+		t.Errorf("ResourceGraph.ExportGraphToFile() got error %v", err)
 	}
 	resourceGraph.Create()
 
 	dir, err := ioutil.TempDir("", "testing")
 	if err != nil {
-		t.Errorf("ResourceGraph.ExpotGraphToFile() got error %v", err)
+		t.Errorf("ResourceGraph.ExportGraphToFile() got error %v", err)
 	}
 
 	graphPath := filepath.Join(dir, "graph.png")
