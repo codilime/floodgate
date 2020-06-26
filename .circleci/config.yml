@@ -24,25 +24,14 @@ commands:
     steps:
       - run:
           name: Install tools
-          command: |
-            curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v0.7.0/kind-$(uname)-amd64
-            chmod +x ./kind
-            sudo mv ./kind /usr/local/bin/
-            curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
-            chmod +x ./kubectl
-            sudo mv ./kubectl /usr/local/bin/
+          command: .cilibs/install_toolset.sh
     
   wait_for_dpkg:
     description: "Wait for packaging operations to finish"
     steps:
       - run:
           name: Wait for packaging operations to finish
-          command: |
-            sleep 10
-            while systemctl status apt-daily >/dev/null || systemctl status apt-daily-upgrade >/dev/null || sudo fuser /var/{lib/{dpkg,apt/lists},cache/apt/archives}/lock; do
-              echo "waiting 30s for dpkg locks..."
-              sleep 30
-            done
+          command: .cilibs/wait_for_dpkg.sh
 
 jobs:
   generate_swagger:
@@ -53,32 +42,19 @@ jobs:
       - checkout
       - run:
           name: Prepare extra directories
-          command: |
-            sudo mkdir /floodgate
-            sudo chmod 777 /floodgate
-            mkdir /floodgate/bin
+          command: sudo .cilibs/prepare_extra_directories.sh 
       - run:
           name: Setup swagger-codegen
-          command: |
-            SWAGGER_VERSION=$(cat gateapi/.swagger-codegen/VERSION)
-            wget https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/${SWAGGER_VERSION}/swagger-codegen-cli-${SWAGGER_VERSION}.jar -O swagger-codegen-cli.jar
-            wget https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/${SWAGGER_VERSION}/swagger-codegen-cli-${SWAGGER_VERSION}.jar.sha1 -O swagger-codegen-cli.jar.sha1
-            echo ' swagger-codegen-cli.jar' >> swagger-codegen-cli.jar.sha1
-            sha1sum -c swagger-codegen-cli.jar.sha1 
-            mv swagger-codegen-cli.jar /floodgate/bin/
+          command: sudo .cilibs/setup_swagger_codegen.sh 
       - run:
           name: Get gate code
-          command: git clone https://github.com/spinnaker/gate.git -b << parameters.gate_api_branch >> /floodgate/gate
+          command: .cilibs/get_gate_code.sh << parameters.gate_api_branch >>
       - run:
           name: Generate swagger.json
-          command: |
-            cd /floodgate/gate
-            ./gradlew clean
-            ./gradlew gate-web:test --tests *GenerateSwagger* --max-workers 2
-            cat gate-web/swagger.json | json_pp > ./gate-swagger.json
+          command: .cilibs/generate_swagger_json.sh
       - run:
           name: Generate gateapi go code
-          command: java -jar /floodgate/bin/swagger-codegen-cli.jar generate -l go -i /floodgate/gate/gate-swagger.json -o /floodgate/gateapi
+          command: .cilibs/generate_gateapi_go_code.sh
       - persist_to_workspace:
           root: /floodgate
           paths:
@@ -117,77 +93,30 @@ jobs:
           at: ./
       - run:
           name: Get dependencies
-          command: |
-            go mod download
-            go get -u golang.org/x/lint/golint
+          command: .cilibs/get_dependencies.sh
       - run: 
           name: Examine source code with go vet
-          command: go vet -v ./...
+          command: .cilibs/examine_source_code_with_go_get.sh
       - run: 
           name: Execute go tests
-          command: go test -v ./... -coverprofile cover.out
+          command: .cilibs/execute_go_tests.sh
       - run:
           name: Compile code
-          command: |
-            if [ -z "$CIRCLE_BRANCH" ]
-            then
-                export RELEASE=$(echo $CIRCLE_TAG | sed 's/^v[0-9]\+\.[0-9]\+\.[0-9]\+-\?//')
-            else
-                export RELEASE=$CIRCLE_BRANCH
-            fi
-            env GOOS=<< parameters.build_os >> GOARCH=<< parameters.build_arch >> go build -ldflags \
-            "-X github.com/codilime/floodgate/version.GitCommit=$CIRCLE_SHA1 \
-            -X github.com/codilime/floodgate/version.BuiltDate=$(date  +%Y-%m-%d_%H:%M:%S) \
-            -X github.com/codilime/floodgate/version.Release=$RELEASE \
-            -X github.com/codilime/floodgate/version.GoVersion=$GOLANG_VERSION \
-            -X github.com/codilime/floodgate/version.GateVersion=$(echo '<< parameters.gate_api_branch >>' | sed 's/release-//') \
-            "      
+          command: .cilibs/compile_code.sh -o << parameters.build_os >> -a << parameters.build_arch >> -g << parameters.gate_api_branch >>
       - run:
           name: Calculate code coverage
           environment:
             REQUIREDCODECOVERAGE: 60
-          command: |
-            go tool cover -func cover.out | tee codecoverage.txt
-            CURRENTCODECOVERAGE=$(grep 'total:' codecoverage.txt | awk '{print substr($3, 1, length($3)-1)}')
-            echo "Send coverity report to SeriesCI"
-            if [[ "<< parameters.send_coverity >>" == "send" ]]
-            then
-              curl \
-                --header "Authorization: Token ${SERIESCI_TOKEN}" \
-                --header "Content-Type: application/json" \
-                --data "{\"value\":\"${CURRENTCODECOVERAGE} %\",\"sha\":\"${CIRCLE_SHA1}\"}" \
-                https://seriesci.com/api/codilime/floodgate/coverage/one
-            else
-              echo "Skipping"
-            fi
-            if [ ${CURRENTCODECOVERAGE%.*} -lt ${REQUIREDCODECOVERAGE} ]
-            then
-                echo "Not enough code coverage!"
-                echo "Current code coverage: ${CURRENTCODECOVERAGE}%"
-                echo "Required code coverage: ${REQUIREDCODECOVERAGE}%"
-                exit 1
-            else
-                echo "Code coverage is at least ${REQUIREDCODECOVERAGE}% : OK"
-            fi
+          command: .cilibs/calculate_code_coverage.sh << parameters.send_coverity >>
       - run:
           name: Check linting
-          command: |
-            for GOSRCFILE in $( find . -type f -name '*.go' -not -path './gateapi/*')
-            do
-              golint -set_exit_status $GOSRCFILE
-            done
+          command: .cilibs/check_linting.sh
       - run:
           name: Copy binaries for later use
-          command: |
-            sudo mkdir -p /floodgate/bin
-            sudo chmod 777 /floodgate/bin
-            cp /go/src/github.com/codilime/floodgate/floodgate /floodgate/bin/floodgate
+          command: sudo .cilibs/copy_binaries_for_later_use.sh
       - run:
           name: Generate checksum
-          command: |
-            cd /go/src/github.com/codilime/floodgate/
-            cp floodgate floodgate-<< parameters.gate_api_branch >>.<< parameters.build_os >>.<< parameters.build_arch >>
-            sha1sum floodgate-<< parameters.gate_api_branch >>.<< parameters.build_os >>.<< parameters.build_arch >> > floodgate-<< parameters.gate_api_branch >>.<< parameters.build_os >>.<< parameters.build_arch >>.sha1sum
+          command: .cilibs/generate_checksum.sh -o << parameters.build_os >> -a << parameters.build_arch >> -g << parameters.gate_api_branch >>
       - persist_to_workspace:
           root: /floodgate/bin
           paths:
@@ -216,44 +145,18 @@ jobs:
           at: ./
       - run:
           name: Prepare directories
-          command: |
-            sudo mkdir /floodgate
-            sudo chmod 777 /floodgate
-            mkdir -p /floodgate/bin
-            mkdir -p /floodgate/libs
-            mkdir -p /floodgate/resources
-            cp -r sponnet /floodgate/libs/
-            cp -r examples /floodgate/resources/
-            cp floodgate /floodgate/bin/
-            chmod +x /floodgate/bin/floodgate
+          command: .cilibs/prepare_directories.sh 
       - install_toolset
       - run:
           name: Update /etc/hosts
-          command: sudo bash -c 'echo "127.1.2.3 spinnaker" >> /etc/hosts'
+          command: .cilibs/update_hosts.sh
       - wait_for_dpkg
       - run:
           name: Install Spinnaker and configure Floodgate       
-          command: |
-            export NEED_SPINNAKER_VERSION=$( echo << parameters.gate_api_branch >> | egrep -o "[0-9]\.[0-9]+" )
-            .circleci/libs/install-and-run-spinnaker.sh
-            until [ $( curl -w '%{http_code}' -o /dev/null http://spinnaker/api/v1 ) -eq 302 ]
-            do
-                echo "Waiting for Spinnaker"
-                sleep 10
-            done
+          command: .cilibs/install_spinnaker_and_configure_floodgate.sh << parameters.gate_api_branch >>
       - run:
           name: Test Floodgate against running Spinnaker instance
-          command: |
-            echo "Print version using version flag"
-            /floodgate/bin/floodgate --version
-            echo "Print version using version command"
-            /floodgate/bin/floodgate version
-            echo "Comare changes - clean Spinnaker"
-            /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml compare && exit 1 || echo "Found changes"
-            echo "Apply local resources"
-            /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml sync
-            echo "Compare changes - synced resources"
-            /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml compare
+          command: .cilibs/test_floodgate_against_running_spinnaker_instance.sh << parameters.floodgate_extra_params >>
 
 workflows:
   periodic:

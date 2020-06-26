@@ -1,7 +1,11 @@
-#!/bin/bash -xe
+#!/bin/bash -e
 
 EXEC_DIR=$(dirname "$0")
 HAL_VERSION=${HAL_VERSION:-1.35.0}
+
+# Install packages
+sudo apt update
+sudo apt install -y jq
 
 # Install Halyard
 curl -O https://raw.githubusercontent.com/spinnaker/halyard/master/install/debian/InstallHalyard.sh
@@ -22,6 +26,10 @@ GATE_PASS=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32 ; echo '')
 hal -q config provider kubernetes enable
 CONTEXT=$(kubectl config current-context)
 hal -q config provider kubernetes account add my-k8s-v2-account --provider-version v2 --context $CONTEXT
+## Configure account for inner kind communication
+cp ~/.kube/config ~/.kube/kind
+sed -i "s/server:\ .*/server:\ https:\/\/10.96.0.1:443/g" ~/.kube/kind
+hal -q config provider kubernetes account add inner-kind --provider-version v2 --context $CONTEXT --kubeconfig-file ~/.kube/kind
 hal -q config deploy edit --type distributed --account-name my-k8s-v2-account
 
 ## Install minio
