@@ -4,9 +4,9 @@ aliases:
   latest-gate-version: &default-gate-version
     gate_api_branch:
       type: string
-      default: release-1.20.x
+      default: release-1.21.x
   supported-spinnaker-releases: &gate-versions
-    gate_api_branch: [ "release-1.20.x", "release-1.19.x", "release-1.18.x" ]
+    gate_api_branch: [ "release-1.21.x", "release-1.20.x", "release-1.19.x" ]
   supported-client-os: &build-os-type
     build_os: [ "linux", "darwin" ]
   release-filters: &filters-release
@@ -102,7 +102,7 @@ jobs:
         default: send
         enum: ["send", "dont-send"]
     docker:
-      - image: circleci/golang:1.14.1
+            - image: dockercore/golang-cross:1.13.12
         environment:
           GO111MODULE: "on"
     working_directory: /go/src/github.com/codilime/floodgate
@@ -318,11 +318,14 @@ workflows:
       - generate_swagger:
           name: generate swagger api
       - build:
-          name: build
+          name: build for << matrix.build_os >>
+          matrix:
+            parameters:
+              <<: *build-os-type
           requires:
             - generate swagger api
       - start_spinnaker:
           name: test floodgate with working spinnaker
           floodgate_extra_params: "-q"
           requires:
-            - build
+            - build for linux
