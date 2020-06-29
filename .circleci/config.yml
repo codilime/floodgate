@@ -102,7 +102,7 @@ jobs:
         default: send
         enum: ["send", "dont-send"]
     docker:
-      - image: dockercore/golang-cross:1.13.12
+      - image: boscard/golang-cross:1.14.4
         environment:
           GO111MODULE: "on"
     working_directory: /go/src/github.com/codilime/floodgate
