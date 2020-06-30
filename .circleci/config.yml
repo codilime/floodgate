@@ -16,7 +16,7 @@ aliases:
           - /release-v[0-9]+\.[0-9]+\.x/
       tags:
         only:
-         - /v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?/
+          - /v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?/
 
 commands:
   install_toolset:
@@ -31,7 +31,7 @@ commands:
             curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
             chmod +x ./kubectl
             sudo mv ./kubectl /usr/local/bin/
-    
+
   wait_for_dpkg:
     description: "Wait for packaging operations to finish"
     steps:
@@ -79,6 +79,11 @@ jobs:
       - run:
           name: Generate gateapi go code
           command: java -jar /floodgate/bin/swagger-codegen-cli.jar generate -l go -i /floodgate/gate/gate-swagger.json -o /floodgate/gateapi
+      - run:
+          name: Remove plugin controller from gateapi
+          command: |
+          rm /floodgate/gateapi/api_plugin*.go
+          sed -i '/PluginInfoControllerApiService/d;/PluginPublishControllerApiService/d;/PluginsInstalledControllerApiService/d' /floodgate/gateapi/client.go
       - persist_to_workspace:
           root: /floodgate
           paths:
@@ -89,7 +94,7 @@ jobs:
           destination: gate-swagger.json
 
   build:
-    parameters: 
+    parameters:
       <<: *default-gate-version
       build_os:
         type: string
@@ -120,10 +125,10 @@ jobs:
           command: |
             go mod download
             go get -u golang.org/x/lint/golint
-      - run: 
+      - run:
           name: Examine source code with go vet
           command: env && go vet -v ./...
-      - run: 
+      - run:
           name: Execute go tests
           command: go test -v ./... -coverprofile cover.out
       - run:
@@ -200,7 +205,7 @@ jobs:
           destination: floodgate-<< parameters.gate_api_branch >>.<< parameters.build_os >>.<< parameters.build_arch >>.sha1sum
 
   start_spinnaker:
-    parameters: 
+    parameters:
       <<: *default-gate-version
       floodgate_extra_params:
         type: string
@@ -232,7 +237,7 @@ jobs:
           command: sudo bash -c 'echo "127.1.2.3 spinnaker" >> /etc/hosts'
       - wait_for_dpkg
       - run:
-          name: Install Spinnaker and configure Floodgate       
+          name: Install Spinnaker and configure Floodgate
           command: |
             export NEED_SPINNAKER_VERSION=$( echo << parameters.gate_api_branch >> | egrep -o "[0-9]\.[0-9]+" )
             .circleci/libs/install-and-run-spinnaker.sh
