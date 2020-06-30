@@ -122,7 +122,7 @@ jobs:
             go get -u golang.org/x/lint/golint
       - run: 
           name: Examine source code with go vet
-          command: env && go vet -v ./...
+          command: go vet -v ./...
       - run: 
           name: Execute go tests
           command: go test -v ./... -coverprofile cover.out
