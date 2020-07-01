@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
+	gateapi "github.com/boscard/gateapi"
 	"github.com/codilime/floodgate/config"
-	gateapi "github.com/codilime/floodgate/gateapi"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 )
