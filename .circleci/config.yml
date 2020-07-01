@@ -45,11 +45,11 @@ commands:
             done
 
 jobs:
-  generate_swagger:
-    parameters: *default-gate-version
-    docker:
-      - image: circleci/openjdk:11.0.3-jdk-stretch
-    steps:
+#  generate_swagger:
+  #    parameters: *default-gate-version
+  #    docker:
+  #      - image: circleci/openjdk:11.0.3-jdk-stretch
+  #    steps:
   #      - checkout
   #      - run:
   #          name: Prepare extra directories
@@ -270,10 +270,10 @@ workflows:
               only:
                 - master
     jobs:
-      - generate_swagger:
-          name: generate swagger api << matrix.gate_api_branch >>
-          matrix:
-            parameters: *gate-versions
+      #      - generate_swagger:
+      #          name: generate swagger api << matrix.gate_api_branch >>
+      #          matrix:
+      #            parameters: *gate-versions
       - build:
           name: build for << matrix.build_os >> against gate << matrix.gate_api_branch >>
           build_arch: amd64
@@ -293,11 +293,11 @@ workflows:
 
   release:
     jobs:
-      - generate_swagger:
-          <<: *filters-release
-          name: generate swagger api << matrix.gate_api_branch >>
-          matrix:
-            parameters: *gate-versions
+      #      - generate_swagger:
+      #          <<: *filters-release
+      #          name: generate swagger api << matrix.gate_api_branch >>
+      #          matrix:
+      #            parameters: *gate-versions
 
       - build:
           <<: *filters-release
@@ -320,8 +320,8 @@ workflows:
 
   commit:
     jobs:
-      - generate_swagger:
-          name: generate swagger api
+      #      - generate_swagger:
+      #          name: generate swagger api
       - build:
           name: build for << matrix.build_os >>
           matrix:
