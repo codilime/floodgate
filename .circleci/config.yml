@@ -119,7 +119,7 @@ jobs:
           name: Remove gateapi dir
           command: rm -r gateapi
       - attach_workspace:
-        at: ./
+          at: ./
       - run:
           name: Get dependencies
           command: |
