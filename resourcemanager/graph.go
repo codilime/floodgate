@@ -1,10 +1,8 @@
 package resourcemanager
 
 import (
-	"bytes"
 	gc "github.com/codilime/floodgate/gateclient"
 	spr "github.com/codilime/floodgate/spinnakerresource"
-	"github.com/goccy/go-graphviz"
 	"github.com/hashicorp/terraform/dag"
 	"github.com/hashicorp/terraform/tfdiags"
 	log "github.com/sirupsen/logrus"
@@ -87,21 +85,4 @@ func (rg *ResourceGraph) Apply(spinnakerAPI *gc.GateapiClient, maxConcurrentConn
 	w.Update(&rg.Graph)
 
 	return w.Wait().Err()
-}
-
-// ExportGraphToFile exports graph to png
-func (rg *ResourceGraph) ExportGraphToFile(dot []byte, filename string) error {
-	g := graphviz.New()
-	graph, _ := graphviz.ParseBytes(dot)
-
-	var buf bytes.Buffer
-	if err := g.Render(graph, graphviz.PNG, &buf); err != nil {
-		return err
-	}
-
-	if err := g.RenderFilename(graph, graphviz.PNG, filename); err != nil {
-		return err
-	}
-
-	return nil
 }

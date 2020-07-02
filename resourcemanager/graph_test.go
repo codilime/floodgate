@@ -5,9 +5,6 @@ import (
 	"github.com/codilime/floodgate/gateclient"
 	spr "github.com/codilime/floodgate/spinnakerresource"
 	"github.com/codilime/floodgate/test"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -78,34 +75,6 @@ func TestResourceGraph_Apply(t *testing.T) {
 	err = resourceGraph.Apply(api, 5)
 	if err != nil {
 		t.Errorf("ResourceGraph.Apply() got error %v", err)
-	}
-}
-
-func TestResourceGraph_ExportGraphToFile(t *testing.T) {
-	ts := test.MockGateServerReturn200("")
-	api := test.MockGateapiClient(ts.URL)
-
-	resourceGraph, err := initResourceGraph(api)
-	if err != nil {
-		t.Errorf("ResourceGraph.ExportGraphToFile() got error %v", err)
-	}
-	resourceGraph.Create()
-
-	dir, err := ioutil.TempDir("", "testing")
-	if err != nil {
-		t.Errorf("ResourceGraph.ExportGraphToFile() got error %v", err)
-	}
-
-	graphPath := filepath.Join(dir, "graph.png")
-
-	dot := resourceGraph.Graph.Dot(nil)
-	err = resourceGraph.ExportGraphToFile(dot, graphPath)
-	if err != nil {
-		t.Errorf("ResourceGraph.ExportGraphToFile() got error %v", err)
-	}
-
-	if _, err := os.Stat(graphPath); os.IsNotExist(err) {
-		t.Errorf("ResourceGraph.ExportGraphToFile() File with graph not exist")
 	}
 }
 
