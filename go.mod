@@ -3,7 +3,7 @@ module github.com/codilime/floodgate
 go 1.14
 
 require (
-	github.com/antihax/optional v1.0.0 // indirect
+	github.com/antihax/optional v1.0.0
 	github.com/boscard/gateapi v0.0.0-20200701082216-4601ca769d77
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-jsonnet v0.15.0

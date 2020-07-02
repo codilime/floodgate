@@ -3,7 +3,7 @@ package resourcemanager
 import (
 	"encoding/json"
 	"fmt"
-	swagger "github.com/boscard/gateapi"
+	swagger "github.com/codilime/floodgate/gateapi"
 	"os"
 	"path/filepath"
 

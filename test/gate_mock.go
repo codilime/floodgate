@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	gateapi "github.com/boscard/gateapi"
+	gateapi "github.com/codilime/floodgate/gateapi"
 	"github.com/codilime/floodgate/gateclient"
 )
 
