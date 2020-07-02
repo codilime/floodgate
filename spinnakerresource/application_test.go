@@ -180,7 +180,7 @@ func TestApplication_LocalState(t *testing.T) {
 	a := &Application{}
 	err := a.Init(api, testAppLocalData)
 	if err != nil {
-		t.Errorf("Resource.Name() error = %v", err)
+		t.Errorf("Resource.LocalState() error = %v", err)
 	}
 
 	localState, _ := json.Marshal(testAppLocalData)
