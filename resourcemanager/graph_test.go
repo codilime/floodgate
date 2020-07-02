@@ -1,7 +1,6 @@
 package resourcemanager
 
 import (
-	"fmt"
 	"github.com/codilime/floodgate/gateclient"
 	spr "github.com/codilime/floodgate/spinnakerresource"
 	"github.com/codilime/floodgate/test"
@@ -56,7 +55,6 @@ func TestResourceGraph_Create(t *testing.T) {
 	resourceGraph.Create()
 
 	graphStr := strings.TrimSpace(resourceGraph.Graph.String())
-	fmt.Println(graphStr)
 	if graphStr != createWant {
 		t.Errorf("ResourceGraph.Create() got %s, want %s", graphStr, createWant)
 	}
