@@ -53,7 +53,7 @@ func TestApplication_Init(t *testing.T) {
 			a := &Application{}
 			err := a.Init(api, tt.args.localdata)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Resource.SaveLocalState() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Resource.Init() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 		})
@@ -170,6 +170,22 @@ func TestApplication_Name(t *testing.T) {
 	want := "testapplication"
 	if a.Name() != want {
 		t.Errorf("Resource.Name() got %s, want %s", a.Name(), want)
+	}
+}
+
+func TestApplication_LocalState(t *testing.T) {
+	ts := test.MockGateServerReturn200("")
+	api := test.MockGateapiClient(ts.URL)
+
+	a := &Application{}
+	err := a.Init(api, testAppLocalData)
+	if err != nil {
+		t.Errorf("Resource.Name() error = %v", err)
+	}
+
+	localState, _ := json.Marshal(testAppLocalData)
+	if string(a.LocalState()) != string(localState) {
+		t.Errorf("Resource.LocalState() got %s, want %s", string(a.LocalState()), string(localState))
 	}
 }
 
