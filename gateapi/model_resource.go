@@ -9,9 +9,17 @@
 
 package swagger
 
+import (
+	"os"
+)
+
 type Resource struct {
-	ApiVersion string `json:"apiVersion,omitempty"`
-	Kind string `json:"kind,omitempty"`
-	Metadata *interface{} `json:"metadata,omitempty"`
-	Spec *interface{} `json:"spec,omitempty"`
+	Description string       `json:"description,omitempty"`
+	File        **os.File    `json:"file,omitempty"`
+	Filename    string       `json:"filename,omitempty"`
+	InputStream *InputStream `json:"inputStream,omitempty"`
+	Open        bool         `json:"open,omitempty"`
+	Readable    bool         `json:"readable,omitempty"`
+	Uri         *Uri         `json:"uri,omitempty"`
+	Url         *Url         `json:"url,omitempty"`
 }

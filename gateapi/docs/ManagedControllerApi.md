@@ -5,13 +5,15 @@ All URIs are relative to *https://localhost*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**CreatePinUsingPOST**](ManagedControllerApi.md#CreatePinUsingPOST) | **Post** /managed/application/{application}/pin | Create a pin for an artifact in an environment
+[**DeleteManifestByAppUsingDELETE**](ManagedControllerApi.md#DeleteManifestByAppUsingDELETE) | **Delete** /managed/application/{application}/config | Delete a delivery config manifest for an application
 [**DeleteManifestUsingDELETE**](ManagedControllerApi.md#DeleteManifestUsingDELETE) | **Delete** /managed/delivery-configs/{name} | Delete a delivery config manifest
-[**DeletePinForEnvUsingDELETE**](ManagedControllerApi.md#DeletePinForEnvUsingDELETE) | **Delete** /managed/application/{application}/pin/{targetEnvironment} | Delete a pin for an artifact in an environment by specifying the environment
-[**DeletePinUsingDELETE**](ManagedControllerApi.md#DeletePinUsingDELETE) | **Delete** /managed/application/{application}/pin | Delete a pin for an artifact in an environment
+[**DeletePinUsingDELETE**](ManagedControllerApi.md#DeletePinUsingDELETE) | **Delete** /managed/application/{application}/pin/{targetEnvironment} | Unpin one or more artifact(s) in an environment. If the &#x60;reference&#x60; parameter is specified, only the corresponding artifact will be unpinned. If it&#39;s omitted, all pinned artifacts in the environment will be unpinned.
 [**DeleteVetoUsingDELETE**](ManagedControllerApi.md#DeleteVetoUsingDELETE) | **Delete** /managed/application/{application}/veto/{targetEnvironment}/{reference}/{version} | Veto an artifact version in an environment
 [**DiffManifestUsingPOST**](ManagedControllerApi.md#DiffManifestUsingPOST) | **Post** /managed/delivery-configs/diff | Ad-hoc validate and diff a config manifest
 [**DiffResourceUsingPOST**](ManagedControllerApi.md#DiffResourceUsingPOST) | **Post** /managed/resources/diff | Ad-hoc validate and diff a resource
-[**ExportResourceUsingGET**](ManagedControllerApi.md#ExportResourceUsingGET) | **Get** /managed/resources/export/{cloudProvider}/{account}/{type}/{name} | Generate a keel resource definition for a deployed cloud resource
+[**ExportResourceUsingGET**](ManagedControllerApi.md#ExportResourceUsingGET) | **Get** /managed/resources/export/artifact/{cloudProvider}/{account}/{clusterName} | Generates an artifact definition based on the artifact used in a running cluster
+[**ExportResourceUsingGET1**](ManagedControllerApi.md#ExportResourceUsingGET1) | **Get** /managed/resources/export/{cloudProvider}/{account}/{type}/{name} | Generate a keel resource definition for a deployed cloud resource
+[**GetApiDocsUsingGET**](ManagedControllerApi.md#GetApiDocsUsingGET) | **Get** /managed/api-docs | getApiDocs
 [**GetApplicationDetailsUsingGET**](ManagedControllerApi.md#GetApplicationDetailsUsingGET) | **Get** /managed/application/{application} | Get managed details about an application
 [**GetConfigByUsingGET**](ManagedControllerApi.md#GetConfigByUsingGET) | **Get** /managed/application/{application}/config | Get the delivery config associated with an application
 [**GetConstraintStateUsingGET**](ManagedControllerApi.md#GetConstraintStateUsingGET) | **Get** /managed/application/{application}/environment/{environment}/constraints | List up-to {limit} current constraint states for an environment
@@ -56,6 +58,32 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **DeleteManifestByAppUsingDELETE**
+> DeliveryConfig DeleteManifestByAppUsingDELETE(ctx, application)
+Delete a delivery config manifest for an application
+
+### Required Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+  **application** | **string**| application | 
+
+### Return type
+
+[**DeliveryConfig**](DeliveryConfig.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **DeleteManifestUsingDELETE**
 > DeliveryConfig DeleteManifestUsingDELETE(ctx, name)
 Delete a delivery config manifest
@@ -82,9 +110,9 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **DeletePinForEnvUsingDELETE**
-> DeletePinForEnvUsingDELETE(ctx, application, targetEnvironment)
-Delete a pin for an artifact in an environment by specifying the environment
+# **DeletePinUsingDELETE**
+> DeletePinUsingDELETE(ctx, application, targetEnvironment, optional)
+Unpin one or more artifact(s) in an environment. If the `reference` parameter is specified, only the corresponding artifact will be unpinned. If it's omitted, all pinned artifacts in the environment will be unpinned.
 
 ### Required Parameters
 
@@ -93,33 +121,16 @@ Name | Type | Description  | Notes
  **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
   **application** | **string**| application | 
   **targetEnvironment** | **string**| targetEnvironment | 
+ **optional** | ***DeletePinUsingDELETEOpts** | optional parameters | nil if no parameters
 
-### Return type
-
- (empty response body)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: */*
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **DeletePinUsingDELETE**
-> DeletePinUsingDELETE(ctx, application, pin)
-Delete a pin for an artifact in an environment
-
-### Required Parameters
+### Optional Parameters
+Optional parameters are passed through a pointer to a DeletePinUsingDELETEOpts struct
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-  **application** | **string**| application | 
-  **pin** | [**EnvironmentArtifactPin**](EnvironmentArtifactPin.md)| pin | 
+
+
+ **reference** | **optional.String**| reference | 
 
 ### Return type
 
@@ -218,7 +229,35 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **ExportResourceUsingGET**
-> Resource ExportResourceUsingGET(ctx, account, cloudProvider, name, serviceAccount, type_)
+> interface{} ExportResourceUsingGET(ctx, account, cloudProvider, clusterName)
+Generates an artifact definition based on the artifact used in a running cluster
+
+### Required Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+  **account** | **string**| account | 
+  **cloudProvider** | **string**| cloudProvider | 
+  **clusterName** | **string**| clusterName | 
+
+### Return type
+
+[**interface{}**](interface{}.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **ExportResourceUsingGET1**
+> Resource ExportResourceUsingGET1(ctx, account, cloudProvider, name, serviceAccount, type_)
 Generate a keel resource definition for a deployed cloud resource
 
 ### Required Parameters
@@ -235,6 +274,28 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**Resource**](Resource.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **GetApiDocsUsingGET**
+> interface{} GetApiDocsUsingGET(ctx, )
+getApiDocs
+
+### Required Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**interface{}**](interface{}.md)
 
 ### Authorization
 

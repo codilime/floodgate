@@ -76,6 +76,8 @@ Class | Method | HTTP request | Description
 *ConcourseControllerApi* | [**ResourcesUsingGET**](docs/ConcourseControllerApi.md#resourcesusingget) | **Get** /concourse/{buildMaster}/teams/{team}/pipelines/{pipeline}/resources | Retrieve the list of resource names for a given pipeline available to the Concourse stage
 *CredentialsControllerApi* | [**GetAccountUsingGET**](docs/CredentialsControllerApi.md#getaccountusingget) | **Get** /credentials/{account} | Retrieve an account&#39;s details
 *CredentialsControllerApi* | [**GetAccountsUsingGET**](docs/CredentialsControllerApi.md#getaccountsusingget) | **Get** /credentials | Retrieve a list of accounts
+*DeckPluginsControllerApi* | [**GetPluginAssetUsingGET**](docs/DeckPluginsControllerApi.md#getpluginassetusingget) | **Get** /plugins/deck/{pluginId}/{pluginVersion}/{asset} | Retrieve a single plugin asset by version
+*DeckPluginsControllerApi* | [**GetPluginManifestUsingGET**](docs/DeckPluginsControllerApi.md#getpluginmanifestusingget) | **Get** /plugins/deck/plugin-manifest.json | Retrieve a plugin manifest
 *EcsServerGroupEventsControllerApi* | [**GetEventsUsingGET**](docs/EcsServerGroupEventsControllerApi.md#geteventsusingget) | **Get** /applications/{application}/serverGroups/{account}/{serverGroupName}/events | Retrieves a list of events for a server group
 *ExecutionsControllerApi* | [**GetLatestExecutionsByConfigIdsUsingGET**](docs/ExecutionsControllerApi.md#getlatestexecutionsbyconfigidsusingget) | **Get** /executions | Retrieves an ad-hoc collection of executions based on a number of user-supplied parameters. Either executionIds or pipelineConfigIds must be supplied in order to return any results. If both are supplied, an exception will be thrown.
 *ExecutionsControllerApi* | [**SearchForPipelineExecutionsByTriggerUsingGET**](docs/ExecutionsControllerApi.md#searchforpipelineexecutionsbytriggerusingget) | **Get** /applications/{application}/executions/search | Search for pipeline executions using a combination of criteria. The returned list is sorted by buildTime (trigger time) in reverse order so that newer executions are first in the list.
@@ -94,13 +96,15 @@ Class | Method | HTTP request | Description
 *LoadBalancerControllerApi* | [**GetLoadBalancerDetailsUsingGET**](docs/LoadBalancerControllerApi.md#getloadbalancerdetailsusingget) | **Get** /loadBalancers/{account}/{region}/{name} | Retrieve a load balancer&#39;s details as a single element list for a given account, region, cloud provider and load balancer name
 *LoadBalancerControllerApi* | [**GetLoadBalancerUsingGET**](docs/LoadBalancerControllerApi.md#getloadbalancerusingget) | **Get** /loadBalancers/{name} | Retrieve a load balancer for a given cloud provider
 *ManagedControllerApi* | [**CreatePinUsingPOST**](docs/ManagedControllerApi.md#createpinusingpost) | **Post** /managed/application/{application}/pin | Create a pin for an artifact in an environment
+*ManagedControllerApi* | [**DeleteManifestByAppUsingDELETE**](docs/ManagedControllerApi.md#deletemanifestbyappusingdelete) | **Delete** /managed/application/{application}/config | Delete a delivery config manifest for an application
 *ManagedControllerApi* | [**DeleteManifestUsingDELETE**](docs/ManagedControllerApi.md#deletemanifestusingdelete) | **Delete** /managed/delivery-configs/{name} | Delete a delivery config manifest
-*ManagedControllerApi* | [**DeletePinForEnvUsingDELETE**](docs/ManagedControllerApi.md#deletepinforenvusingdelete) | **Delete** /managed/application/{application}/pin/{targetEnvironment} | Delete a pin for an artifact in an environment by specifying the environment
-*ManagedControllerApi* | [**DeletePinUsingDELETE**](docs/ManagedControllerApi.md#deletepinusingdelete) | **Delete** /managed/application/{application}/pin | Delete a pin for an artifact in an environment
+*ManagedControllerApi* | [**DeletePinUsingDELETE**](docs/ManagedControllerApi.md#deletepinusingdelete) | **Delete** /managed/application/{application}/pin/{targetEnvironment} | Unpin one or more artifact(s) in an environment. If the &#x60;reference&#x60; parameter is specified, only the corresponding artifact will be unpinned. If it&#39;s omitted, all pinned artifacts in the environment will be unpinned.
 *ManagedControllerApi* | [**DeleteVetoUsingDELETE**](docs/ManagedControllerApi.md#deletevetousingdelete) | **Delete** /managed/application/{application}/veto/{targetEnvironment}/{reference}/{version} | Veto an artifact version in an environment
 *ManagedControllerApi* | [**DiffManifestUsingPOST**](docs/ManagedControllerApi.md#diffmanifestusingpost) | **Post** /managed/delivery-configs/diff | Ad-hoc validate and diff a config manifest
 *ManagedControllerApi* | [**DiffResourceUsingPOST**](docs/ManagedControllerApi.md#diffresourceusingpost) | **Post** /managed/resources/diff | Ad-hoc validate and diff a resource
-*ManagedControllerApi* | [**ExportResourceUsingGET**](docs/ManagedControllerApi.md#exportresourceusingget) | **Get** /managed/resources/export/{cloudProvider}/{account}/{type}/{name} | Generate a keel resource definition for a deployed cloud resource
+*ManagedControllerApi* | [**ExportResourceUsingGET**](docs/ManagedControllerApi.md#exportresourceusingget) | **Get** /managed/resources/export/artifact/{cloudProvider}/{account}/{clusterName} | Generates an artifact definition based on the artifact used in a running cluster
+*ManagedControllerApi* | [**ExportResourceUsingGET1**](docs/ManagedControllerApi.md#exportresourceusingget1) | **Get** /managed/resources/export/{cloudProvider}/{account}/{type}/{name} | Generate a keel resource definition for a deployed cloud resource
+*ManagedControllerApi* | [**GetApiDocsUsingGET**](docs/ManagedControllerApi.md#getapidocsusingget) | **Get** /managed/api-docs | getApiDocs
 *ManagedControllerApi* | [**GetApplicationDetailsUsingGET**](docs/ManagedControllerApi.md#getapplicationdetailsusingget) | **Get** /managed/application/{application} | Get managed details about an application
 *ManagedControllerApi* | [**GetConfigByUsingGET**](docs/ManagedControllerApi.md#getconfigbyusingget) | **Get** /managed/application/{application}/config | Get the delivery config associated with an application
 *ManagedControllerApi* | [**GetConstraintStateUsingGET**](docs/ManagedControllerApi.md#getconstraintstateusingget) | **Get** /managed/application/{application}/environment/{environment}/constraints | List up-to {limit} current constraint states for an environment
@@ -146,6 +150,12 @@ Class | Method | HTTP request | Description
 *PipelineTemplatesControllerApi* | [**ListUsingGET**](docs/PipelineTemplatesControllerApi.md#listusingget) | **Get** /pipelineTemplates | List pipeline templates.
 *PipelineTemplatesControllerApi* | [**ResolveTemplatesUsingGET**](docs/PipelineTemplatesControllerApi.md#resolvetemplatesusingget) | **Get** /pipelineTemplates/resolve | Resolve a pipeline template.
 *PipelineTemplatesControllerApi* | [**UpdateUsingPOST**](docs/PipelineTemplatesControllerApi.md#updateusingpost) | **Post** /pipelineTemplates/{id} | Update a pipeline template.
+*PluginInfoControllerApi* | [**DeletePluginInfoUsingDELETE**](docs/PluginInfoControllerApi.md#deleteplugininfousingdelete) | **Delete** /plugins/info/{id} | Delete plugin info with the provided Id
+*PluginInfoControllerApi* | [**GetAllPluginInfoUsingGET**](docs/PluginInfoControllerApi.md#getallplugininfousingget) | **Get** /plugins/info | Get all plugin info objects
+*PluginInfoControllerApi* | [**PersistPluginInfoUsingPOST**](docs/PluginInfoControllerApi.md#persistplugininfousingpost) | **Post** /plugins/info | Persist plugin metadata information
+*PluginInfoControllerApi* | [**PersistPluginInfoUsingPUT**](docs/PluginInfoControllerApi.md#persistplugininfousingput) | **Put** /plugins/info | Persist plugin metadata information
+*PluginPublishControllerApi* | [**PublishPluginUsingPOST**](docs/PluginPublishControllerApi.md#publishpluginusingpost) | **Post** /plugins/publish/{pluginId}/{pluginVersion} | Publish a plugin binary and the plugin info metadata.
+*PluginsInstalledControllerApi* | [**GetInstalledPluginsUsingGET**](docs/PluginsInstalledControllerApi.md#getinstalledpluginsusingget) | **Get** /plugins/installed | Get all installed Spinnaker plugins
 *ProjectControllerApi* | [**AllPipelinesForProjectUsingGET**](docs/ProjectControllerApi.md#allpipelinesforprojectusingget) | **Get** /projects/{id}/pipelines | Get all pipelines for project
 *ProjectControllerApi* | [**AllUsingGET3**](docs/ProjectControllerApi.md#allusingget3) | **Get** /projects | Get all projects
 *ProjectControllerApi* | [**GetClustersUsingGET3**](docs/ProjectControllerApi.md#getclustersusingget3) | **Get** /projects/{id}/clusters | Get a project&#39;s clusters
@@ -201,20 +211,30 @@ Class | Method | HTTP request | Description
  - [AccountDetails](docs/AccountDetails.md)
  - [ConstraintState](docs/ConstraintState.md)
  - [ConstraintStatus](docs/ConstraintStatus.md)
+ - [DeckPluginVersion](docs/DeckPluginVersion.md)
  - [DeliveryConfig](docs/DeliveryConfig.md)
  - [Environment](docs/Environment.md)
  - [EnvironmentArtifactPin](docs/EnvironmentArtifactPin.md)
  - [EnvironmentArtifactVeto](docs/EnvironmentArtifactVeto.md)
+ - [File](docs/File.md)
  - [GrantedAuthority](docs/GrantedAuthority.md)
  - [HashMapstringobject](docs/HashMapstringobject.md)
  - [HttpEntity](docs/HttpEntity.md)
+ - [InputStream](docs/InputStream.md)
  - [Mapstringobject](docs/Mapstringobject.md)
  - [Mapstringstring](docs/Mapstringstring.md)
  - [Notification](docs/Notification.md)
  - [PipelineTemplateDependent](docs/PipelineTemplateDependent.md)
+ - [PluginDependency](docs/PluginDependency.md)
  - [ReorderPipelinesCommand](docs/ReorderPipelinesCommand.md)
  - [Resource](docs/Resource.md)
  - [ResponseEntity](docs/ResponseEntity.md)
+ - [SpinnakerPluginDescriptor](docs/SpinnakerPluginDescriptor.md)
+ - [SpinnakerPluginInfo](docs/SpinnakerPluginInfo.md)
+ - [SpinnakerPluginRelease](docs/SpinnakerPluginRelease.md)
+ - [Uri](docs/Uri.md)
+ - [Url](docs/Url.md)
+ - [UrlStreamHandler](docs/UrlStreamHandler.md)
  - [User](docs/User.md)
  - [Version](docs/Version.md)
 

@@ -5,6 +5,7 @@ import (
 	rm "github.com/codilime/floodgate/resourcemanager"
 	"github.com/spf13/cobra"
 	"io"
+	"io/ioutil"
 	"log"
 )
 
@@ -26,8 +27,8 @@ func NewApplyCmd(out io.Writer) *cobra.Command {
 			return runApply(cmd, options)
 		},
 	}
-	cmd.Flags().BoolVarP(&options.graph, "graph", "g", false, "export dependency graph to png")
-	cmd.Flags().StringVarP(&options.outputPath, "output-path", "o", "graph.png", "graph output path")
+	cmd.Flags().BoolVarP(&options.graph, "dot", "d", false, "export dependency graph to dot format")
+	cmd.Flags().StringVarP(&options.outputPath, "output-path", "o", "graph.dot", "dot output path")
 	cmd.Flags().IntVarP(&options.maxConcurrentConnections, "maxConcurrentConnections", "c", 5, "max concurrent connections to spinnaker")
 	return cmd
 }
@@ -55,7 +56,7 @@ func runApply(cmd *cobra.Command, options applyOptions) error {
 	if options.graph {
 		dot := resourceGraph.Graph.Dot(nil)
 
-		err = resourceGraph.ExportGraphToFile(dot, options.outputPath)
+		err = ioutil.WriteFile(options.outputPath, dot, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}

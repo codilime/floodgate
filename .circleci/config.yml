@@ -4,9 +4,9 @@ aliases:
   latest-gate-version: &default-gate-version
     gate_api_branch:
       type: string
-      default: release-1.20.x
+      default: release-1.21.x
   supported-spinnaker-releases: &gate-versions
-    gate_api_branch: [ "release-1.20.x", "release-1.19.x", "release-1.18.x" ]
+    gate_api_branch: [ "release-1.21.x", "release-1.20.x", "release-1.19.x" ]
   supported-client-os: &build-os-type
     build_os: [ "linux", "darwin" ]
   release-filters: &filters-release
@@ -16,7 +16,7 @@ aliases:
           - /release-v[0-9]+\.[0-9]+\.x/
       tags:
         only:
-         - /v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?/
+          - /v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?/
 
 commands:
   install_toolset:
@@ -31,7 +31,7 @@ commands:
             curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
             chmod +x ./kubectl
             sudo mv ./kubectl /usr/local/bin/
-    
+
   wait_for_dpkg:
     description: "Wait for packaging operations to finish"
     steps:
@@ -64,7 +64,7 @@ jobs:
             wget https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/${SWAGGER_VERSION}/swagger-codegen-cli-${SWAGGER_VERSION}.jar -O swagger-codegen-cli.jar
             wget https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/${SWAGGER_VERSION}/swagger-codegen-cli-${SWAGGER_VERSION}.jar.sha1 -O swagger-codegen-cli.jar.sha1
             echo ' swagger-codegen-cli.jar' >> swagger-codegen-cli.jar.sha1
-            sha1sum -c swagger-codegen-cli.jar.sha1 
+            sha1sum -c swagger-codegen-cli.jar.sha1
             mv swagger-codegen-cli.jar /floodgate/bin/
       - run:
           name: Get gate code
@@ -79,6 +79,11 @@ jobs:
       - run:
           name: Generate gateapi go code
           command: java -jar /floodgate/bin/swagger-codegen-cli.jar generate -l go -i /floodgate/gate/gate-swagger.json -o /floodgate/gateapi
+      - run:
+          name: Remove plugin controller from gateapi
+          command: |
+            rm /floodgate/gateapi/api_plugin*.go
+            sed -i '/PluginInfoControllerApiService/d;/PluginPublishControllerApiService/d;/PluginsInstalledControllerApiService/d' /floodgate/gateapi/client.go
       - persist_to_workspace:
           root: /floodgate
           paths:
@@ -89,7 +94,7 @@ jobs:
           destination: gate-swagger.json
 
   build:
-    parameters: 
+    parameters:
       <<: *default-gate-version
       build_os:
         type: string
@@ -102,7 +107,7 @@ jobs:
         default: send
         enum: ["send", "dont-send"]
     docker:
-      - image: circleci/golang:1.14.1
+      - image: boscard/golang-cross:1.14.4
         environment:
           GO111MODULE: "on"
     working_directory: /go/src/github.com/codilime/floodgate
@@ -120,10 +125,10 @@ jobs:
           command: |
             go mod download
             go get -u golang.org/x/lint/golint
-      - run: 
+      - run:
           name: Examine source code with go vet
           command: go vet -v ./...
-      - run: 
+      - run:
           name: Execute go tests
           command: go test -v ./... -coverprofile cover.out
       - run:
@@ -200,7 +205,7 @@ jobs:
           destination: floodgate-<< parameters.gate_api_branch >>.<< parameters.build_os >>.<< parameters.build_arch >>.sha1sum
 
   start_spinnaker:
-    parameters: 
+    parameters:
       <<: *default-gate-version
       floodgate_extra_params:
         type: string
@@ -232,7 +237,7 @@ jobs:
           command: sudo bash -c 'echo "127.1.2.3 spinnaker" >> /etc/hosts'
       - wait_for_dpkg
       - run:
-          name: Install Spinnaker and configure Floodgate       
+          name: Install Spinnaker and configure Floodgate
           command: |
             export NEED_SPINNAKER_VERSION=$( echo << parameters.gate_api_branch >> | egrep -o "[0-9]\.[0-9]+" )
             .circleci/libs/install-and-run-spinnaker.sh
@@ -318,11 +323,14 @@ workflows:
       - generate_swagger:
           name: generate swagger api
       - build:
-          name: build
+          name: build for << matrix.build_os >>
+          matrix:
+            parameters:
+              <<: *build-os-type
           requires:
             - generate swagger api
       - start_spinnaker:
           name: test floodgate with working spinnaker
           floodgate_extra_params: "-q"
           requires:
-            - build
+            - build for linux
