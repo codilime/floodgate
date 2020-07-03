@@ -310,6 +310,25 @@ func TestPipelineTemplate_LocalState(t *testing.T) {
 	}
 }
 
+func TestPipelineTemplate_RemoteState(t *testing.T) {
+	ts := test.MockGateServerReturn200("{}")
+	api := test.MockGateapiClient(ts.URL)
+
+	pt := &PipelineTemplate{}
+	err := pt.Init(api, testPipelineTemplate)
+	if err != nil {
+		t.Errorf("Resource.RemoteState() error = %v", err)
+	}
+
+	if err := pt.LoadRemoteState(api); err != nil {
+		t.Errorf("Resource.RemoteState() error = %v", err)
+	}
+
+	if string(pt.RemoteState()) != "{}" {
+		t.Errorf("Resource.RemoteState() got %s, want %s", string(pt.RemoteState()), "{}")
+	}
+}
+
 var testPipelineTemplate = map[string]interface{}{
 	"id": "test-pipeline-template",
 	"metadata": map[string]interface{}{

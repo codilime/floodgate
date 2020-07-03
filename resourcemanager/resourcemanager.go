@@ -36,14 +36,17 @@ func (rm *ResourceManager) Init(config *c.Config, customOptions ...Option) error
 			fl.NewYAMLLoader(),
 		}
 	}
-	rm.client = gc.NewGateapiClient(config)
-	user, _, err := rm.client.AuthControllerApi.LoggedOutUsingGET(rm.client.Context)
-	if err != nil {
-		return err
+	if !options.apiDisabled {
+		rm.client = gc.NewGateapiClient(config)
+		user, _, err := rm.client.AuthControllerApi.LoggedOutUsingGET(rm.client.Context)
+		if err != nil {
+			return err
+		}
+		if user == "" {
+			return fmt.Errorf("authenticating with Spinnaker failed. check if credentials are valid")
+		}
 	}
-	if user == "" {
-		return fmt.Errorf("authenticating with Spinnaker failed. check if credentials are valid")
-	}
+
 	parser, err := p.NewParser(options.fileLoaders...)
 	if err != nil {
 		return err

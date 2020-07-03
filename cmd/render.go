@@ -41,7 +41,7 @@ func runRender(cmd *cobra.Command, options renderOptions) error {
 		return err
 	}
 	resourceManager := rm.ResourceManager{}
-	resourceManager.Init(config, rm.FileLoaders(fl.NewJsonnetLoader(config.Libraries...)))
+	resourceManager.Init(config, rm.FileLoaders(true, fl.NewJsonnetLoader(config.Libraries...)))
 	if err := resourceManager.SaveResources(options.outDir); err != nil {
 		return err
 	}
