@@ -1,6 +1,7 @@
 package spinnakerresource
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/codilime/floodgate/gateclient"
@@ -290,6 +291,22 @@ func TestPipelineTemplate_ID(t *testing.T) {
 	want := "test-pipeline-template"
 	if pt.ID() != want {
 		t.Errorf("Resource.ID() got %s, want %s", pt.ID(), want)
+	}
+}
+
+func TestPipelineTemplate_LocalState(t *testing.T) {
+	ts := test.MockGateServerReturn200("")
+	api := test.MockGateapiClient(ts.URL)
+
+	pt := &PipelineTemplate{}
+	err := pt.Init(api, testPipelineTemplate)
+	if err != nil {
+		t.Errorf("Resource.LocalState() error = %v", err)
+	}
+
+	localState, _ := json.Marshal(testPipelineTemplate)
+	if string(pt.LocalState()) != string(localState) {
+		t.Errorf("Resource.LocalState() got %s, want %s", string(pt.LocalState()), string(localState))
 	}
 }
 
