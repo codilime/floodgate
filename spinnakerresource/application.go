@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	gateapi "github.com/codilime/floodgate/gateapi"
 	"github.com/codilime/floodgate/gateclient"
 	gc "github.com/codilime/floodgate/gateclient"
 	"github.com/codilime/floodgate/util"
@@ -54,8 +53,7 @@ func (a *Application) LoadRemoteStateByName(spinnakerAPI *gc.GateapiClient, name
 
 // LoadRemoteState load resource's remote state from Spinnaker
 func (a *Application) LoadRemoteState(spinnakerAPI *gc.GateapiClient) error {
-	var optionals gateapi.GetApplicationUsingGETOpts
-	payload, resp, err := spinnakerAPI.ApplicationControllerApi.GetApplicationUsingGET(spinnakerAPI.Context, a.name, &optionals)
+	payload, resp, err := spinnakerAPI.ApplicationControllerApi.GetApplicationUsingGET(spinnakerAPI.Context, a.name, nil)
 	if resp != nil {
 		if resp.StatusCode == http.StatusNotFound {
 			a.remoteState = []byte("{}")

@@ -65,6 +65,8 @@ type APIClient struct {
 
 	CredentialsControllerApi *CredentialsControllerApiService
 
+	DeckPluginsControllerApi *DeckPluginsControllerApiService
+
 	EcsServerGroupEventsControllerApi *EcsServerGroupEventsControllerApiService
 
 	ExecutionsControllerApi *ExecutionsControllerApiService
@@ -146,6 +148,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.ClusterControllerApi = (*ClusterControllerApiService)(&c.common)
 	c.ConcourseControllerApi = (*ConcourseControllerApiService)(&c.common)
 	c.CredentialsControllerApi = (*CredentialsControllerApiService)(&c.common)
+	c.DeckPluginsControllerApi = (*DeckPluginsControllerApiService)(&c.common)
 	c.EcsServerGroupEventsControllerApi = (*EcsServerGroupEventsControllerApiService)(&c.common)
 	c.ExecutionsControllerApi = (*ExecutionsControllerApiService)(&c.common)
 	c.FirewallControllerApi = (*FirewallControllerApiService)(&c.common)
@@ -408,17 +411,17 @@ func (c *APIClient) prepareRequest(
 }
 
 func (c *APIClient) decode(v interface{}, b []byte, contentType string) (err error) {
-		if strings.Contains(contentType, "application/xml") {
-			if err = xml.Unmarshal(b, v); err != nil {
-				return err
-			}
-			return nil
-		} else if strings.Contains(contentType, "application/json") {
-			if err = json.Unmarshal(b, v); err != nil {
-				return err
-			}
-			return nil
+	if strings.Contains(contentType, "application/xml") {
+		if err = xml.Unmarshal(b, v); err != nil {
+			return err
 		}
+		return nil
+	} else if strings.Contains(contentType, "application/json") {
+		if err = json.Unmarshal(b, v); err != nil {
+			return err
+		}
+		return nil
+	}
 	return errors.New("undefined response type")
 }
 

@@ -99,7 +99,7 @@ Optional parameters are passed through a pointer to a GetAllApplicationsUsingGET
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **account** | **optional.String**| filters results to only include applications deployed in the specified account | 
- **owner** | **optional.String**| filteres results to only include applications owned by the specified email | 
+ **owner** | **optional.String**| filters results to only include applications owned by the specified email | 
 
 ### Return type
 
