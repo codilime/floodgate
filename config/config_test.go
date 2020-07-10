@@ -134,6 +134,20 @@ func TestLoadConfig(t *testing.T) {
 	}
 }
 
+func TestConfig_Merge(t *testing.T) {
+	cfg := Config{
+		Endpoint: "https://floodgate",
+	}
+	cfg2 := Config{
+		Endpoint: "https://floodgate2",
+	}
+	cfg.Merge(cfg2)
+
+	if cfg.Endpoint != cfg2.Endpoint {
+		t.Errorf("Config.Merge() endpoint = %s, want %s", cfg.Endpoint, cfg2.Endpoint)
+	}
+}
+
 func TestSaveConfig(t *testing.T) {
 	dir, valid, _, _, err := createTempConfigs()
 	if err != nil {

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/codilime/floodgate/config"
 	"io"
 
 	"github.com/codilime/floodgate/version"
@@ -14,6 +15,8 @@ type RootOptions struct {
 	quiet      bool
 	verbose    bool
 }
+
+var cfg config.Config
 
 // Execute execute command
 func Execute(out io.Writer) error {
@@ -33,6 +36,8 @@ func NewRootCmd(out io.Writer) *cobra.Command {
 	cmd.PersistentFlags().StringVar(&options.configFile, "config", "", "path to config file (default $HOME/.config/floodgate/config.yaml)")
 	cmd.PersistentFlags().BoolVarP(&options.quiet, "quiet", "q", false, "hide non-essential output")
 	cmd.PersistentFlags().BoolVarP(&options.verbose, "verbose", "v", false, "show extended output")
+
+	cmd.PersistentFlags().StringVar(&cfg.Endpoint, "endpoint", "", "url path to spinnaker api")
 
 	cmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		level := "info"

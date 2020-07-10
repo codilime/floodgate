@@ -43,6 +43,7 @@ func runDownload(cmd *cobra.Command, options downloadOptions) error {
 	if err != nil {
 		return err
 	}
+	config.Merge(cfg)
 
 	projectManager := pm.ProjectManager{}
 

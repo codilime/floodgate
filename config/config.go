@@ -66,6 +66,13 @@ func LoadConfig(locations ...string) (*Config, error) {
 	return conf, nil
 }
 
+// Merge method is used to override current config with new one
+func (c *Config) Merge(cfg Config) {
+	if cfg.Endpoint != "" {
+		c.Endpoint = cfg.Endpoint
+	}
+}
+
 // SaveConfig function is used to save configuration file
 func SaveConfig(config *Config) error {
 	configFile, err := yaml.Marshal(&config)

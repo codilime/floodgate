@@ -37,6 +37,7 @@ func runInspect(cmd *cobra.Command, options inspectOptions) error {
 	if err != nil {
 		return err
 	}
+	config.Merge(cfg)
 	resourceManager := &rm.ResourceManager{}
 	if err := resourceManager.Init(config); err != nil {
 		return err

@@ -43,6 +43,8 @@ func runApply(cmd *cobra.Command, options applyOptions) error {
 	if err != nil {
 		return err
 	}
+	config.Merge(cfg)
+
 	resourceManager := &rm.ResourceManager{}
 
 	if err := resourceManager.Init(config); err != nil {
