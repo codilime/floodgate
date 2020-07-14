@@ -37,7 +37,10 @@ func NewRootCmd(out io.Writer) *cobra.Command {
 	cmd.PersistentFlags().BoolVarP(&options.quiet, "quiet", "q", false, "hide non-essential output")
 	cmd.PersistentFlags().BoolVarP(&options.verbose, "verbose", "v", false, "show extended output")
 
-	cmd.PersistentFlags().StringVar(&cfg.Endpoint, "endpoint", "", "url path to spinnaker api")
+	cmd.PersistentFlags().StringVar(&cfg.Endpoint, "endpoint", "", "URL to spinnaker API")
+	cmd.PersistentFlags().BoolVar(&cfg.Insecure, "insecure", false, "insecure connection to spinnaker API")
+	cmd.PersistentFlags().StringSliceVar(&cfg.Libraries, "libraries", []string{}, "path to floodgate libraries")
+	cmd.PersistentFlags().StringSliceVar(&cfg.Resources, "resources", []string{}, "path to floodgate resources'")
 
 	cmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		level := "info"

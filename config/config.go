@@ -71,6 +71,18 @@ func (c *Config) Merge(cfg Config) {
 	if cfg.Endpoint != "" {
 		c.Endpoint = cfg.Endpoint
 	}
+
+	if cfg.Insecure {
+		c.Insecure = cfg.Insecure
+	}
+
+	if len(cfg.Resources) > 0 {
+		c.Resources = cfg.Resources
+	}
+
+	if len(cfg.Libraries) > 0 {
+		c.Libraries = cfg.Libraries
+	}
 }
 
 // SaveConfig function is used to save configuration file
