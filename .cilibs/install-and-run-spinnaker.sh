@@ -14,7 +14,7 @@ sudo bash InstallHalyard.sh --version ${HAL_VERSION} --user $USERNAME -y
 hal -v
 
 # Create Kind cluster
-kind create cluster --config="${EXEC_DIR}/kind-cluster-config.yaml"
+kind create cluster --config="${EXEC_DIR}/templates/kind-cluster-config.yaml"
 kubectl config use-context kind-kind
 kubectl cluster-info
 
@@ -34,8 +34,8 @@ hal -q config deploy edit --type distributed --account-name my-k8s-v2-account
 
 ## Install minio
 kubectl create namespace spinnaker
-sed -i 's/LoadBalancer/ClusterIP/g' "${EXEC_DIR}/minio-standalone.yaml"
-kubectl -n spinnaker create -f "${EXEC_DIR}/minio-standalone.yaml"
+sed -i 's/LoadBalancer/ClusterIP/g' "${EXEC_DIR}/templates/minio-standalone.yaml"
+kubectl -n spinnaker create -f "${EXEC_DIR}/templates/minio-standalone.yaml"
 mkdir -p ~/.hal/default/profiles
 echo "spinnaker.s3.versioning: false" >> ~/.hal/default/profiles/front50-local.yml
 
@@ -55,8 +55,8 @@ hal config security api edit --override-base-url='http://spinnaker/api/v1'
 echo 'window.spinnakerSettings.authEnabled = true;' > ~/.hal/default/profiles/settings-local.js
 mkdir -p ~/.hal/default/service-settings
 echo 'healthEndpoint: /api/v1/health' > ~/.hal/default/service-settings/gate.yml
-sed -i "s/GATE_PASS/${GATE_PASS}/g" "${EXEC_DIR}/gate-local.yml"
-cp "${EXEC_DIR}/gate-local.yml" ~/.hal/default/profiles/gate-local.yml
+sed -i "s/GATE_PASS/${GATE_PASS}/g" "${EXEC_DIR}/templates/gate-local.yml"
+cp "${EXEC_DIR}/templates/gate-local.yml" ~/.hal/default/profiles/gate-local.yml
 
 # Install Spinnaker
 hal -q deploy apply
@@ -66,11 +66,11 @@ do
 done
 
 # Install Ingress controller
-kubectl apply -f "${EXEC_DIR}/ingress-mandatory.yaml"
-kubectl apply -f "${EXEC_DIR}/ingress-service-nodeport.yaml"
+kubectl apply -f "${EXEC_DIR}/templastes/ingress-mandatory.yaml"
+kubectl apply -f "${EXEC_DIR}/templates/ingress-service-nodeport.yaml"
 kubectl patch deployments -n ingress-nginx nginx-ingress-controller -p '{"spec":{"template":{"spec":{"containers":[{"name":"nginx-ingress-controller","ports":[{"containerPort":80,"hostPort":80},{"containerPort":443,"hostPort":443}]}],"nodeSelector":{"ingress-ready":"true"},"tolerations":[{"key":"node-role.kubernetes.io/master","operator":"Equal","effect":"NoSchedule"}]}}}}'
-kubectl -n spinnaker apply -f "${EXEC_DIR}/spinnaker-ingress.yaml"
+kubectl -n spinnaker apply -f "${EXEC_DIR}/templates/spinnaker-ingress.yaml"
 
 # Generate Floodgate config file
-sed -i "s/GATE_PASS/${GATE_PASS}/g" "${EXEC_DIR}/floodgate-config.yaml"
-cp "${EXEC_DIR}/floodgate-config.yaml" ~/floodgate.yaml
+sed -i "s/GATE_PASS/${GATE_PASS}/g" "${EXEC_DIR}/templates/floodgate-config.yaml"
+cp "${EXEC_DIR}/templates/floodgate-config.yaml" ~/floodgate.yaml
