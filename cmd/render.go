@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	log "github.com/sirupsen/logrus"
 	"io"
 
 	c "github.com/codilime/floodgate/config"
@@ -42,9 +41,6 @@ func runRender(cmd *cobra.Command, options renderOptions) error {
 		return err
 	}
 	config.Merge(cfg)
-
-	log.Info(config)
-
 	resourceManager := rm.ResourceManager{}
 	resourceManager.Init(config, rm.FileLoaders(true, fl.NewJsonnetLoader(config.Libraries...)))
 	if err := resourceManager.SaveResources(options.outDir); err != nil {
