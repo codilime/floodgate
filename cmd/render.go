@@ -40,6 +40,7 @@ func runRender(cmd *cobra.Command, options renderOptions) error {
 	if err != nil {
 		return err
 	}
+	config.Merge(cfg)
 	resourceManager := rm.ResourceManager{}
 	resourceManager.Init(config, rm.FileLoaders(true, fl.NewJsonnetLoader(config.Libraries...)))
 	if err := resourceManager.SaveResources(options.outDir); err != nil {
