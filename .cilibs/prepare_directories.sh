@@ -3,10 +3,7 @@
 BUILD_OS=linux
 BUILD_ARCH=amd64
 
-echo "Prepare directories"
-sudo mkdir /floodgate
-sudo chmod 777 /floodgate
-mkdir -p /floodgate/bin
+sudo bash -c "source .cilibs/prepare_extra_directories.sh"
 mkdir -p /floodgate/libs
 mkdir -p /floodgate/resources
 cp -r sponnet /floodgate/libs/
