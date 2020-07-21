@@ -1,5 +1,5 @@
 #!/bin/bash -e
-
+export TERM=${TERM:-dumb} #Needed because sudo is used in CircleCi
 GATE_API_BRANCH=$1
 
 echo "Setup swagger-codegen"

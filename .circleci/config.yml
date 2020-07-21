@@ -45,7 +45,7 @@ jobs:
           command: sudo .cilibs/prepare_extra_directories.sh 
       - run:
           name: Setup swagger
-          command: sudo .cilibs/setup_swagger.sh << parameters.gate_api_branch >> 
+          command: .cilibs/setup_swagger.sh << parameters.gate_api_branch >> 
       - persist_to_workspace:
           root: /floodgate
           paths:

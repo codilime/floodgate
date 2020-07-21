@@ -2,8 +2,13 @@ dist: xenial
 language: go
 go:
   - 1.14.1
-env:
-  - REALESE_BRANCHES="release-v[0-9]+\.[0-9]+\.x" RELEASE_TAGS="v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?" BUILD_OS="$([ $TRAVIS_EVENT_TYPE == cron ] || [[ $TRAVIS_BRANCH =~ $RELEASE_BRANCHES ]] || [[ $TRAVIS_TAG =~ $RELEASE_TAGS ]] && echo darwin) linux" BUILD_ARCH=amd64 GATE_API_BRANCH=release-1.20.x SEND_COVERITY=send
+env: |
+  REALESE_BRANCHES="release-v[0-9]+\.[0-9]+\.x" 
+  RELEASE_TAGS="v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?" 
+  BUILD_OS="$([ $TRAVIS_EVENT_TYPE == cron ] || [[ $TRAVIS_BRANCH =~ $RELEASE_BRANCHES ]] || [[ $TRAVIS_TAG =~ $RELEASE_TAGS ]] && echo darwin) linux" 
+  BUILD_ARCH=amd64 
+  GATE_API_BRANCH=release-1.20.x 
+  SEND_COVERITY=send
 services:
   - docker
 
@@ -11,9 +16,25 @@ before_script:
   - docker pull openjdk:11.0.3-stretch
   - docker run -u root -w /workspace -v `pwd`:/workspace --entrypoint /workspace/.cilibs/generate_swagger.sh --rm openjdk:11.0.3-stretch release-1.20.x 
     
-script:
-  - docker pull golang:1.14.1-stretch
-  - for o in $BUILD_OS; do for a in $BUILD_ARCH; do docker run -e SERIESCI_TOKEN=$SERIESCI_TOKEN -e TRAVIS_COMMIT=$TRAVIS_COMMIT -u root -w /go/src/github.com/codilime/floodgate -v `pwd`:/go/src/github.com/codilime/floodgate --entrypoint /go/src/github.com/codilime/floodgate/.cilibs/build.sh --rm golang:1.14.1-stretch -g $GATE_API_BRANCH -o $o -a $a -c $SEND_COVERITY ; done; done
-  - sudo chown $SUDO_USER:$SUDO_USER -R .
-  - .cilibs/start_spinnaker.sh -a `echo $BUILD_ARCH | cut -d" " -f1` -o `echo $BUILD_OS | cut -d" " -f1`  -g $GATE_API_BRANCH -e $FLOODGATE_EXTRA_PARAMS
+script: |
+  docker pull golang:1.14.1-stretch
+  for o in $BUILD_OS
+    do 
+    for a in $BUILD_ARCH
+      do 
+      docker run -e SERIESCI_TOKEN=$SERIESCI_TOKEN \
+      -e TRAVIS_COMMIT=$TRAVIS_COMMIT \
+      -u root \
+      -w /go/src/github.com/codilime/floodgate \
+      -v `pwd`:/go/src/github.com/codilime/floodgate \
+      --entrypoint /go/src/github.com/codilime/floodgate/.cilibs/build.sh \
+      --rm golang:1.14.1-stretch \
+      -g $GATE_API_BRANCH -o $o -a $a -c $SEND_COVERITY
+    done
+  done
+  sudo chown $SUDO_USER:$SUDO_USER -R .
+  .cilibs/start_spinnaker.sh -a `echo $BUILD_ARCH | cut -d" " -f1` \
+  -o `echo $BUILD_OS | cut -d" " -f1` \
+  -g $GATE_API_BRANCH \
+  -e $FLOODGATE_EXTRA_PARAMS
 
