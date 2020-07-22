@@ -66,7 +66,7 @@ do
 done
 
 # Install Ingress controller
-kubectl apply -f "${EXEC_DIR}/templastes/ingress-mandatory.yaml"
+kubectl apply -f "${EXEC_DIR}/templates/ingress-mandatory.yaml"
 kubectl apply -f "${EXEC_DIR}/templates/ingress-service-nodeport.yaml"
 kubectl patch deployments -n ingress-nginx nginx-ingress-controller -p '{"spec":{"template":{"spec":{"containers":[{"name":"nginx-ingress-controller","ports":[{"containerPort":80,"hostPort":80},{"containerPort":443,"hostPort":443}]}],"nodeSelector":{"ingress-ready":"true"},"tolerations":[{"key":"node-role.kubernetes.io/master","operator":"Equal","effect":"NoSchedule"}]}}}}'
 kubectl -n spinnaker apply -f "${EXEC_DIR}/templates/spinnaker-ingress.yaml"
