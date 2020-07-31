@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/antihax/optional"
 	c "github.com/codilime/floodgate/config"
@@ -10,13 +11,16 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"io"
+	"io/ioutil"
+	"os"
 	"time"
 )
 
 type executeOptions struct {
-	webhookName string
-	wait        bool
-	waitTime    int
+	webhookName    string
+	wait           bool
+	waitTime       int
+	parametersFile string
 }
 
 func NewExecuteCmd(out io.Writer) *cobra.Command {
@@ -35,6 +39,7 @@ func NewExecuteCmd(out io.Writer) *cobra.Command {
 
 	cmd.Flags().BoolVarP(&options.wait, "wait", "w", false, "wait for pipeline execution to finish")
 	cmd.Flags().IntVarP(&options.waitTime, "wait-time", "t", 30, "wait time between status check")
+	cmd.Flags().StringVarP(&options.parametersFile, "parameters", "p", "", "path to parameters json file")
 
 	return cmd
 }
@@ -57,11 +62,29 @@ func runExecute(cmd *cobra.Command, options executeOptions) error {
 	}
 	client := resourceManager.GetClient()
 
+	var opts swagger.WebhooksUsingPOSTOpts
+
+	log.Info(options.parametersFile)
+	if _, err := os.Stat(options.parametersFile); !os.IsNotExist(err) {
+		jsonFile, err := os.Open(options.parametersFile)
+		if err != nil {
+			return err
+		}
+		defer jsonFile.Close()
+		byteVal, _ := ioutil.ReadAll(jsonFile)
+		var result map[string]interface{}
+		err = json.Unmarshal(byteVal, &result)
+		if err != nil {
+			return err
+		}
+
+		opts.Event = optional.NewInterface(result)
+	}
+
 	log.Infof("triggering '%s'", options.webhookName)
 
-	var opts *swagger.WebhooksUsingPOSTOpts
 	payload, resp, err := client.WebhookControllerApi.WebhooksUsingPOST(client.Context, options.webhookName,
-		"webhook", opts)
+		"webhook", &opts)
 	if err != nil {
 		return err
 	}
