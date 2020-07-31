@@ -23,6 +23,7 @@ type executeOptions struct {
 	parametersFile string
 }
 
+// NewExecuteCmd create new execute command
 func NewExecuteCmd(out io.Writer) *cobra.Command {
 	options := executeOptions{}
 	cmd := &cobra.Command{
@@ -126,10 +127,10 @@ func runExecute(cmd *cobra.Command, options executeOptions) error {
 	return nil
 }
 
-func executionStatus(spinnakerAPI *gc.GateapiClient, eventId string) (string, error) {
+func executionStatus(spinnakerAPI *gc.GateapiClient, eventID string) (string, error) {
 	var opts swagger.SearchForPipelineExecutionsByTriggerUsingGETOpts
 	opts.TriggerTypes = optional.NewString("webhook")
-	opts.EventId = optional.NewString(eventId)
+	opts.EventId = optional.NewString(eventID)
 
 	payload, resp, err := spinnakerAPI.ExecutionsControllerApi.SearchForPipelineExecutionsByTriggerUsingGET(spinnakerAPI.Context,
 		"*", &opts)
