@@ -64,6 +64,7 @@ func NewRootCmd(out io.Writer) *cobra.Command {
 	cmd.AddCommand(NewVersionCmd(out))
 	cmd.AddCommand(NewDownloadCmd(out))
 	cmd.AddCommand(NewApplyCmd(out))
+	cmd.AddCommand(NewExecuteCmd(out))
 
 	return cmd
 }
