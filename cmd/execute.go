@@ -3,12 +3,12 @@ package cmd
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/antihax/optional"
 	c "github.com/codilime/floodgate/config"
 	swagger "github.com/codilime/floodgate/gateapi"
 	gc "github.com/codilime/floodgate/gateclient"
 	rm "github.com/codilime/floodgate/resourcemanager"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"io"
 	"io/ioutil"
@@ -64,7 +64,6 @@ func runExecute(cmd *cobra.Command, options executeOptions) error {
 
 	var opts swagger.WebhooksUsingPOSTOpts
 
-	log.Info(options.parametersFile)
 	if _, err := os.Stat(options.parametersFile); !os.IsNotExist(err) {
 		jsonFile, err := os.Open(options.parametersFile)
 		if err != nil {
@@ -81,7 +80,7 @@ func runExecute(cmd *cobra.Command, options executeOptions) error {
 		opts.Event = optional.NewInterface(result)
 	}
 
-	log.Infof("triggering '%s'", options.webhookName)
+	fmt.Fprintf(cmd.OutOrStdout(), "triggering '%s'\n", options.webhookName)
 
 	payload, resp, err := client.WebhookControllerApi.WebhooksUsingPOST(client.Context, options.webhookName,
 		"webhook", &opts)
@@ -97,8 +96,8 @@ func runExecute(cmd *cobra.Command, options executeOptions) error {
 		return errors.New("event not processed")
 	}
 
-	log.Info("event processed successfully")
-	log.Infof("execution id is %s", data["eventId"])
+	fmt.Fprintf(cmd.OutOrStdout(), "event processed successfully\n")
+	fmt.Fprintf(cmd.OutOrStdout(), "execution id is %s\n", data["eventId"])
 
 	for options.wait {
 		status, err := executionStatus(client, data["eventId"].(string))
@@ -108,13 +107,13 @@ func runExecute(cmd *cobra.Command, options executeOptions) error {
 
 		switch status {
 		case "NOT_STARTED":
-			log.Info("waiting for pipeline to start")
+			fmt.Fprintf(cmd.OutOrStdout(), "waiting for pipeline to start\n")
 		case "RUNNING":
-			log.Info("pipeline is still running")
+			fmt.Fprintf(cmd.OutOrStdout(), "pipeline is still running\n")
 		case "SUCCEEDED":
-			log.Info("pipeline succeeded")
+			fmt.Fprintf(cmd.OutOrStdout(), "pipeline succeeded\n")
 		default:
-			log.Info("something went wrong")
+			fmt.Fprintf(cmd.OutOrStdout(), "something went wrong\n")
 		}
 
 		if status == "SUCCEEDED" {
