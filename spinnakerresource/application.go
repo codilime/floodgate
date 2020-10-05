@@ -32,6 +32,7 @@ func (a *Application) Init(api *gc.GateapiClient, localData map[string]interface
 	a.name = name
 	if api != nil {
 		if err := a.LoadRemoteState(api); err != nil {
+			err := a.SaveLocalState(api)
 			return err
 		}
 	}

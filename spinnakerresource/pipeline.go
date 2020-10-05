@@ -41,6 +41,7 @@ func (p *Pipeline) Init(api *gc.GateapiClient, localData map[string]interface{})
 	p.templateReference = reference
 	if api != nil {
 		if err := p.LoadRemoteState(api); err != nil {
+			err := p.SaveLocalState(api)
 			return err
 		}
 	}

@@ -35,6 +35,7 @@ func (pt *PipelineTemplate) Init(api *gc.GateapiClient, localData map[string]int
 	pt.name = name
 	if api != nil {
 		if err := pt.LoadRemoteState(api); err != nil {
+			err := pt.SaveLocalState(api)
 			return err
 		}
 	}
