@@ -19,6 +19,7 @@ var location string
 // Config is the default configuration for the app
 type Config struct {
 	Endpoint  string      `json:"endpoint"`
+	Timeout   int64       `json:"timeout"`
 	Insecure  bool        `json:"insecure"`
 	Auth      auth.Config `json:"auth"`
 	Libraries []string    `json:"libraries"`
