@@ -27,7 +27,7 @@ type GateapiClient struct {
 func NewGateapiClient(floodgateConfig *config.Config) *GateapiClient {
 	cookieJar, _ := cookiejar.New(nil)
 	var gateHTTPClient = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: time.Duration(floodgateConfig.Timeout) * time.Second,
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: floodgateConfig.Insecure},
 		},
