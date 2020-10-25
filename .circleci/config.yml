@@ -321,22 +321,16 @@ workflows:
   commit:
     jobs:
       - generate_swagger:
-          name: generate swagger api << matrix.gate_api_branch >>
-          matrix:
-            parameters: *gate-versions
+          name: generate swagger api
       - build:
-          name: build for << matrix.build_os >> against gate << matrix.gate_api_branch >>
-          build_arch: amd64
-          send_coverity: dont-send
+          name: build for << matrix.build_os >>
           matrix:
             parameters:
-              <<: *gate-versions
               <<: *build-os-type
           requires:
-            - generate swagger api << matrix.gate_api_branch >>
+            - generate swagger api
       - start_spinnaker:
-          name: test floodgate with working spinnaker << matrix.gate_api_branch >>
-          matrix:
-            parameters: *gate-versions
+          name: test floodgate with working spinnaker
+          floodgate_extra_params: "-q"
           requires:
-            - build for linux against gate << matrix.gate_api_branch >>
+            - build for linux
