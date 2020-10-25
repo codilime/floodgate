@@ -10,13 +10,13 @@
 package swagger
 
 type SpinnakerPluginDescriptor struct {
-	Dependencies      []PluginDependency `json:"dependencies,omitempty"`
-	License           string             `json:"license,omitempty"`
-	PluginClass       string             `json:"pluginClass,omitempty"`
-	PluginDescription string             `json:"pluginDescription,omitempty"`
-	PluginId          string             `json:"pluginId,omitempty"`
-	Provider          string             `json:"provider,omitempty"`
-	Requires          string             `json:"requires,omitempty"`
-	Unsafe            bool               `json:"unsafe"`
-	Version           string             `json:"version,omitempty"`
+	PluginDescription string `json:"pluginDescription,omitempty"`
+	Provider string `json:"provider,omitempty"`
+	PluginClass string `json:"pluginClass,omitempty"`
+	Unsafe bool `json:"unsafe"`
+	License string `json:"license,omitempty"`
+	PluginId string `json:"pluginId,omitempty"`
+	Dependencies []PluginDependency `json:"dependencies,omitempty"`
+	Requires string `json:"requires,omitempty"`
+	Version string `json:"version,omitempty"`
 }

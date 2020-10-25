@@ -82,9 +82,9 @@ func (pt PipelineTemplate) SaveLocalState(spinnakerAPI *gc.GateapiClient) error 
 	}
 	var resp *http.Response
 	if string(pt.remoteState) == "{}" {
-		resp, err = spinnakerAPI.V2PipelineTemplatesControllerApi.CreateUsingPOST1(spinnakerAPI.Context, localStateJSON, nil)
+		_, resp, err = spinnakerAPI.V2PipelineTemplatesControllerApi.CreateUsingPOST1(spinnakerAPI.Context, localStateJSON, nil)
 	} else {
-		resp, err = spinnakerAPI.V2PipelineTemplatesControllerApi.UpdateUsingPOST1(spinnakerAPI.Context, pt.id, localStateJSON, nil)
+		_, resp, err = spinnakerAPI.V2PipelineTemplatesControllerApi.UpdateUsingPOST1(spinnakerAPI.Context, pt.id, localStateJSON, nil)
 	}
 	if resp != nil {
 		if resp.StatusCode != http.StatusAccepted {

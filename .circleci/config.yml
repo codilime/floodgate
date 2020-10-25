@@ -4,9 +4,9 @@ aliases:
   latest-gate-version: &default-gate-version
     gate_api_branch:
       type: string
-      default: release-1.21.x
+      default: release-1.23.x
   supported-spinnaker-releases: &gate-versions
-    gate_api_branch: [ "release-1.21.x", "release-1.20.x", "release-1.19.x" ]
+    gate_api_branch: [ "release-1.23.x", "release-1.22.x" ]
   supported-client-os: &build-os-type
     build_os: [ "linux", "darwin" ]
   release-filters: &filters-release
@@ -90,7 +90,7 @@ jobs:
             - gate-swagger.json
             - gateapi
       - store_artifacts:
-          path: /floodgate/gate/swagger/gate-swagger.json
+          path: /floodgate/gate/gate-swagger.json
           destination: gate-swagger.json
 
   build:

@@ -114,7 +114,7 @@ func (p Pipeline) SaveLocalState(spinnakerAPI *gc.GateapiClient) error {
 		return err
 	}
 
-	saveResp, err := spinnakerAPI.PipelineControllerApi.SavePipelineUsingPOST(spinnakerAPI.Context, jsonPayload)
+	saveResp, err := spinnakerAPI.PipelineControllerApi.SavePipelineUsingPOST(spinnakerAPI.Context, jsonPayload, nil)
 	if err != nil {
 		return err
 	}
