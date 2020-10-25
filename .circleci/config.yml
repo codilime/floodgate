@@ -90,7 +90,7 @@ jobs:
             - gate-swagger.json
             - gateapi
       - store_artifacts:
-          path: /floodgate/gate/swagger/gate-swagger.json
+          path: /floodgate/gate/gate-swagger.json
           destination: gate-swagger.json
 
   build:
