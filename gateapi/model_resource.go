@@ -14,12 +14,12 @@ import (
 )
 
 type Resource struct {
-	Description string       `json:"description,omitempty"`
-	File        **os.File    `json:"file,omitempty"`
-	Filename    string       `json:"filename,omitempty"`
+	Uri *Uri `json:"uri,omitempty"`
+	File **os.File `json:"file,omitempty"`
+	Readable bool `json:"readable,omitempty"`
+	Description string `json:"description,omitempty"`
+	Open bool `json:"open,omitempty"`
+	Filename string `json:"filename,omitempty"`
 	InputStream *InputStream `json:"inputStream,omitempty"`
-	Open        bool         `json:"open,omitempty"`
-	Readable    bool         `json:"readable,omitempty"`
-	Uri         *Uri         `json:"uri,omitempty"`
-	Url         *Url         `json:"url,omitempty"`
+	Url *Url `json:"url,omitempty"`
 }

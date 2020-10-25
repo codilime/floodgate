@@ -205,7 +205,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
   **executionId** | **string**| Execution id to run against | 
-  **expressions** | [**[]Mapstringstring**](MapÂ«string,stringÂ».md)| List of variables/expressions to evaluate | 
+  **expressions** | [**[]Mapstringstring**](Map«string,string».md)| List of variables/expressions to evaluate | 
  **optional** | ***EvaluateVariablesUsingPOSTOpts** | optional parameters | nil if no parameters
 
 ### Optional Parameters
@@ -440,7 +440,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **SavePipelineUsingPOST**
-> SavePipelineUsingPOST(ctx, pipeline)
+> SavePipelineUsingPOST(ctx, pipeline, optional)
 Save a pipeline definition
 
 ### Required Parameters
@@ -449,6 +449,15 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
   **pipeline** | [**interface{}**](interface{}.md)| pipeline | 
+ **optional** | ***SavePipelineUsingPOSTOpts** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a pointer to a SavePipelineUsingPOSTOpts struct
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **staleCheck** | **optional.Bool**| staleCheck | [default to false]
 
 ### Return type
 

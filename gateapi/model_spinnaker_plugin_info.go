@@ -10,11 +10,11 @@
 package swagger
 
 type SpinnakerPluginInfo struct {
-	Description  string                   `json:"description,omitempty"`
-	Id           string                   `json:"id,omitempty"`
-	Name         string                   `json:"name,omitempty"`
-	ProjectUrl   string                   `json:"projectUrl,omitempty"`
-	Provider     string                   `json:"provider,omitempty"`
-	Releases     []SpinnakerPluginRelease `json:"releases"`
-	RepositoryId string                   `json:"repositoryId,omitempty"`
+	Description string `json:"description,omitempty"`
+	Provider string `json:"provider,omitempty"`
+	ProjectUrl string `json:"projectUrl,omitempty"`
+	Name string `json:"name,omitempty"`
+	Releases []SpinnakerPluginRelease `json:"releases"`
+	RepositoryId string `json:"repositoryId,omitempty"`
+	Id string `json:"id,omitempty"`
 }
