@@ -49,7 +49,7 @@ func runSync(cmd *cobra.Command, options syncOptions) error {
 	if options.dryRun {
 		changes, err := resourceManager.GetChanges()
 		if err != nil {
-			os.Exit(1)
+			os.Exit(2)
 		}
 		printChangedResources(cmd.OutOrStdout(), changes)
 	} else {

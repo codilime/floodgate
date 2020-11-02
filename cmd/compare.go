@@ -46,7 +46,7 @@ func runCompare(cmd *cobra.Command, options compareOptions) error {
 	}
 	changes, err := resourceManager.GetChanges()
 	if err != nil {
-		os.Exit(1)
+		os.Exit(2)
 	}
 	if len(changes) == 0 {
 		return nil
