@@ -70,12 +70,13 @@ func (rm ResourceManager) GetResources() spr.SpinnakerResources {
 }
 
 // GetChanges get resources' changes
-func (rm ResourceManager) GetChanges() (changes []ResourceChange) {
+func (rm ResourceManager) GetChanges() (changes []ResourceChange, err error) {
 	for _, application := range rm.resources.Applications {
 		var change string
 		changed, err := application.IsChanged()
 		if err != nil {
 			log.Fatal(err)
+			return changes, err
 		}
 		if changed {
 			change = application.GetFullDiff()
@@ -87,6 +88,7 @@ func (rm ResourceManager) GetChanges() (changes []ResourceChange) {
 		changed, err := pipeline.IsChanged()
 		if err != nil {
 			log.Fatal(err)
+			return changes, err
 		}
 		if changed {
 			change = pipeline.GetFullDiff()
@@ -98,6 +100,7 @@ func (rm ResourceManager) GetChanges() (changes []ResourceChange) {
 		changed, err := pipelineTemplate.IsChanged()
 		if err != nil {
 			log.Fatal(err)
+			return changes, err
 		}
 		if changed {
 			change = pipelineTemplate.GetFullDiff()

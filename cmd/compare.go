@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 
 	c "github.com/codilime/floodgate/config"
 	rm "github.com/codilime/floodgate/resourcemanager"
@@ -43,7 +44,10 @@ func runCompare(cmd *cobra.Command, options compareOptions) error {
 	if err := resourceManager.Init(config); err != nil {
 		return err
 	}
-	changes := resourceManager.GetChanges()
+	changes, err := resourceManager.GetChanges()
+	if err != nil {
+		os.Exit(1)
+	}
 	if len(changes) == 0 {
 		return nil
 	}
