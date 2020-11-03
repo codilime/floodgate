@@ -59,7 +59,7 @@ func runExecute(cmd *cobra.Command, options executeOptions) error {
 
 	resourceManager := &rm.ResourceManager{}
 	if err := resourceManager.Init(config); err != nil {
-		return err
+		os.Exit(2)
 	}
 	client := resourceManager.GetClient()
 

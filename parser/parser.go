@@ -65,7 +65,7 @@ func (p *Parser) ParseDirectories(directories []string) (*ParsedResourceData, er
 	for _, entrypoint := range directories {
 		output, err := p.loadFilesFromDirectory(entrypoint)
 		if err != nil {
-			log.Fatal(err)
+			log.Warn(err)
 			return nil, err
 		}
 		objects = append(objects, output...)
@@ -93,8 +93,8 @@ func (p *Parser) loadFilesFromDirectory(entrypoint string) ([]map[string]interfa
 			}
 			obj, err := fileLoader.LoadFile(path)
 			if err != nil {
-				log.Warn(f.Name(), " not loaded due to\n", err)
-				return nil
+				log.Warn(f.Name(), " not loaded due to")
+				return err
 			}
 			objects = append(objects, obj...)
 			log.Debugf("Loaded file: %s", path)

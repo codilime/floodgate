@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"io"
+	"os"
 
 	c "github.com/codilime/floodgate/config"
 	rm "github.com/codilime/floodgate/resourcemanager"
@@ -40,7 +41,7 @@ func runInspect(cmd *cobra.Command, options inspectOptions) error {
 	config.Merge(cfg)
 	resourceManager := &rm.ResourceManager{}
 	if err := resourceManager.Init(config); err != nil {
-		return err
+		os.Exit(2)
 	}
 	fmt.Fprintln(cmd.OutOrStdout(), "Current Spinnaker resource status:")
 	fmt.Fprintln(cmd.OutOrStdout(), "\nApplications:")

@@ -44,7 +44,7 @@ func runSync(cmd *cobra.Command, options syncOptions) error {
 	config.Merge(cfg)
 	resourceManager := &rm.ResourceManager{}
 	if err := resourceManager.Init(config); err != nil {
-		return err
+		os.Exit(2)
 	}
 	if options.dryRun {
 		changes, err := resourceManager.GetChanges()

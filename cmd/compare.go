@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -42,7 +41,7 @@ func runCompare(cmd *cobra.Command, options compareOptions) error {
 	config.Merge(cfg)
 	resourceManager := &rm.ResourceManager{}
 	if err := resourceManager.Init(config); err != nil {
-		return err
+		os.Exit(2)
 	}
 	changes, err := resourceManager.GetChanges()
 	if err != nil {
@@ -52,8 +51,12 @@ func runCompare(cmd *cobra.Command, options compareOptions) error {
 		return nil
 	}
 
+	//print changes and exit with code 1
 	printCompareDiff(cmd.OutOrStdout(), changes)
-	return errors.New("end diff")
+	fmt.Println("end diff")
+	os.Exit(1)
+
+	return nil
 }
 
 func printCompareDiff(out io.Writer, changes []rm.ResourceChange) {

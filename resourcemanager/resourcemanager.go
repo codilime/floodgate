@@ -55,7 +55,10 @@ func (rm *ResourceManager) Init(config *c.Config, customOptions ...Option) error
 	if err != nil {
 		return err
 	}
-	rm.createResourcesFromData(resourceData)
+	err = rm.createResourcesFromData(resourceData)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
