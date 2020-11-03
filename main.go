@@ -10,6 +10,6 @@ import (
 func main() {
 	if err := cmd.Execute(os.Stdout); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		os.Exit(1)
+		os.Exit(256)
 	}
 }
