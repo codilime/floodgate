@@ -261,36 +261,36 @@ jobs:
             /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml compare
 
 workflows:
-  periodic:
-    triggers:
-      - schedule:
-          cron: "15 2 * * *"
-          filters:
-            branches:
-              only:
-                - master
-    jobs:
-      - generate_swagger:
-          name: generate swagger api << matrix.gate_api_branch >>
-          matrix:
-            parameters: *gate-versions
-      - build:
-          name: build for << matrix.build_os >> against gate << matrix.gate_api_branch >>
-          build_arch: amd64
-          send_coverity: dont-send
-          matrix:
-            parameters:
-              <<: *gate-versions
-              <<: *build-os-type
-          requires:
-            - generate swagger api << matrix.gate_api_branch >>
-      - start_spinnaker:
-          name: test floodgate with working spinnaker << matrix.gate_api_branch >>
-          matrix:
-            parameters: *gate-versions
-          requires:
-            - build for linux against gate << matrix.gate_api_branch >>
-
+  #  periodic:
+  #    triggers:
+  #      - schedule:
+  #          cron: "15 2 * * *"
+  #          filters:
+  #            branches:
+  #              only:
+  #                - master
+  #    jobs:
+  #      - generate_swagger:
+  #          name: generate swagger api << matrix.gate_api_branch >>
+  #          matrix:
+  #            parameters: *gate-versions
+  #      - build:
+  #          name: build for << matrix.build_os >> against gate << matrix.gate_api_branch >>
+  #          build_arch: amd64
+  #          send_coverity: dont-send
+  #          matrix:
+  #            parameters:
+  #              <<: *gate-versions
+  #              <<: *build-os-type
+  #          requires:
+  #            - generate swagger api << matrix.gate_api_branch >>
+  #      - start_spinnaker:
+  #          name: test floodgate with working spinnaker << matrix.gate_api_branch >>
+  #          matrix:
+  #            parameters: *gate-versions
+  #          requires:
+  #            - build for linux against gate << matrix.gate_api_branch >>
+  #
   release:
     jobs:
       - generate_swagger:
