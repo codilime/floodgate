@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"os"
 )
 
 // applyOptions store apply command options
@@ -48,7 +49,7 @@ func runApply(cmd *cobra.Command, options applyOptions) error {
 	resourceManager := &rm.ResourceManager{}
 
 	if err := resourceManager.Init(config); err != nil {
-		return err
+		os.Exit(2)
 	}
 
 	resources := resourceManager.GetResources()

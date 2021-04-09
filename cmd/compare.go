@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"io"
+	"os"
 
 	c "github.com/codilime/floodgate/config"
 	rm "github.com/codilime/floodgate/resourcemanager"
@@ -41,15 +41,22 @@ func runCompare(cmd *cobra.Command, options compareOptions) error {
 	config.Merge(cfg)
 	resourceManager := &rm.ResourceManager{}
 	if err := resourceManager.Init(config); err != nil {
-		return err
+		os.Exit(2)
 	}
-	changes := resourceManager.GetChanges()
+	changes, err := resourceManager.GetChanges()
+	if err != nil {
+		os.Exit(2)
+	}
 	if len(changes) == 0 {
 		return nil
 	}
 
+	//print changes and exit with code 1
 	printCompareDiff(cmd.OutOrStdout(), changes)
-	return errors.New("end diff")
+	fmt.Println("end diff")
+	os.Exit(1)
+
+	return nil
 }
 
 func printCompareDiff(out io.Writer, changes []rm.ResourceChange) {

@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"io"
+	"os"
 
 	c "github.com/codilime/floodgate/config"
 	rm "github.com/codilime/floodgate/resourcemanager"
@@ -43,10 +44,13 @@ func runSync(cmd *cobra.Command, options syncOptions) error {
 	config.Merge(cfg)
 	resourceManager := &rm.ResourceManager{}
 	if err := resourceManager.Init(config); err != nil {
-		return err
+		os.Exit(2)
 	}
 	if options.dryRun {
-		changes := resourceManager.GetChanges()
+		changes, err := resourceManager.GetChanges()
+		if err != nil {
+			os.Exit(2)
+		}
 		printChangedResources(cmd.OutOrStdout(), changes)
 	} else {
 		if err := resourceManager.SyncResources(); err != nil {
