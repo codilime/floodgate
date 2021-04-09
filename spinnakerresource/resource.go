@@ -86,8 +86,10 @@ func (r *Resource) unmarshalStates() (localJSON, remoteJSON map[string]interface
 		return
 	}
 
-	if err = json.Unmarshal(r.remoteState, &remoteJSON); err != nil {
-		return
+	if len(r.remoteState) != 0 {
+		if err = json.Unmarshal(r.remoteState, &remoteJSON); err != nil {
+			return
+		}
 	}
 
 	var state []byte
