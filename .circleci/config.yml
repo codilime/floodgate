@@ -210,6 +210,9 @@ jobs:
       floodgate_extra_params:
         type: string
         default: ""
+      pipelines_to_trigger:
+        type: string
+        default: ""
     machine:
       image: ubuntu-1604:202004-01
     steps:
@@ -259,6 +262,10 @@ jobs:
             /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml sync
             echo "Compare changes - synced resources"
             /floodgate/bin/floodgate << parameters.floodgate_extra_params >> --config ~/floodgate.yaml compare
+      - run:
+          name: Trigger pipelines
+          command: |
+            .circleci/libs/trigger-pipelines.sh << parameters.pipelines_to_trigger >>
 
 workflows:
   #  periodic:
@@ -332,5 +339,6 @@ workflows:
       - start_spinnaker:
           name: test floodgate with working spinnaker
           floodgate_extra_params: "-q"
+          pipelines_to_trigger: "deploy_nginx"
           requires:
             - build for linux
